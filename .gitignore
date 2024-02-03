@@ -33,6 +33,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# vim files
+# temporary files
 *.swp
 *.swo
+.terraform.lock.hcl
