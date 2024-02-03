@@ -8,8 +8,8 @@ terraform {
 }
 
 provider "maas" {
-  api_key = var.parent_maas_api_key
-  api_url = var.parent_maas_api_url
+  api_key = var.maas_api_key
+  api_url = var.maas_api_url
   #api_version = "2.0"
   tls_insecure_skip_verify = true
 }
@@ -42,13 +42,20 @@ locals {
 # output variables
 
 output "maas_hosts" {
-  value       = resource.maas_instance.parent_maas_baremetal_instance.id
-  description = "Deployed hosts"
+  value       = resource.maas_instance.maas_hosts.*.fqdn
+  description = "List of eployed hosts"
 }
+
+# sample output:
+# maas_hosts = [
+#   "ob76-node1.maas",
+#   "ob76-node2.maas",
+#   "ob76-node3.maas",
+# ]
 
 # resources
 
-resource "maas_instance" "maas_instance" {
+resource "maas_instance" "maas_hosts" {
   count = var.maas_hosts_qty
   allocate_params {
     tags = [
@@ -56,6 +63,6 @@ resource "maas_instance" "maas_instance" {
     ]
   }
   deploy_params {
-    distro_series = locals.maas_distro
+    distro_series = local.maas_distro
   }
 }
