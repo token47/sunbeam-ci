@@ -1,9 +1,14 @@
 pipeline {
     agent any
     stages {
-        stage('Get maas machines') {
+        stage('Prepare substrate') {
             steps {
-                sh "maas_machines.sh"
+                sh "prepare_substrate.py"
+            }
+        }
+        stage('Deploy Sunbeam') {
+            steps {
+                sh "deploy_sunbeam.py"
             }
         }
     }
