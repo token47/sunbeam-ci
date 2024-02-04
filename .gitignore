@@ -37,3 +37,6 @@ terraform.rc
 *.swp
 *.swo
 .terraform.lock.hcl
+
+# config files
+config.yaml
