@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 # This script deploys sunbeam on a substrate that has already been prepared for it.
 

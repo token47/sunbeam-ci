@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 # this script will deploy nodes and prepare the environemnt before sunbeam deployment
 
