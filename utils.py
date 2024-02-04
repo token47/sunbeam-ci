@@ -24,7 +24,7 @@ def exec_capture(cmd):
 
 
 def ssh(user, host, cmd):
-    cmd = f"ssh -o StrictHostKeyChecking=no -t {user}@{host} 'set -x; {cmd}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
     print(f"DEBUG SSH: {user}@{host}")
     result = subprocess.run(cmd, shell=True)
 
@@ -35,7 +35,7 @@ def ssh_clean(host):
 
 
 def ssh_capture(user, host, cmd):
-    cmd = f"ssh -o StrictHostKeyChecking=no -t {user}@{host} '{cmd}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no {user}@{host} '{cmd}'"
     print(f"DEBUG SSH-CAPTURE: {cmd}")
     result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return result.stdout.decode()
