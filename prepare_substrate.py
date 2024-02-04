@@ -86,7 +86,7 @@ def substrate_ob76(input_config):
     if rc > 0: die("could not run terraform apply") 
     maas_hosts = json.loads(
         exec_capture("terraform -chdir=terraform/maas output --json maas_hosts"))
-    debug(f"decoded maas_hosts output: {maas_hosts}")
+    debug(f"captured 'maas_hosts' terraform output: {maas_hosts}")
 
     nodes = []
     nodes_roles = dict(zip(maas_hosts, input_config["roles"]))
