@@ -47,10 +47,8 @@ def write_config(config):
 def substrate_ob76(input_config):
     debug("Starting ob76 substrate preparation")
 
-    if not os.environ.get("TF_VAR_maas_api_url"):
-        die("TF_VAR_maas_api_url not set, aborting")
     if not os.environ.get("TF_VAR_maas_api_key"):
-        die("TF_VAR_maas_api_key not set, aborting")
+        die("TF_VAR_maas_api_key not set, terraform will fail, aborting")
 
     preseed = {
         "bootstrap": { "management_cidr": "172.27.76.0/23", },
@@ -80,7 +78,9 @@ def substrate_ob76(input_config):
 
     cwd = os.getcwd()
     os.chdir("terraform/maas")
-    exec(f"terraform init; terraform apply --auto-approve -var='maas_hosts_qty={hosts_qty}'")
+    exec(
+        f"terraform init; terraform apply --auto-approve -var='maas_hosts_qty={hosts_qty}' " \
+        "-var='maas_api_url='http://ob76-node0.maas:5240/MAAS'")
     maas_hosts = json.loads(exec_capture("terraform output --json maas_hosts"))
     debug(f"decoded maas_hosts output: {maas_hosts}")
     os.chdir(cwd)
