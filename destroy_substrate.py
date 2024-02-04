@@ -4,20 +4,7 @@
 
 import subprocess
 import sys
-
-def debug(msg):
-    print(f"DEBUG: {msg}")
-
-
-def die(msg):
-    debug("DIE: {}".format(msg))
-    sys.exit(1)
-
-
-def exec(cmd):
-    debug(f"EXEC: {cmd}")
-    result = subprocess.run(f"set -x; {cmd}", shell=True)
-    return result.returncode
+from utils import *
 
 
 def substrate_ob76(input_config):

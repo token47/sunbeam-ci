@@ -8,40 +8,13 @@ import subprocess
 import sys
 
 
-def ssh(user, host, cmd):
-    cmd = f"ssh -o StrictHostKeyChecking=no -t {user}@{host} 'set -x; {cmd}'"
-    print(f"DEBUG SSH: {user}@{host}")
-    result = subprocess.run(cmd, shell=True)
-
-
-def ssh_clean(host):
-    cmd = f"ssh-keygen -f ~/.ssh/known_hosts -R {host}"
-    result = subprocess.run(cmd, shell=True)
-
-
-def ssh_capture(user, host, cmd):
-    cmd = f"ssh -o StrictHostKeyChecking=no -t {user}@{host} '{cmd}'"
-    print(f"DEBUG SSH-CAPTURE: {cmd}")
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return result.stdout.decode()
-
-
-def put(user, host, file, content):
-    cmd = f"ssh -o StrictHostKeyChecking=no {user}@{host} 'tee {file}'"
-    print(f"DEBUG PUT: {user}@{host} {file}")
-    result = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
-    result.stdin.write(content.encode())
-    result.stdin.close()
-    result.wait()
-
-
 def token_extract(text):
     try:
         match = re.search("Token for the Node [^ ]+: ([^ \\r\\n]+)", text)
     except:
-        print("RE for host add token did not match")
-        print(text)
-        sys.exit(1)
+        debug("RE for host add token did not match")
+        debug(text)
+        die("aborting")
     return match.group(1)
 
 
@@ -52,9 +25,8 @@ with open("config.yaml", "r") as stream:
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
 control_count = len(nodes)
 nodes += list(filter(lambda x: 'control' not in x["roles"], config["nodes"]))
-print(f"DEBUG: detected control nodes count is {control_count}")
-print(f"DEBUG: total nodes count is {len(nodes)}")
-print(f"DEBUG: complete list of nodes: {nodes}")
+debug(f"detected control nodes / total nodes count is {control_count} / {len(nodes)}")
+debug(f"complete list of nodes: {nodes}")
 primary_node = nodes.pop(0)
 
 ### Primary node / bootstrap
@@ -64,7 +36,7 @@ user = config["user"]
 p_host_int = primary_node["host-int"]
 p_host_ext = primary_node["host-ext"]
 
-print("DEBUG: installing primary node {} / {}".format(p_host_int, p_host_ext))
+debug("installing primary node {} / {}".format(p_host_int, p_host_ext))
 
 ssh_clean(p_host_ext)
 
@@ -89,7 +61,7 @@ for node in nodes:
     s_host_int = node["host-int"]
     s_host_ext = node["host-ext"]
 
-    print("DEBUG: installing secondary node {} / {}".format(s_host_int, s_host_ext))
+    debug("installing secondary node {} / {}".format(s_host_int, s_host_ext))
 
     ssh_clean(s_host_ext)
 

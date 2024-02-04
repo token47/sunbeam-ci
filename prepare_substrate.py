@@ -6,16 +6,8 @@ import json
 import os
 import subprocess
 import sys
+from utils import *
 import yaml
-
-
-def die(msg):
-    debug("DIE: {}".format(msg))
-    sys.exit(1)
-
-
-def debug(msg):
-    print(f"DEBUG: {msg}")
 
 
 def get_input_config_json_defaults():
@@ -25,18 +17,6 @@ def get_input_config_json_defaults():
       "roles": [ "control", "storage,compute", "storage,compute" ]
     }
     """
-
-
-def exec(cmd):
-    debug(f"EXEC: {cmd}")
-    result = subprocess.run(f"set -x; {cmd}", shell=True)
-    return result.returncode
-
-
-def exec_capture(cmd):
-    debug(f"EXEC-CAPTURE: {cmd}")
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return result.stdout.decode()
 
 
 def write_config(config):
