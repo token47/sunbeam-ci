@@ -78,17 +78,14 @@ def substrate_ob76(input_config):
     hosts_qty = len(input_config["roles"])
     debug(f"allocating {hosts_qty} hosts in maas")
 
-    cwd = os.getcwd()
-    os.chdir("terraform/maas")
-    rc = exec("terraform init")
+    rc = exec("terraform -chdir=terraform/maas init")
     if rc > 0: die("could not run terraform init") 
-    rc = exec(f"terraform apply --auto-approve " \
+    rc = exec(f"terraform -chdir=terraform/maas apply --auto-approve" \
               "-var='maas_hosts_qty={hosts_qty}' " \
               "-var='maas_api_url='http://ob76-node0.maas:5240/MAAS'")
     if rc > 0: die("could not run terraform apply") 
     maas_hosts = json.loads(exec_capture("terraform output --json maas_hosts"))
     debug(f"decoded maas_hosts output: {maas_hosts}")
-    os.chdir(cwd)
 
     nodes = []
     nodes_roles = dict(zip(maas_hosts, input_config["roles"]))
