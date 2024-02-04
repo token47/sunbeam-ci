@@ -1,3 +1,4 @@
+# this is a config template in case you want to skip preparation step -- normally not used
 channel: 2023.2/edge
 nodes:
 - host-ext: ob76-node1.maas
