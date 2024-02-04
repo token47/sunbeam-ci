@@ -3,12 +3,12 @@ pipeline {
     stages {
         stage('Prepare substrate') {
             steps {
-                sh "prepare_substrate.py"
+                sh "./prepare_substrate.py"
             }
         }
         stage('Deploy Sunbeam') {
             steps {
-                sh "deploy_sunbeam.py"
+                sh "./deploy_sunbeam.py"
             }
         }
     }
