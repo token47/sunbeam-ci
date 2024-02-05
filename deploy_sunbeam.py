@@ -38,7 +38,7 @@ p_host_ext = primary_node["host-ext"]
 debug("installing primary node {} / {}".format(p_host_int, p_host_ext))
 
 ssh_clean(p_host_ext)
-test_ssh(p_host_ext)
+test_ssh(user, p_host_ext)
 
 cmd = "sudo snap install openstack --channel {}".format(config['channel'])
 ssh(user, p_host_ext, cmd)
@@ -64,7 +64,7 @@ for node in nodes:
     debug("installing secondary node {} / {}".format(s_host_int, s_host_ext))
 
     ssh_clean(s_host_ext)
-    test_ssh(s_host_ext)
+    test_ssh(user, s_host_ext)
 
     cmd = "sudo snap install openstack --channel {}\n".format(config['channel'])
     cmd += "sunbeam prepare-node-script | grep -v newgrp | bash -x"
