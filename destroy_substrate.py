@@ -9,7 +9,7 @@ from utils import *
 
 def substrate_ob76(input_config):
     hosts_qty = len(input_config["roles"])
-    rc = exec("terraform -chdir=terraform/maas destroy --auto-approve" \
+    rc = exec("terraform -chdir=terraform/maas destroy -auto-approve -no-color" \
               f" -var='maas_hosts_qty={hosts_qty}'" \
               " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'")
     if rc > 0: die("could not run terraform destroy") 
