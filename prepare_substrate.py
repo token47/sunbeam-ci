@@ -28,7 +28,7 @@ def write_config(config):
 def substrate_ob76(input_config):
     debug("Starting ob76 substrate preparation")
 
-    apikey = os.environ.get("JENKINS_API_KEY"):
+    apikey = os.environ.get("JENKINS_API_KEY")
     if not apikey:
         die("JENKINS_API_KEY not set, terraform will fail, aborting")
 
