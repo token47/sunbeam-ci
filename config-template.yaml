@@ -35,7 +35,7 @@ preseed:
     nameservers: 172.27.79.254
     password: password123
     remote_access_location: remote
-    run_demo_setup: 'True'
-    security_group_rules: 'True'
+    run_demo_setup: true
+    security_group_rules: true
     username: demo
 user: ubuntu
