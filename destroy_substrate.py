@@ -15,6 +15,7 @@ def substrate_ob76(input_config):
     if rc > 0: die("could not run terraform destroy") 
 
 
+os.environ['TF_VAR_maas_api_key'] = os.environ.get("JENKINS_API_KEY")
 input_config_json = os.environ.get("JENKINS_JSON_CONFIG")
 input_config = json.loads(input_config_json)
 if input_config["substrate"] == "ob76":
