@@ -50,7 +50,7 @@ if rc > 0: die("running prepare-node-script failed, aborting")
 
 put(user, p_host_ext, "~/preseed.yaml", yaml.dump(config["preseed"]))
 
-cmd = "time sunbeam cluster bootstrap -q -p ~/preseed.yaml"
+cmd = "time sunbeam -q cluster bootstrap -p ~/preseed.yaml"
 for role in primary_node["roles"]: cmd += f" --role {role}"
 rc = ssh(user, p_host_ext, cmd)
 if rc > 0: die("bootstrapping sunbeam failed, aborting")
