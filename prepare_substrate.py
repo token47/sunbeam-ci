@@ -31,7 +31,6 @@ def substrate_ob76(input_config):
         die("JENKINS_API_KEY not set, terraform will fail, aborting")
     # use env so that api key does not show in debug log
     os.environ['TF_VAR_maas_api_key'] = apikey
-    debug(f"APIKEY is *{apikey}*".upper())
 
     preseed = {
         "bootstrap": { "management_cidr": "172.27.76.0/23", },
