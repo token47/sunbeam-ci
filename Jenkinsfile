@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        JENKINS_JSON_CONFIG = params.JSONConfig
-        JENKINS_API_KEY = credentials(params.ApiKeyName)
+        JENKINS_JSON_CONFIG = "${params.JSONConfig}"
+        JENKINS_API_KEY = credentials("${params.ApiKeyName}")
     }
     stages {
         stage('Prepare workspace') {
@@ -24,8 +24,10 @@ pipeline {
         }
         stage('Maybe Pause the Build') {
             steps {
-                if (params.PauseBuild) {
-                    input message:"Ready to continue Build?"
+                script {
+                    if (params.PauseBuild) {
+                        input message:"Ready to continue Build?"
+                    }
                 }
             }
         }
