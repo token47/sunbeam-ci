@@ -59,14 +59,14 @@ def substrate_ob76(input_config):
     hosts_qty = len(input_config["roles"])
     debug(f"allocating {hosts_qty} hosts in maas")
 
-    rc = exec("terraform -chdir=terraform/maas init")
+    rc = exec("terraform -chdir=terraform/maas init -no-color")
     if rc > 0: die("could not run terraform init") 
     rc = exec("time terraform -chdir=terraform/maas apply -auto-approve -no-color" \
               f" -var='maas_hosts_qty={hosts_qty}'" \
               " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'")
     if rc > 0: die("could not run terraform apply") 
     maas_hosts = json.loads(
-        exec_capture("terraform -chdir=terraform/maas output -json maas_hosts"))
+        exec_capture("terraform -chdir=terraform/maas output -no-color -json maas_hosts"))
     debug(f"captured 'maas_hosts' terraform output: {maas_hosts}")
 
     nodes = []
