@@ -61,7 +61,7 @@ def substrate_ob76(input_config):
 
     rc = exec("terraform -chdir=terraform/maas init")
     if rc > 0: die("could not run terraform init") 
-    rc = exec("time terraform -chdir=terraform/maas apply --auto-approve" \
+    rc = exec("time terraform -chdir=terraform/maas apply --auto-approve --no-color" \
               f" -var='maas_hosts_qty={hosts_qty}'" \
               " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'")
     if rc > 0: die("could not run terraform apply") 
