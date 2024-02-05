@@ -50,7 +50,7 @@ if rc > 0: die("running prepare-node-script failed, aborting")
 
 put(user, p_host_ext, "~/preseed.yaml", yaml.dump(config["preseed"]))
 
-cmd = "time sunbeam cluster bootstrap -p ~/preseed.yaml"
+cmd = "sunbeam cluster bootstrap -p ~/preseed.yaml"
 for role in primary_node["roles"]: cmd += f" --role {role}"
 rc = ssh(user, p_host_ext, cmd)
 if rc > 0: die("bootstrapping sunbeam failed, aborting")
@@ -82,7 +82,7 @@ for node in nodes:
     cmd = f"sunbeam cluster add --name {s_host_int}"
     token = token_extract(ssh_capture(user, p_host_ext, cmd))
 
-    cmd = "time sunbeam cluster join -p ~/preseed.yaml"
+    cmd = "sunbeam cluster join -p ~/preseed.yaml"
     for role in primary_node["roles"]: cmd += f" --role {role}"
     cmd += f" --token {token}"
     rc = ssh(user, s_host_ext, cmd)
@@ -94,11 +94,11 @@ for node in nodes:
 if control_count < 3:
     debug("Skipping 'resize' because there's not enough control nodes")
 else:
-    cmd = "time sunbeam cluster resize"
+    cmd = "sunbeam cluster resize"
     rc = ssh(user, p_host_ext, cmd)
     if rc > 0: die("resizing cluster failed, aborting")
 
-cmd = "time sunbeam configure -p ~/preseed.yaml --openrc ~/demo-openrc; echo > ~/demo-openrc"
+cmd = "sunbeam configure -p ~/preseed.yaml --openrc ~/demo-openrc && echo > ~/demo-openrc"
 rc = ssh(user, p_host_ext, cmd)
 if rc > 0: die("configuring demo project failed, aborting")
 
