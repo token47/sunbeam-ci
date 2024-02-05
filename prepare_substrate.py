@@ -29,6 +29,8 @@ def substrate_ob76(input_config):
     apikey = os.environ.get("JENKINS_API_KEY")
     if not apikey:
         die("JENKINS_API_KEY not set, terraform will fail, aborting")
+    # use env so that api key does not show in debug log
+    os.environ['TF_VAR_maas_api_key'] = apikey
 
     preseed = {
         "bootstrap": { "management_cidr": "172.27.76.0/23", },
@@ -61,8 +63,7 @@ def substrate_ob76(input_config):
     if rc > 0: die("could not run terraform init") 
     rc = exec("time terraform -chdir=terraform/maas apply --auto-approve" \
               f" -var='maas_hosts_qty={hosts_qty}'" \
-              " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'" \
-              f" -var='maas_api_key={apikey}'")
+              " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'")
     if rc > 0: die("could not run terraform apply") 
     maas_hosts = json.loads(
         exec_capture("terraform -chdir=terraform/maas output --json maas_hosts"))
