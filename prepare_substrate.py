@@ -71,14 +71,14 @@ def substrate_ob76(input_config):
 
     nodes = []
     nodes_roles = dict(zip(maas_hosts, input_config["roles"]))
-    for node in maas_hosts:
+    for nodename, ipaddress in maas_hosts.items():
         newnode = {}
-        newnode["host-int"] = node
-        newnode["host-ext"] = node
-        newnode["roles"] = nodes_roles[node].split(",")
+        newnode["host-int"] = nodename
+        newnode["host-ext"] = nodename
+        newnode["roles"] = nodes_roles[nodename].split(",")
         nodes.append(newnode)
-        preseed["microceph_config"][node] = {}
-        preseed["microceph_config"][node]["osd_devices"] = "/dev/sdb"
+        preseed["microceph_config"][nodename] = {}
+        preseed["microceph_config"][nodename]["osd_devices"] = "/dev/sdb"
 
     output_config = {}
     output_config["nodes"] = nodes

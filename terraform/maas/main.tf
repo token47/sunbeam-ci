@@ -42,16 +42,24 @@ locals {
 # output variables
 
 output "maas_hosts" {
-  value       = resource.maas_instance.maas_hosts.*.fqdn
+  value       = { for instance in resource.maas_instance.maas_hosts: instance.fqdn => instance.ip_addresses }
   description = "List of eployed hosts"
 }
 
-# sample output:
-# maas_hosts = [
-#   "ob76-node1.maas",
-#   "ob76-node2.maas",
-#   "ob76-node3.maas",
-# ]
+### sample normal output:
+#maas_hosts = {
+#  "ob76-node6.maas" = toset([
+#    "172.27.77.106",
+#  ])
+#  "ob76-node7.maas" = toset([
+#    "172.27.77.107",
+#  ])
+#  "ob76-node8.maas" = toset([
+#    "172.27.77.108",
+#  ])
+#}
+### sample json output:
+#{"ob76-node6.maas":["172.27.77.106"],"ob76-node7.maas":["172.27.77.107"],"ob76-node8.maas":["172.27.77.108"]}
 
 # resources
 
