@@ -4,6 +4,7 @@
 
 import subprocess
 import sys
+import time
 
 
 def debug(msg):
@@ -31,6 +32,7 @@ def ssh(user, host, cmd):
     cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
     print(f"DEBUG SSH: {user}@{host}")
     result = subprocess.run(cmd, shell=True)
+    return result.returncode
 
 
 def ssh_clean(host):
@@ -52,3 +54,16 @@ def put(user, host, file, content):
     result.stdin.write(content.encode())
     result.stdin.close()
     result.wait()
+
+
+def test_ssh(user, host):
+    start = time.time()
+    while True:
+        debug(f"testing ssh connection to host {host}")
+        rc = ssh(user, host, "true")
+        if rc == 0:
+            debug("ssh connectio is working, continuing")
+            break
+        if time.time() - start > 30: die("giving up on ssh connection, aborting")
+        debug(f"ssh connection not working, retrying")
+        time.sleep(5)
