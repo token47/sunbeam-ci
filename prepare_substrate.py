@@ -1,14 +1,20 @@
 #!/usr/bin/python3 -u
 
-# this script will deploy nodes and prepare the environemnt before sunbeam deployment
+# pylint: disable=wildcard-import,unused-wildcard-import
+# pylint: disable=invalid-name
+
+"""
+This script will deploy nodes and prepare the environemnt before sunbeam deployment
+"""
 
 import json
 import os
-from utils import *
 import yaml
+from utils import *
 
 
 def get_input_config_json_defaults():
+    """Return values that can be used as a default for input config"""
     return """
     { "substrate": "ob76",
       "channel": "2023.2/edge",
@@ -18,12 +24,14 @@ def get_input_config_json_defaults():
 
 
 def write_config(config):
-    debug("writing config:\n{}".format(config))
-    with open("config.yaml", "w") as fd:
+    """Write config to config.yaml file"""
+    debug(f"writing config:\n{config}")
+    with open("config.yaml", "w", encoding='ascii') as fd:
         fd.write(yaml.dump(config))
 
 
-def substrate_ob76(input_config):
+def substrate_ob76(input_config): # pylint: disable=redefined-outer-name
+    """Implements the ob76 substrate"""
     debug("Starting ob76 substrate preparation")
 
     apikey = os.environ.get("JENKINS_API_KEY")
@@ -59,19 +67,21 @@ def substrate_ob76(input_config):
     hosts_qty = len(input_config["roles"])
     debug(f"allocating {hosts_qty} hosts in maas")
 
-    rc = exec("terraform -chdir=terraform/maas init -no-color")
-    if rc > 0: die("could not run terraform init") 
-    rc = exec("time terraform -chdir=terraform/maas apply -auto-approve -no-color" \
-              f" -var='maas_hosts_qty={hosts_qty}'" \
-              " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'")
-    if rc > 0: die("could not run terraform apply") 
+    rc = exec_cmd("terraform -chdir=terraform/maas init -no-color")
+    if rc > 0:
+        die("could not run terraform init")
+    rc = exec_cmd("time terraform -chdir=terraform/maas apply -auto-approve -no-color" \
+                  f" -var='maas_hosts_qty={hosts_qty}'" \
+                  " -var='maas_api_url=http://ob76-node0.maas:5240/MAAS'")
+    if rc > 0:
+        die("could not run terraform apply")
     maas_hosts = json.loads(
-        exec_capture("terraform -chdir=terraform/maas output -no-color -json maas_hosts"))
+        exec_cmd_capture("terraform -chdir=terraform/maas output -no-color -json maas_hosts"))
     debug(f"captured 'maas_hosts' terraform output: {maas_hosts}")
 
     nodes = []
     nodes_roles = dict(zip(maas_hosts, input_config["roles"]))
-    for nodename, ipaddress in maas_hosts.items():
+    for nodename, ipaddress in maas_hosts.items(): # pylint: disable=unused-variable
         newnode = {}
         newnode["host-int"] = nodename
         newnode["host-ext"] = nodename
@@ -103,4 +113,4 @@ if input_config["substrate"] == "ob76":
 elif input_config["substrate"] == "equinix":
     pass
 else:
-    die("substrate {} not valid, aborting".format(input_config["substrate"]))
+    die(f"substrate {input_config['substrate']} not valid, aborting")
