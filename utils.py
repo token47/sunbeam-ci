@@ -62,8 +62,8 @@ def test_ssh(user, host):
         debug(f"testing ssh connection to host {host}")
         rc = ssh(user, host, "true")
         if rc == 0:
-            debug("ssh connectio is working, continuing")
+            debug("ssh connection is working, continuing")
             break
         if time.time() - start > 30: die("giving up on ssh connection, aborting")
-        debug(f"ssh connection not working, retrying")
+        debug(f"ssh connection not working, retrying in a few seconds")
         time.sleep(5)
