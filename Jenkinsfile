@@ -6,19 +6,27 @@ pipeline {
     }
     stages {
         stage('Prepare workspace') {
-            cleanWs()
-            git branch: 'main', url: 'http://github.com/token47/sunbeam-ci.git'
-            sh "ls -la"
+            steps {
+                cleanWs()
+                git branch: 'main', url: 'http://github.com/token47/sunbeam-ci.git'
+                sh "ls -la"
+            }
         }
         stage('Prepare substrate') {
-            sh "./prepare_substrate.py"
+            steps {
+                sh "./prepare_substrate.py"
+            }
         }
         stage('Deploy Sunbeam') {
-            sh "./deploy_sunbeam.py"
+            steps {
+                sh "./deploy_sunbeam.py"
+            }
         }
         stage('Maybe Pause the Build') {
-            if (params.PauseBuild) {
-                input message:"Ready to continue Build?"
+            steps {
+                if (params.PauseBuild) {
+                    input message:"Ready to continue Build?"
+                }
             }
         }
     }
