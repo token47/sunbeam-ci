@@ -29,7 +29,7 @@ def exec_capture(cmd):
 
 
 def ssh(user, host, cmd):
-    cmd = f"ssh -o StrictHostKeyChecking=no {user}@{host} 'set -x; {cmd}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
     print(f"DEBUG SSH: {user}@{host}")
     result = subprocess.run(cmd, shell=True)
     return result.returncode
