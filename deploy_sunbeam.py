@@ -41,16 +41,19 @@ ssh_clean(p_host_ext)
 test_ssh(user, p_host_ext)
 
 cmd = "sudo snap install openstack --channel {}".format(config['channel'])
-ssh(user, p_host_ext, cmd)
+rc = ssh(user, p_host_ext, cmd)
+if rc > 0: die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-ssh(user, p_host_ext, cmd)
+rc = ssh(user, p_host_ext, cmd)
+if rc > 0: die("running prepare-node-script failed, aborting")
 
 put(user, p_host_ext, "~/preseed.yaml", yaml.dump(config["preseed"]))
 
 cmd = "time sunbeam cluster bootstrap -p ~/preseed.yaml"
 for role in primary_node["roles"]: cmd += f" --role {role}"
-ssh(user, p_host_ext, cmd)
+rc = ssh(user, p_host_ext, cmd)
+if rc > 0: die("bootstrapping sunbeam failed, aborting")
 
 ssh(user, p_host_ext, "sunbeam cluster list")
 
@@ -67,8 +70,12 @@ for node in nodes:
     test_ssh(user, s_host_ext)
 
     cmd = "sudo snap install openstack --channel {}\n".format(config['channel'])
-    cmd += "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-    ssh(user, s_host_ext, cmd)
+    rc = ssh(user, s_host_ext, cmd)
+    if rc > 0: die("installing openstack snap failed, aborting")
+
+    cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
+    rc = ssh(user, s_host_ext, cmd)
+    if rc > 0: die("running prepare-node-script failed, aborting")
 
     put(user, s_host_ext, "~/preseed.yaml", yaml.dump(config["preseed"]))
 
@@ -78,7 +85,8 @@ for node in nodes:
     cmd = "time sunbeam cluster join -p ~/preseed.yaml"
     for role in primary_node["roles"]: cmd += f" --role {role}"
     cmd += f" --token {token}"
-    ssh(user, s_host_ext, cmd)
+    rc = ssh(user, s_host_ext, cmd)
+    if rc > 0: die("joining node failed, aborting")
 
     # get some status
     ssh(user, p_host_ext, "sunbeam cluster list")
@@ -87,13 +95,17 @@ if control_count < 3:
     debug("Skipping 'resize' because there's not enough control nodes")
 else:
     cmd = "time sunbeam cluster resize"
-    ssh(user, p_host_ext, cmd)
+    rc = ssh(user, p_host_ext, cmd)
+    if rc > 0: die("resizing cluster failed, aborting")
 
 cmd = "time sunbeam configure -p ~/preseed.yaml --openrc ~/demo-openrc; echo > ~/demo-openrc"
-ssh(user, p_host_ext, cmd)
+rc = ssh(user, p_host_ext, cmd)
+if rc > 0: die("configuring demo project failed, aborting")
 
 cmd = "sunbeam openrc > ~/admin-openrc"
-ssh(user, p_host_ext, cmd)
+rc = ssh(user, p_host_ext, cmd)
+if rc > 0: die("exporting admin credentials failed, aborting")
 
 cmd = "sunbeam launch ubuntu --name test"
-ssh(user, p_host_ext, cmd)
+rc = ssh(user, p_host_ext, cmd)
+if rc > 0: die("creating test vm failed, aborting")
