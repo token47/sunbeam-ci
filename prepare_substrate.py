@@ -37,12 +37,12 @@ def substrate_ob76(input_config):
         "addons": { "metallb": "172.27.76.21-172.27.76.50", },
         "user": {
             "remote_access_location": "remote",
-            "run_demo_setup": "True",
+            "run_demo_setup": True, # don't quote
             "username": "demo",
             "password": "password123",
             "cidr": "192.168.122.0/24",
             "nameservers": "172.27.79.254",
-            "security_group_rules": "True",
+            "security_group_rules": True, # don't quote
         },
         "external_network": {
             "cidr": "172.27.78.0/23",
