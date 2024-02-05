@@ -2,9 +2,6 @@
 
 # Clean up substrate
 
-import os
-import subprocess
-import sys
 from utils import *
 
 

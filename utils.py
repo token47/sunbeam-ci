@@ -2,6 +2,10 @@
 
 # not to be executed
 
+import subprocess
+import sys
+
+
 def debug(msg):
     print(f"DEBUG: {msg}")
 

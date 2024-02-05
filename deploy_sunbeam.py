@@ -4,8 +4,6 @@
 
 import yaml
 import re
-import subprocess
-import sys
 
 
 def token_extract(text):
