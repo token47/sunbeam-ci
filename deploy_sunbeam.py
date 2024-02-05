@@ -82,7 +82,9 @@ for node in nodes:
     # get some status
     ssh(user, p_host_ext, "sunbeam cluster list")
 
-if control_count >= 3:
+if control_count < 3:
+    debug("Skipping 'resize' because there's not enough control nodes
+else:")
     cmd = "time sunbeam cluster resize"
     ssh(user, p_host_ext, cmd)
 
