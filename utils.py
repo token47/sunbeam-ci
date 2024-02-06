@@ -55,20 +55,20 @@ def ssh(user, host, cmd):
 
 def ssh_filtered(user, host, cmd):
     """Same as ssh() but tries to suppress repeated lines in output"""
+    stripgarbage1 = re.compile(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$")
+    stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼] ")
     cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
-    re_stripansi = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
     debug(f"SSH-FILTERED: {user}@{host}")
-    result = subprocess.Popen(cmd, shell=True,
+    result = subprocess.Popen(cmd, shell=True, encoding="utf-8",
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    last_print_line = ""
-    while (line := result.stdout.readline()) is not None:
-        print_line = re_stripansi.sub('', line)
-        if print_line != last_print_line:
-            print(f"REALTIME print: {print_line}")
-            last_print_line = print_line
-        else:
-            # temporary for testing
-            print(f"REALTIME print: ***SUPRESSED*** {print_line}")
+    lastline = ""
+    while len(line := result.stdout.readline()) > 0:
+        line = stripgarbage1.sub('', line)
+        line = stripgarbage2.sub('> ', line)
+        if line and line != lastline:
+            print(f"{line}\r") # \r is needed here, not sure why
+            lastline = line
+    result.wait()
     return result.returncode
 
 
