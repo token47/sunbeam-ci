@@ -22,7 +22,7 @@ pipeline {
                 sh "./deploy_sunbeam.py"
             }
         }
-        stage('Maybe Pause the Build') {
+        stage('Pause the Build') {
             steps {
                 script {
                     if (params.PauseBuild) {
