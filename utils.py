@@ -57,17 +57,26 @@ def ssh_filtered(user, host, cmd):
     """Same as ssh() but tries to suppress repeated lines in output"""
     stripgarbage1 = re.compile(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$")
     stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *")
+    detecttwolines = re.compile("> Deploying.*Control Plane.*may take a while")
     cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
     debug(f"SSH-FILTERED: {user}@{host}")
     result = subprocess.Popen(cmd, shell=True, encoding="utf-8",
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    delayed = None
     lastline = ""
     while len(line := result.stdout.readline()) > 0:
         line = stripgarbage1.sub('', line)
         line = stripgarbage2.sub('> ', line)
-        if line and line != lastline:
-            print(f"{line}\r") # \r is needed here, not sure why
-            lastline = line
+        if line:
+            if delayed:
+                line = f"{delayed} - {line}"
+                delayed = None
+            elif detecttwolines.search(line):
+                delayed = line
+                continue
+            if line != lastline:
+                print(f"{line}\r") # \r is needed here, not sure why
+                lastline = line
     result.wait()
     return result.returncode
 
