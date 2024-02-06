@@ -18,9 +18,8 @@ def get_input_config_json_defaults():
     return """
     { "substrate": "ob76",
       "channel": "2023.2/edge",
-      "roles": [ "control", "storage,compute", "storage,compute" ]
-    }
-    """
+      "roles": [ "storage,compute,control", "storage,compute", "storage,compute" ]
+    }"""
 
 
 def write_config(config):

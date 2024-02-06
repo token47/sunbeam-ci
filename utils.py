@@ -7,6 +7,7 @@ This module contains auxiliary functions for the other modules.
 It is supposed to be imported and not executed directly.
 """
 
+import re
 import subprocess
 import sys
 import time
@@ -38,6 +39,12 @@ def exec_cmd_capture(cmd):
     return result.stdout.decode()
 
 
+def ssh_clean(host):
+    """Clear previous entries of hosts in ssh known hosts file"""
+    cmd = f"ssh-keygen -f ~/.ssh/known_hosts -R {host}"
+    subprocess.run(cmd, shell=True, check=False)
+
+
 def ssh(user, host, cmd):
     """Run an ssh command using system ssh executable"""
     cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
@@ -46,10 +53,23 @@ def ssh(user, host, cmd):
     return result.returncode
 
 
-def ssh_clean(host):
-    """Clear previous entries of hosts in ssh known hosts file"""
-    cmd = f"ssh-keygen -f ~/.ssh/known_hosts -R {host}"
-    subprocess.run(cmd, shell=True, check=False)
+def ssh_filtered(user, host, cmd):
+    """Same as ssh() but tries to suppress repeated lines in output"""
+    cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
+    re_stripansi = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
+    debug(f"SSH-FILTERED: {user}@{host}")
+    result = subprocess.Popen(cmd, shell=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    last_print_line = ""
+    while (line := result.stdout.readline()) is not None:
+        print_line = re_stripansi.sub('', line)
+        if print_line != last_print_line:
+            print(f"REALTIME print: {print_line}")
+            last_print_line = print_line
+        else:
+            # temporary for testing
+            print(f"REALTIME print: ***SUPRESSED*** {print_line}")
+    return result.returncode
 
 
 def ssh_capture(user, host, cmd):

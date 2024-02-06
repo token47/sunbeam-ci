@@ -46,7 +46,7 @@ ssh_clean(p_host_ext)
 test_ssh(user, p_host_ext)
 
 cmd = f"sudo snap install openstack --channel {config['channel']}"
-rc = ssh(user, p_host_ext, cmd)
+rc = ssh_filtered(user, p_host_ext, cmd)
 if rc > 0:
     die("installing openstack snap failed, aborting")
 
@@ -60,7 +60,7 @@ put(user, p_host_ext, "~/preseed.yaml", yaml.dump(config["preseed"]))
 cmd = "sunbeam cluster bootstrap -p ~/preseed.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
-rc = ssh(user, p_host_ext, cmd)
+rc = ssh_filtered(user, p_host_ext, cmd)
 if rc > 0:
     die("bootstrapping sunbeam failed, aborting")
 
@@ -78,7 +78,7 @@ for node in nodes:
     test_ssh(user, s_host_ext)
 
     cmd = f"sudo snap install openstack --channel {config['channel']}\n"
-    rc = ssh(user, s_host_ext, cmd)
+    rc = ssh_filtered(user, s_host_ext, cmd)
     if rc > 0:
         die("installing openstack snap failed, aborting")
 
@@ -96,7 +96,7 @@ for node in nodes:
     for role in primary_node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
-    rc = ssh(user, s_host_ext, cmd)
+    rc = ssh_filtered(user, s_host_ext, cmd)
     if rc > 0:
         die("joining node failed, aborting")
 
@@ -107,12 +107,12 @@ if control_count < 3:
     debug("Skipping 'resize' because there's not enough control nodes")
 else:
     cmd = "sunbeam cluster resize"
-    rc = ssh(user, p_host_ext, cmd)
+    rc = ssh_filtered(user, p_host_ext, cmd)
     if rc > 0:
         die("resizing cluster failed, aborting")
 
 cmd = "sunbeam configure -p ~/preseed.yaml --openrc ~/demo-openrc && echo > ~/demo-openrc"
-rc = ssh(user, p_host_ext, cmd)
+rc = ssh_filtered(user, p_host_ext, cmd)
 if rc > 0:
     die("configuring demo project failed, aborting")
 
