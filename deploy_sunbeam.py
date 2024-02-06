@@ -93,7 +93,7 @@ for node in nodes:
     token = token_extract(ssh_capture(user, p_host_ext, cmd))
 
     cmd = "sunbeam cluster join -p ~/preseed.yaml"
-    for role in primary_node["roles"]:
+    for role in node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
     rc = ssh_filtered(user, s_host_ext, cmd)
