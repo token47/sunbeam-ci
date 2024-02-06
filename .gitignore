@@ -37,6 +37,7 @@ terraform.rc
 *.swp
 *.swo
 .terraform.lock.hcl
+__pycache__
 
 # config files
 config.yaml
