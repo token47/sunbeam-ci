@@ -1,3 +1,4 @@
+// declarative pipeline
 pipeline {
     agent any
     environment {
@@ -21,12 +22,26 @@ pipeline {
             steps {
                 sh "./deploy_sunbeam.py"
             }
-        }
-        stage('Pause the Build') {
-            steps {
-                script {
-                    if (params.PauseBuild) {
-                        input message:"Ready to continue Build?"
+        //    post {
+        //        failure {
+        //            script {
+        //                if (params.PauseBuild) {
+        //                    input message:"Paused. Continue?"
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        //stage('Test Sunbeam') {
+        //    steps {
+        //        sh "./test_sunbeam.py"
+        //    }
+            post {
+                always {
+                    script {
+                        if (params.PauseBuild) {
+                            input message:"Paused. Continue?"
+                        }
                     }
                 }
             }
