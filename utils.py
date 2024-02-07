@@ -69,7 +69,7 @@ def ssh_filtered(user, host, cmd):
         line = stripgarbage2.sub('> ', line)
         if line:
             if delayed:
-                line = f"{delayed} - {line}"
+                line = f"{delayed} {line}"
                 delayed = None
             elif detecttwolines.search(line):
                 delayed = line
