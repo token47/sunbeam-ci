@@ -35,15 +35,11 @@ variable "maas_api_key" {
   sensitive = true
 }
 
-locals {
-  maas_distro = "jammy"
-}
-
 # output variables
 
 output "maas_hosts" {
-  value       = { for instance in resource.maas_instance.maas_hosts: instance.fqdn => instance.ip_addresses }
   description = "List of eployed hosts"
+  value       = { for i in resource.maas_instance.maas_hosts: i.fqdn => i.ip_addresses }
 }
 
 ### sample normal output:
@@ -60,6 +56,12 @@ output "maas_hosts" {
 #}
 ### sample json output:
 #{"ob76-node6.maas":["172.27.77.106"],"ob76-node7.maas":["172.27.77.107"],"ob76-node8.maas":["172.27.77.108"]}
+
+# local variables
+
+locals {
+  maas_distro = "jammy"
+}
 
 # resources
 
