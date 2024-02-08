@@ -73,15 +73,15 @@ resource "equinix_metal_vlan" "ovn_vlan" {
 }
 
 resource "equinix_metal_port_vlan_attachment" "oam_vlan_attachment" {
-  count     = var.equinix_hosts_qty
-  device_id = equinix_metal_device.equinix_hosts[count.index].id
+  for_each = equinix_metal_device.equinix_hosts
+  device_id = each.id
   port_name = "bond0"
   vlan_vnid = equinix_metal_vlan.oam_vlan.vxlan
 }
 
 resource "equinix_metal_port_vlan_attachment" "ovn_vlan_attachment" {
-  count     = var.equinix_hosts_qty
-  device_id = equinix_metal_device.equinix_hosts[count.index].id
+  for_each = equinix_metal_device.equinix_hosts
+  device_id = each.id
   port_name = "bond0"
   vlan_vnid = equinix_metal_vlan.ovn_vlan.vxlan
 }
