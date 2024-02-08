@@ -8,16 +8,16 @@ Clean up deployed substrate
 
 import json
 import os
-from utils import *
+import utils
 
 
 def substrate_ob76(input_config): # pylint: disable=redefined-outer-name
     """Implements the ob76 substrate destroy"""
     hosts_qty = len(input_config["roles"])
-    rc = exec_cmd("terraform -chdir=terraform/maas destroy -auto-approve -no-color" \
-                  f" -var='maas_hosts_qty={hosts_qty}'")
+    rc = utils.exec_cmd("terraform -chdir=terraform/maas destroy -auto-approve -no-color" \
+                        f" -var='maas_hosts_qty={hosts_qty}'")
     if rc > 0:
-        die("could not run terraform destroy")
+        utils.die("could not run terraform destroy")
 
 
 os.environ['TF_VAR_maas_api_key'] = os.environ.get("JENKINS_API_KEY")
