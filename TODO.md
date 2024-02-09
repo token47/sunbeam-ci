@@ -14,6 +14,7 @@ TODO
     - run tempest with a test list (from SQA)
 - capture evidences
     - most openstack resources (servers, networks, subnets, routers, images, flavors, etc.)
+    - terraform status after deployed - this one maybe right after aply finishes?
     - juju status, juju debug-logs?, microceph details, microk8s details, sunbeam logs (SQA has more)
 - plugins
     - enable most plugins (they usually time out enabling)
