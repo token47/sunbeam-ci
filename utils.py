@@ -118,8 +118,16 @@ def read_config():
     with open("config.yaml", "r", encoding='ascii') as stream:
         return yaml.safe_load(stream)
 
+
 def write_config(config):
     """Write a config to config.yaml file"""
     debug(f"writing config:\n{config}")
     with open("config.yaml", "w", encoding='ascii') as fd:
         fd.write(yaml.dump(config))
+
+
+def internal_ip_generator(prefix, start): 
+    num = start
+    while True:
+        yield f"{prefix}{num}"
+        num += 1

@@ -39,8 +39,13 @@ variable "equinix_api_key" {
 
 # output variables
 
+output "equinix_vlans" {
+  description = "List of vlans created"
+  value       = { "oam" : equinix_metal_vlan.oam_vlan.vxlan, "ovn" : equinix_metal_vlan.ovn_vlan.vxlan }
+}
+
 output "equinix_hosts" {
-  description = "List of eployed hosts"
+  description = "List of deployed hosts"
   value       = { for i in resource.equinix_metal_device.equinix_hosts : i.hostname => i.access_public_ipv4 }
 }
 
@@ -73,15 +78,15 @@ resource "equinix_metal_vlan" "ovn_vlan" {
 }
 
 resource "equinix_metal_port_vlan_attachment" "oam_vlan_attachment" {
-  for_each = equinix_metal_device.equinix_hosts
-  device_id = each.id
+  for_each  = equinix_metal_device.equinix_hosts.*.id
+  device_id = each.key
   port_name = "bond0"
   vlan_vnid = equinix_metal_vlan.oam_vlan.vxlan
 }
 
 resource "equinix_metal_port_vlan_attachment" "ovn_vlan_attachment" {
-  for_each = equinix_metal_device.equinix_hosts
-  device_id = each.id
+  for_each  = equinix_metal_device.equinix_hosts.*.id
+  device_id = each.key
   port_name = "bond0"
   vlan_vnid = equinix_metal_vlan.ovn_vlan.vxlan
 }
