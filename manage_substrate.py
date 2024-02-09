@@ -3,7 +3,7 @@
 import json
 import os
 import substrate_ob76
-#import substrate_equinix
+import substrate_equinix
 import sys
 import utils
 
@@ -25,10 +25,10 @@ utils.debug(f"input_config set to {config}")
 # first parameter must be the action (i.e. 'build', 'destroy', ...)
 action = sys.argv[1]
 
+utils.debug(f"Starting '{config["substrate"]}' substrate with action '{action}'")
 if config["substrate"] == "ob76":
     substrate_ob76.execute(config, creds, action)
 elif config["substrate"] == "equinix":
-    #substrate_equinix.execute(config, creds, action)
-    pass
+    substrate_equinix.execute(config, creds, action)
 else:
     utils.die(f"substrate {config['substrate']} not valid, aborting")

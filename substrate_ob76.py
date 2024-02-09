@@ -26,8 +26,6 @@ creds:
 
 
 def execute(config, creds, action):
-    utils.debug("Starting ob76 substrate preparation")
-
     # use env so that sensitive info does not show in debug log
     os.environ["TF_VAR_maas_api_url"] = "http://ob76-node0.maas:5240/MAAS"
     os.environ["TF_VAR_maas_api_key"] = creds["api_key"]
@@ -41,7 +39,6 @@ def execute(config, creds, action):
 
 
 def build(input_config):
-
     preseed = {
         "bootstrap": { "management_cidr": "172.27.76.0/23", },
         "addons": { "metallb": "172.27.76.21-172.27.76.50", },
