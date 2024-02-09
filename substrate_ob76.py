@@ -5,23 +5,23 @@ import json
 import utils
 
 """
-Config examples:
+    Config examples:
 
-input_config:
-{
-    "substrate": "ob76",
-    "channel": "2023.2/edge",
-    "roles": [
-        "storage,compute,control",
-        "storage,compute",
-        "storage,compute"
-    ]
-}
+    input_config:
+    {
+        "substrate": "ob76",
+        "channel": "2023.2/edge",
+        "roles": [
+            "storage,compute,control",
+            "storage,compute",
+            "storage,compute"
+        ]
+    }
 
-creds:
-{
-    "api_key": "xxx"
-}
+    creds:
+    {
+        "api_key": "xxx"
+    }
 """
 
 
@@ -42,7 +42,7 @@ def build(input_config):
     manifest = {
         "deployment": {
             "bootstrap": { "management_cidr": "172.27.76.0/23", },
-            "addons": { "metallb": "172.27.76.21-172.27.76.50", },
+            "addons": { "metallb": "172.27.76.20-172.27.76.29", },
             "user": {
                 "remote_access_location": "remote",
                 "run_demo_setup": True, # don't quote
@@ -63,11 +63,11 @@ def build(input_config):
             },
             "microceph_config": {}, # to be filled later
         },
-        "software": {
-            "juju": { "bootstrap_args": [ "--debug" ], },
-            "charms": { "mysql-k8s": { "channel": "8.0/edge", }, "mysql-router-k8s": { "channel": "8.0/edge", },
-            },
-        }
+        #"software": {
+        #    "juju": { "bootstrap_args": [ "--debug" ], },
+        #    "charms": { "mysql-k8s": { "channel": "8.0/edge", }, "mysql-router-k8s": { "channel": "8.0/edge", },
+        #    },
+        #}
     }
 
     hosts_qty = len(input_config["roles"])
@@ -85,8 +85,8 @@ def build(input_config):
     utils.debug(f"captured 'maas_hosts' terraform output: {maas_hosts}")
 
     nodes = []
-    nodes_roles = dict(zip(maas_hosts, input_config["roles"]))
-    for nodename, ipaddress in maas_hosts.items(): # pylint: disable=unused-variable
+    nodes_roles = dict(zip(maas_hosts.keys(), input_config["roles"]))
+    for nodename, ipaddress in maas_hosts.items():
         newnode = {}
         newnode["host-int"] = nodename
         newnode["host-ext"] = nodename
