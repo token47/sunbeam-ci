@@ -108,7 +108,7 @@ def test_ssh(user, host):
         if rc == 0:
             debug("ssh connection is working, continuing")
             break
-        if time.time() - start > 30:
+        if time.time() - start > 60:
             die("giving up on ssh connection, aborting")
         debug("ssh connection not working, retrying in a few seconds")
         time.sleep(5)
