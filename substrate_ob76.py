@@ -39,28 +39,35 @@ def execute(config, creds, action):
 
 
 def build(input_config):
-    preseed = {
-        "bootstrap": { "management_cidr": "172.27.76.0/23", },
-        "addons": { "metallb": "172.27.76.21-172.27.76.50", },
-        "user": {
-            "remote_access_location": "remote",
-            "run_demo_setup": True, # don't quote
-            "username": "demo",
-            "password": "password123",
-            "cidr": "192.168.122.0/24",
-            "nameservers": "172.27.79.254",
-            "security_group_rules": True, # don't quote
+    manifest = {
+        "deployment": {
+            "bootstrap": { "management_cidr": "172.27.76.0/23", },
+            "addons": { "metallb": "172.27.76.21-172.27.76.50", },
+            "user": {
+                "remote_access_location": "remote",
+                "run_demo_setup": True, # don't quote
+                "username": "demo",
+                "password": "password123",
+                "cidr": "192.168.122.0/24",
+                "nameservers": "172.27.79.254",
+                "security_group_rules": True, # don't quote
+            },
+            "external_network": {
+                "cidr": "172.27.78.0/23",
+                "gateway": "172.27.79.254",
+                "start": "172.27.78.1",
+                "end": "172.27.78.50",
+                "network_type": "flat",
+                "segmentation_id": "0",
+                "nic": "usb-nic",
+            },
+            "microceph_config": {}, # to be filled later
         },
-        "external_network": {
-            "cidr": "172.27.78.0/23",
-            "gateway": "172.27.79.254",
-            "start": "172.27.78.1",
-            "end": "172.27.78.50",
-            "network_type": "flat",
-            "segmentation_id": "0",
-            "nic": "usb-nic",
-        },
-        "microceph_config": {}, # to be filled later
+        "software": {
+            "juju": { "bootstrap_args": [ "--debug" ], },
+            "charms": { "mysql-k8s": { "channel": "8.0/edge", }, "mysql-router-k8s": { "channel": "8.0/edge", },
+            },
+        }
     }
 
     hosts_qty = len(input_config["roles"])
@@ -85,14 +92,14 @@ def build(input_config):
         newnode["host-ext"] = nodename
         newnode["roles"] = nodes_roles[nodename].split(",")
         nodes.append(newnode)
-        preseed["microceph_config"][nodename] = {}
-        preseed["microceph_config"][nodename]["osd_devices"] = "/dev/sdb"
+        manifest["deployment"]["microceph_config"][nodename] = {}
+        manifest["deployment"]["microceph_config"][nodename]["osd_devices"] = "/dev/sdb"
 
     output_config = {}
     output_config["nodes"] = nodes
     output_config["user"] = "ubuntu"
     output_config["channel"] = input_config["channel"]
-    output_config["preseed"] = preseed
+    output_config["manifest"] = manifest
 
     utils.write_config(output_config)
 

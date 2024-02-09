@@ -10,32 +10,33 @@ nodes:
 - host-ext: ob76-node3.maas
   host-int: ob76-node3.maas
   roles: [ 'compute", "storage' ]
-preseed:
-  addons:
-    metallb: 172.27.76.21-172.27.76.50
-  bootstrap:
-    management_cidr: 172.27.76.0/23
-  external_network:
-    cidr: 172.27.78.0/23
-    end: 172.27.78.50
-    gateway: 172.27.79.254
-    network_type: flat
-    nic: usb-nic
-    segmentation_id: '0'
-    start: 172.27.78.1
-  microceph_config:
-    ob76-node1.maas:
-      osd_devices: /dev/sdb
-    ob76-node2.maas:
-      osd_devices: /dev/sdb
-    ob76-node3.maas:
-      osd_devices: /dev/sdb
-  user:
-    cidr: 192.168.122.0/24
-    nameservers: 172.27.79.254
-    password: password123
-    remote_access_location: remote
-    run_demo_setup: true
-    security_group_rules: true
-    username: demo
+manifest:
+  deployment:
+    addons:
+      metallb: 172.27.76.21-172.27.76.50
+    bootstrap:
+      management_cidr: 172.27.76.0/23
+    external_network:
+      cidr: 172.27.78.0/23
+      end: 172.27.78.50
+      gateway: 172.27.79.254
+      network_type: flat
+      nic: usb-nic
+      segmentation_id: '0'
+      start: 172.27.78.1
+    microceph_config:
+      ob76-node1.maas:
+        osd_devices: /dev/sdb
+      ob76-node2.maas:
+        osd_devices: /dev/sdb
+      ob76-node3.maas:
+        osd_devices: /dev/sdb
+    user:
+      cidr: 192.168.122.0/24
+      nameservers: 172.27.79.254
+      password: password123
+      remote_access_location: remote
+      run_demo_setup: true
+      security_group_rules: true
+      username: demo
 user: ubuntu

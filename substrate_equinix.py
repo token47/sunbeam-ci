@@ -62,6 +62,11 @@ def build(input_config):
     #        "nic": "usb-nic",
     #    },
     #    "microceph_config": {}, # to be filled later
+    #    "software": {
+    #        "juju": { "bootstrap_args": [ "--debug" ], },
+    #        "charms": { "mysql-k8s": { "channel": "8.0/edge", }, "mysql-router-k8s": { "channel": "8.0/edge", },
+    #        },
+    #    }
     #}
 
     hosts_qty = len(input_config["roles"])
@@ -71,7 +76,7 @@ def build(input_config):
     if rc > 0:
         utils.die("could not run terraform init")
     rc = utils.exec_cmd("time terraform -chdir=terraform/equinix apply -auto-approve -no-color" \
-                  f" -var='maas_hosts_qty={hosts_qty}'")
+                  f" -var='equinix_hosts_qty={hosts_qty}'")
     if rc > 0:
         utils.die("could not run terraform apply")
     equinix_hosts = json.loads(
@@ -97,10 +102,11 @@ def build(input_config):
 
     utils.write_config(output_config)
 
+    # CONFIG O.S. FOR NETWORKS AND OTHER STUFF FROM DOC
 
 def destroy(input_config):
     hosts_qty = len(input_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix destroy -auto-approve -no-color" \
-                        f" -var='maas_hosts_qty={hosts_qty}'")
+                        f" -var='equinix_hosts_qty={hosts_qty}'")
     if rc > 0:
         utils.die("could not run terraform destroy")
