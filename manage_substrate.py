@@ -25,7 +25,7 @@ utils.debug(f"input_config set to {config}")
 # first parameter must be the action (i.e. 'build', 'destroy', ...)
 action = sys.argv[1]
 
-utils.debug(f"Starting '{config["substrate"]}' substrate with action '{action}'")
+utils.debug(f"Starting '{config['substrate']}' substrate with action '{action}'")
 if config["substrate"] == "ob76":
     substrate_ob76.execute(config, creds, action)
 elif config["substrate"] == "equinix":
