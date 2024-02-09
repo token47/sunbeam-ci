@@ -3,7 +3,7 @@ pipeline {
     agent any
     environment {
         JENKINS_JSON_CONFIG = "${params.JSONConfig}"
-        JENKINS_API_KEY = credentials("${params.ApiKeyName}")
+        JENKINS_JSON_CREDS = credentials("${params.JSONCreds}")
     }
     stages {
         stage('Prepare workspace') {
@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Prepare substrate') {
             steps {
-                sh "./prepare_substrate.py"
+                sh "./manage_substrate.py build"
             }
         }
         stage('Deploy Sunbeam') {
@@ -50,7 +50,7 @@ pipeline {
     }
     post {
         always {
-            sh "./destroy_substrate.py"
+            sh "./manage_substrate.py destroy"
         }
     }
 }

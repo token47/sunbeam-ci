@@ -1,8 +1,5 @@
 #!/usr/bin/python3 -u
 
-# pylint: disable=wildcard-import,unused-wildcard-import
-# pylint: disable=invalid-name
-
 """
 This script deploys sunbeam on a substrate that has already been prepared for it.
 """
@@ -13,7 +10,6 @@ import yaml
 
 
 def token_extract(text):
-    """Extracts the token from the sunbeam node add command output"""
     match = re.search("Token for the Node [^ ]+: ([^ \\r\\n]+)", text)
     if match is None:
         utils.debug("RE for add host token did not match")
@@ -22,8 +18,7 @@ def token_extract(text):
     return match.group(1)
 
 
-with open("config.yaml", "r", encoding='ascii') as stream:
-    config = yaml.safe_load(stream)
+config = utils.read_config()
 
 # order hosts to have control nodes first, then separete primary node from others
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
@@ -36,7 +31,6 @@ primary_node = nodes.pop(0)
 ### Primary node / bootstrap
 
 user = config["user"]
-
 p_host_int = primary_node["host-int"]
 p_host_ext = primary_node["host-ext"]
 

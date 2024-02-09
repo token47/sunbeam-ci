@@ -1,7 +1,5 @@
 #!/bin/false
 
-# pylint: disable=invalid-name
-
 """
 This module contains auxiliary functions for the other modules.
 It is supposed to be imported and not executed directly.
@@ -11,6 +9,7 @@ import re
 import subprocess
 import sys
 import time
+import yaml
 
 
 def debug(msg):
@@ -113,3 +112,14 @@ def test_ssh(user, host):
             die("giving up on ssh connection, aborting")
         debug("ssh connection not working, retrying in a few seconds")
         time.sleep(5)
+
+
+def read_config():
+    with open("config.yaml", "r", encoding='ascii') as stream:
+        return yaml.safe_load(stream)
+
+def write_config(config):
+    """Write a config to config.yaml file"""
+    debug(f"writing config:\n{config}")
+    with open("config.yaml", "w", encoding='ascii') as fd:
+        fd.write(yaml.dump(config))
