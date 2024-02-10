@@ -24,4 +24,6 @@ TODO
     - this is a problem only in maas, equinix has isolated vlans for each group
 - try to optimize equinix costs with spot instances
 - silence apt during upgrades (quietest possible)
-
+- silence juju installs with spinning status / downloaded status
+- switch cluster list command to filtered ssh to remove colors
+- review all last builds without error status
