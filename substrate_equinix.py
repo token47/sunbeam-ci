@@ -172,8 +172,9 @@ def configure_hosts(config, vlans):
             'ff02::2 ip6-allrouters\n' \
             '127.0.0.1   localhost\n' \
             '#10.0.1.1    sunbeamgw.mydomain sunbeamgw\n' \
-            f'{etc_hosts_snippet}\n' \
+            f'{etc_hosts_snippet}' \
             '" > /etc/hosts && \\\n' \
+            f'hostnamectl set-hostname {host_name_int} && \\\n' \
             'systemctl restart networking\n'
         rc = utils.ssh("root", host_ip_ext, cmd)
         if rc > 0:
