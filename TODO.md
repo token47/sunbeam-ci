@@ -27,3 +27,4 @@ TODO
 - silence juju installs with spinning status / downloaded status
 - switch cluster list command to filtered ssh to remove colors
 - review all last builds without error status
+- need to change hostname to match sunbeamXX pattern? primary different from secondary nodes? (test)
