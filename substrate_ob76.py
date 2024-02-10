@@ -76,7 +76,7 @@ def build(input_config):
     rc = utils.exec_cmd("terraform -chdir=terraform/maas init -no-color")
     if rc > 0:
         utils.die("could not run terraform init")
-    rc = utils.exec_cmd("time terraform -chdir=terraform/maas apply -auto-approve -no-color" \
+    rc = utils.exec_cmd("terraform -chdir=terraform/maas apply -auto-approve -no-color" \
                   f" -var='maas_hosts_qty={hosts_qty}'")
     if rc > 0:
         utils.die("could not run terraform apply")
@@ -88,8 +88,10 @@ def build(input_config):
     nodes_roles = dict(zip(maas_hosts.keys(), input_config["roles"]))
     for nodename, ipaddress in maas_hosts.items():
         newnode = {}
-        newnode["host-int"] = nodename
-        newnode["host-ext"] = nodename
+        newnode["host-name-ext"] = nodename
+        newnode["host-name-int"] = nodename
+        newnode["host-ip-ext"] = ipaddress
+        newnode["host-ip-int"] = ipaddress
         newnode["roles"] = nodes_roles[nodename].split(",")
         nodes.append(newnode)
         manifest["deployment"]["microceph_config"][nodename] = {}
