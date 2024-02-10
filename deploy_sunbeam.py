@@ -24,9 +24,12 @@ config = utils.read_config()
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
 control_count = len(nodes)
 nodes += list(filter(lambda x: 'control' not in x["roles"], config["nodes"]))
-utils.debug(f"detected control nodes / total nodes count is {control_count} / {len(nodes)}")
+utils.debug(f"detected count of control nodes is {control_count}")
+utils.debug(f"detected count of total nodes is {len(nodes)}")
 utils.debug(f"complete list of nodes: {nodes}")
 primary_node = nodes.pop(0)
+utils.debug(f"selected primary node: {primary_node}")
+utils.debug(f"secondary nodes list: {nodes}")
 
 ### Primary node / bootstrap
 
@@ -36,7 +39,8 @@ p_host_name_ext = primary_node["host-name-ext"]
 p_host_ip_int = primary_node["host-ip-int"]
 p_host_ip_ext = primary_node["host-ip-ext"]
 
-utils.debug(f"installing primary node {p_host_name_ext} / {p_host_name_int}")
+utils.debug(f"installing primary node {p_host_name_ext} / {p_host_ip_ext} " \
+            f"/ {p_host_name_int / {p_host_ip_int}}")
 utils.ssh(user, p_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
 utils.ssh_clean(p_host_ip_ext)
@@ -75,7 +79,8 @@ for node in nodes:
     s_host_ip_int = primary_node["host-ip-int"]
     s_host_ip_ext = primary_node["host-ip-ext"]
 
-    utils.debug(f"installing secondary node {s_host_name_ext} / {s_host_name_int}")
+    utils.debug(f"installing primary node {s_host_name_ext} / {s_host_ip_ext} " \
+                f"/ {s_host_name_int / {s_host_ip_int}}")
     utils.ssh(user, s_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
     utils.ssh_clean(s_host_ip_ext)
@@ -96,7 +101,7 @@ for node in nodes:
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
     token = token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
 
-    cmd = "sunbeam cluster join -m ~/manifest.yaml"
+    cmd = "sunbeam cluster join " # removed?? -m ~/manifest.yaml
     for role in node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
