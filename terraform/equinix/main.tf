@@ -6,7 +6,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.6.0"
+      version = "~> 3.6"
     }
   }
 }
@@ -68,13 +68,13 @@ resource "random_string" "random_suffix" {
 resource "equinix_metal_vlan" "oam_vlan" {
   metro       = local.metro
   project_id  = var.equinix_project_id
-  description = "TF testing - OAM"
+  description = "tf-sunbeam-${random_string.random_suffix.id}-OAM"
 }
 
 resource "equinix_metal_vlan" "ovn_vlan" {
   metro       = "da"
   project_id  = var.equinix_project_id
-  description = "TF testing - OVN"
+  description = "tf-sunbeam-${random_string.random_suffix.id}-OVN"
 }
 
 resource "equinix_metal_port_vlan_attachment" "oam_vlan_attachment" {
