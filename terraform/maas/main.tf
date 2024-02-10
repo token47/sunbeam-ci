@@ -37,6 +37,7 @@ variable "maas_api_key" {
 
 # output variables
 
+# beware maas returns a LIST of ips in ip_addresses (hence toset() in results)
 output "maas_hosts" {
   description = "List of eployed hosts"
   value       = { for i in resource.maas_instance.maas_hosts: i.fqdn => i.ip_addresses }
