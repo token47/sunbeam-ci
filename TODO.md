@@ -23,3 +23,5 @@ TODO
     - although this might not be a problem for single machine tests
     - this is a problem only in maas, equinix has isolated vlans for each group
 - try to optimize equinix costs with spot instances
+- silence apt during upgrades (quietest possible)
+
