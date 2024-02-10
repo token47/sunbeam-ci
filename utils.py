@@ -56,7 +56,9 @@ def ssh_filtered(user, host, cmd):
     """Same as ssh() but tries to suppress repeated lines in output"""
     stripgarbage1 = re.compile(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$")
     stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *")
-    detecttwolines = re.compile("> Deploying.*Control Plane.*may take a while")
+    detecttwolines = re.compile(
+        "^> Deploying OpenStack Control Plane to Kubernetes (this may take a while) ... *$|"
+        "^> No sunbeam key found in OpenStack. Creating SSH key at *$")
     cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
     debug(f"SSH-FILTERED: {user}@{host}")
     result = subprocess.Popen(cmd, shell=True, encoding="utf-8",
