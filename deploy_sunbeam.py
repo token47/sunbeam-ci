@@ -31,91 +31,95 @@ primary_node = nodes.pop(0)
 ### Primary node / bootstrap
 
 user = config["user"]
-p_host_int = primary_node["host-int"]
-p_host_ext = primary_node["host-ext"]
+p_host_name_int = primary_node["host-name-int"]
+p_host_name_ext = primary_node["host-name-ext"]
+p_host_ip_int = primary_node["host-ip-int"]
+p_host_ip_ext = primary_node["host-ip-ext"]
 
-utils.debug(f"installing primary node {p_host_int} / {p_host_ext}")
+utils.debug(f"installing primary node {p_host_name_ext} / {p_host_name_int}")
 
-utils.ssh_clean(p_host_ext)
-utils.test_ssh(user, p_host_ext)
+utils.ssh_clean(p_host_ip_ext)
+utils.test_ssh(user, p_host_ip_ext)
 
 cmd = f"sudo snap install openstack --channel {config['channel']}"
-rc = utils.ssh_filtered(user, p_host_ext, cmd)
+rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-rc = utils.ssh(user, p_host_ext, cmd)
+rc = utils.ssh(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
 
-utils.put(user, p_host_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
+utils.put(user, p_host_ip_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
 
 cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
-rc = utils.ssh_filtered(user, p_host_ext, cmd)
+rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
-utils.ssh(user, p_host_ext, "sunbeam cluster list")
+utils.ssh(user, p_host_ip_ext, "sunbeam cluster list")
 
 ### Other nodes
 
 for node in nodes:
-    s_host_int = node["host-int"]
-    s_host_ext = node["host-ext"]
+    s_host_name_int = primary_node["host-name-int"]
+    s_host_name_ext = primary_node["host-name-ext"]
+    s_host_ip_int = primary_node["host-ip-int"]
+    s_host_ip_ext = primary_node["host-ip-ext"]
 
-    utils.debug(f"installing secondary node {s_host_int} / {s_host_ext}")
+    utils.debug(f"installing secondary node {s_host_name_ext} / {s_host_name_int}")
 
-    utils.ssh_clean(s_host_ext)
-    utils.test_ssh(user, s_host_ext)
+    utils.ssh_clean(s_host_ip_ext)
+    utils.test_ssh(user, s_host_ip_ext)
 
     cmd = f"sudo snap install openstack --channel {config['channel']}\n"
-    rc = utils.ssh_filtered(user, s_host_ext, cmd)
+    rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
     if rc > 0:
         utils.die("installing openstack snap failed, aborting")
 
     cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-    rc = utils.ssh(user, s_host_ext, cmd)
+    rc = utils.ssh(user, s_host_ip_ext, cmd)
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
 
-    utils.put(user, s_host_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
+    utils.put(user, s_host_ip_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
 
-    cmd = f"sunbeam cluster add --name {s_host_int}"
-    token = token_extract(utils.ssh_capture(user, p_host_ext, cmd))
+    cmd = f"sunbeam cluster add --name {s_host_name_int}"
+    token = token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
 
     cmd = "sunbeam cluster join -m ~/manifest.yaml"
     for role in node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
-    rc = utils.ssh_filtered(user, s_host_ext, cmd)
+    rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
     if rc > 0:
         utils.die("joining node failed, aborting")
 
     # get some status
-    utils.ssh(user, p_host_ext, "sunbeam cluster list")
+    utils.ssh(user, p_host_ip_ext, "sunbeam cluster list")
 
 if control_count < 3:
     utils.debug("Skipping 'resize' because there's not enough control nodes")
 else:
     cmd = "sunbeam cluster resize"
-    rc = utils.ssh_filtered(user, p_host_ext, cmd)
+    rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
 cmd = "sunbeam configure -m ~/manifest.yaml --openrc ~/demo-openrc && echo > ~/demo-openrc"
-rc = utils.ssh_filtered(user, p_host_ext, cmd)
+rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("configuring demo project failed, aborting")
 
 cmd = "sunbeam openrc > ~/admin-openrc"
-rc = utils.ssh(user, p_host_ext, cmd)
+rc = utils.ssh(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("exporting admin credentials failed, aborting")
 
 cmd = "sunbeam launch ubuntu --name test"
-rc = utils.ssh(user, p_host_ext, cmd)
+rc = utils.ssh(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("creating test vm failed, aborting")
