@@ -50,6 +50,8 @@ pipeline {
     }
     post {
         always {
+            sh "./collect_artifacts.py"
+            archiveArtifacts artifacts: 'artifacts/*', allowEmptyArchive: true
             sh "./manage_substrate.py destroy"
         }
     }

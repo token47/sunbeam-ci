@@ -1,10 +1,5 @@
 #!/bin/false
 
-"""
-This module contains auxiliary functions for the other modules.
-It is supposed to be imported and not executed directly.
-"""
-
 import re
 import subprocess
 import sys
@@ -101,6 +96,14 @@ def put(user, host, file, content):
     result.wait()
 
 
+def scp_get(user, host, src, dst):
+    """Copies files from remote to local system using scp"""
+    cmd = f"scp -o StrictHostKeyChecking=no '{user}@{host}:{src}' '{dst}'"
+    debug(f"SCP-GET: {user}@{host}:{src} {dst}")
+    result = subprocess.run(cmd, shell=True, check=False)
+    return result.returncode
+
+
 def test_ssh(user, host):
     """Tests if am ssh connection is available before proceeding, with a timeout"""
     start = time.time()
@@ -126,6 +129,13 @@ def write_config(config):
     debug(f"writing config:\n{config}")
     with open("config.yaml", "w", encoding='ascii') as fd:
         fd.write(yaml.dump(config))
+
+
+def write_file(content, filename)
+    """Write arbitraty data to a file"""
+    debug(f"writing a file:\n{filename}")
+    with open(filename, "w", encoding='ascii') as fd:
+        fd.write(content))
 
 
 def hostname_generator(prefix, start, domain): 
