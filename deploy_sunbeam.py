@@ -37,6 +37,7 @@ p_host_ip_int = primary_node["host-ip-int"]
 p_host_ip_ext = primary_node["host-ip-ext"]
 
 utils.debug(f"installing primary node {p_host_name_ext} / {p_host_name_int}")
+utils.ssh(user, p_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts")
 
 utils.ssh_clean(p_host_ip_ext)
 utils.test_ssh(user, p_host_ip_ext)
@@ -59,7 +60,7 @@ for role in primary_node["roles"]:
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     # Retry once to overcome "Error: Unable to connect to websocket" issue
-    debug("Retrying to overcome websocket error -- temporary workaround")
+    utils.debug("Retrying to overcome websocket error -- temporary workaround")
     rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
     if rc > 0:
         utils.die("bootstrapping sunbeam failed, aborting")
@@ -75,6 +76,7 @@ for node in nodes:
     s_host_ip_ext = primary_node["host-ip-ext"]
 
     utils.debug(f"installing secondary node {s_host_name_ext} / {s_host_name_int}")
+    utils.ssh(user, s_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts")
 
     utils.ssh_clean(s_host_ip_ext)
     utils.test_ssh(user, s_host_ip_ext)
