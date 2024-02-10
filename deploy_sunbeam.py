@@ -37,7 +37,7 @@ p_host_ip_int = primary_node["host-ip-int"]
 p_host_ip_ext = primary_node["host-ip-ext"]
 
 utils.debug(f"installing primary node {p_host_name_ext} / {p_host_name_int}")
-utils.ssh(user, p_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts")
+utils.ssh(user, p_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
 utils.ssh_clean(p_host_ip_ext)
 utils.test_ssh(user, p_host_ip_ext)
@@ -48,7 +48,7 @@ if rc > 0:
     utils.die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-rc = utils.ssh(user, p_host_ip_ext, cmd)
+rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
 
@@ -65,7 +65,7 @@ if rc > 0:
     if rc > 0:
         utils.die("bootstrapping sunbeam failed, aborting")
 
-utils.ssh(user, p_host_ip_ext, "sunbeam cluster list")
+utils.ssh_filtered(user, p_host_ip_ext, "sunbeam cluster list")
 
 ### Other nodes
 
@@ -76,7 +76,7 @@ for node in nodes:
     s_host_ip_ext = primary_node["host-ip-ext"]
 
     utils.debug(f"installing secondary node {s_host_name_ext} / {s_host_name_int}")
-    utils.ssh(user, s_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts")
+    utils.ssh(user, s_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
     utils.ssh_clean(s_host_ip_ext)
     utils.test_ssh(user, s_host_ip_ext)
@@ -87,7 +87,7 @@ for node in nodes:
         utils.die("installing openstack snap failed, aborting")
 
     cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-    rc = utils.ssh(user, s_host_ip_ext, cmd)
+    rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
 
@@ -105,7 +105,7 @@ for node in nodes:
         utils.die("joining node failed, aborting")
 
     # get some status
-    utils.ssh(user, p_host_ip_ext, "sunbeam cluster list")
+    utils.ssh_filtered(user, p_host_ip_ext, "sunbeam cluster list")
 
 if control_count < 3:
     utils.debug("Skipping 'resize' because there's not enough control nodes")
@@ -121,11 +121,11 @@ if rc > 0:
     utils.die("configuring demo project failed, aborting")
 
 cmd = "sunbeam openrc > ~/admin-openrc"
-rc = utils.ssh(user, p_host_ip_ext, cmd)
+rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("exporting admin credentials failed, aborting")
 
 cmd = "sunbeam launch ubuntu --name test"
-rc = utils.ssh(user, p_host_ip_ext, cmd)
+rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("creating test vm failed, aborting")
