@@ -78,7 +78,7 @@ def build(input_config):
     if rc > 0:
         utils.die("could not run terraform init")
 
-    rc = utils.exec_cmd("time terraform -chdir=terraform/equinix apply -auto-approve -no-color" \
+    rc = utils.exec_cmd("terraform -chdir=terraform/equinix apply -auto-approve -no-color" \
                   f" -var='equinix_hosts_qty={hosts_qty}'")
     if rc > 0:
         utils.die("could not run terraform apply")
@@ -93,11 +93,14 @@ def build(input_config):
 
     nodes = []
     nodes_roles = dict(zip(equinix_hosts.keys(), input_config["roles"]))
-    ip = utils.internal_ip_generator(prefix="10.0.1.", start=11)
+    sunbeam_hostname_generator = utils.hostname_generator(prefix="10.0.1.", start=11, domain="mydomain")
     for nodename, ipaddress in equinix_hosts.items():
+        s = next(sunbeam_hostname_generator)
         newnode = {}
-        newnode["host-int"] = next(ip)
-        newnode["host-ext"] = ipaddress
+        newnode["host-name-ext"] = nodename
+        newnode["host-name-int"] = s["fqdn"]
+        newnode["host-ip-ext"] = ipaddress
+        newnode["host-ip-int"] = s["ip"]
         newnode["roles"] = nodes_roles[nodename].split(",")
         nodes.append(newnode)
         manifest["deployment"]["microceph_config"][nodename] = {}
@@ -111,6 +114,9 @@ def build(input_config):
 
     utils.write_config(output_config)
 
+    # this substrate needs extra steps preparing the OS to be on par with maas substrate
+    configure_hosts(output_config, equinix_vlans)
+
 
 def destroy(input_config):
     hosts_qty = len(input_config["roles"])
@@ -118,3 +124,78 @@ def destroy(input_config):
                         f" -var='equinix_hosts_qty={hosts_qty}'")
     if rc > 0:
         utils.die("could not run terraform destroy")
+
+
+def configure_hosts(config, vlans):
+    vlan_oam = vlans["oam"]
+    vlan_ovn = vlans["ovn"]
+
+    # we need to collect all hostnames first, then loop again later
+    etc_hosts_snippet = ""
+    for node in config["nodes"]:
+        host_name_int = node["host-name-int"]
+        host_ip_int = node["host-ip-int"]
+        etc_hosts_snippet += f"{host_ip_int}\t{host_name_int} {host_name_int.split('.')[0]}\n"
+
+    for node in config["nodes"]:
+        host_name_ext = node["host-name-ext"]
+        host_name_int = node["host-name-int"]
+        host_ip_ext = node["host-ip-ext"]
+        host_ip_int = node["host-ip-int"]
+
+        utils.debug(f"Starting configuration for host '{host_name_ext}'")
+
+        utils.ssh_clean(host_ip_ext)
+        utils.test_ssh("root", host_ip_ext)
+
+        cmd = "apt update && DEBIAN_FRONTEND=noninteractive apt upgrade -y"
+        rc = utils.ssh("root", host_ip_ext, cmd)
+        if rc > 0:
+            utils.die("running apt update/upgrade failed, aborting")        
+
+        cmd = "apt update && DEBIAN_FRONTEND=noninteractive apt upgrade -y"
+        rc = utils.ssh("root", host_ip_ext, cmd)
+        if rc > 0:
+            utils.die("running apt update/upgrade failed, aborting")        
+
+        cmd = \
+            'echo "\n' \
+            f'auto bond0.{vlan_oam}\n' \
+            f'iface bond0.{vlan_oam} inet static\n' \
+            '    vlan-raw-device bond0\n' \
+            f'    address {host_ip_int}\n' \
+            '    netmask 255.255.255.0\n' \
+            '    #post-up ip route add 10.0.2.0/24 via 10.0.1.1\n' \
+            '\n' \
+            f'auto bond0.{vlan_ovn}\n' \
+            f'iface bond0.{vlan_ovn} inet manual\n' \
+            '    vlan-raw-device bond0\n' \
+            '" >> /etc/network/interfaces && \\\n' \
+            'echo "\\\n' \
+            '::1 localhost ip6-localhost ip6-loopback\n' \
+            'ff02::1 ip6-allnodes\n' \
+            'ff02::2 ip6-allrouters\n' \
+            '127.0.0.1   localhost\n' \
+            '#10.0.1.1    sunbeamgw.mydomain sunbeamgw\n' \
+            f'{etc_hosts_snippet}\n' \
+            '" > /etc/hosts && \\\n' \
+            'systemctl restart networking\n'
+        rc = utils.ssh("root", host_ip_ext, cmd)
+        if rc > 0:
+            utils.die("error updating network configs, aborting")        
+
+        cmd = \
+            'useradd -m ubuntu && \\\n' \
+            'adduser ubuntu admin && \\\n' \
+            'chsh -s /bin/bash ubuntu && \\\n' \
+            'echo "ubuntu:ubuntu" | chpasswd ubuntu && \\\n' \
+            'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \\\n' \
+            'mkdir /home/ubuntu/.ssh && \\\n' \
+            'chmod 700 /home/ubuntu/.ssh && \\\n' \
+            'touch /home/ubuntu/.ssh/authorized_keys && \\\n' \
+            'chmod 600 /home/ubuntu/.ssh/authorized_keys && \\\n' \
+            'chown -R ubuntu:ubuntu /home/ubuntu/.ssh && \\\n' \
+            'cat /root/.ssh/authorized_keys >> /home/ubuntu/.ssh/authorized_keys\n'
+        rc = utils.ssh("root", host_ip_ext, cmd)
+        if rc > 0:
+            utils.die("error configuring ubuntu user, aborting")        

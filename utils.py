@@ -126,8 +126,10 @@ def write_config(config):
         fd.write(yaml.dump(config))
 
 
-def internal_ip_generator(prefix, start): 
+def hostname_generator(prefix, start, domain): 
     num = start
     while True:
-        yield f"{prefix}{num}"
+        yield {
+            "fqdn": f"sunbeam{num}.{domain}",
+            "ip": f"{prefix}{num}", }
         num += 1
