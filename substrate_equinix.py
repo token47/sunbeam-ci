@@ -96,15 +96,14 @@ def build(input_config):
     sunbeam_hostname_generator = utils.hostname_generator(prefix="10.0.1.", start=11, domain="mydomain")
     for nodename, ipaddress in equinix_hosts.items():
         s = next(sunbeam_hostname_generator)
-        newnode = {}
-        newnode["host-name-ext"] = nodename
-        newnode["host-name-int"] = s["fqdn"]
-        newnode["host-ip-ext"] = ipaddress
-        newnode["host-ip-int"] = s["ip"]
-        newnode["roles"] = nodes_roles[nodename].split(",")
-        nodes.append(newnode)
-        manifest["deployment"]["microceph_config"][nodename] = {}
-        manifest["deployment"]["microceph_config"][nodename]["osd_devices"] = "/dev/sdb"
+        nodes.append({
+            "host-name-ext": nodename,
+            "host-name-int": s["fqdn"],
+            "host-ip-ext": ipaddress,
+            "host-ip-int": s["ip"],
+            "roles": nodes_roles[nodename].split(","),
+        })
+        manifest["deployment"]["microceph_config"][s["fqdn"]] = { "osd_devices": "/dev/sdb" }
 
     output_config = {}
     output_config["nodes"] = nodes

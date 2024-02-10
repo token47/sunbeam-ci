@@ -87,15 +87,14 @@ def build(input_config):
     nodes = []
     nodes_roles = dict(zip(maas_hosts.keys(), input_config["roles"]))
     for nodename, ipaddress in maas_hosts.items():
-        newnode = {}
-        newnode["host-name-ext"] = nodename
-        newnode["host-name-int"] = nodename
-        newnode["host-ip-ext"] = ipaddress
-        newnode["host-ip-int"] = ipaddress
-        newnode["roles"] = nodes_roles[nodename].split(",")
-        nodes.append(newnode)
-        manifest["deployment"]["microceph_config"][nodename] = {}
-        manifest["deployment"]["microceph_config"][nodename]["osd_devices"] = "/dev/sdb"
+        nodes.append({
+            "host-name-ext": nodename,
+            "host-name-int": nodename,
+            "host-ip-ext": ipaddress,
+            "host-ip-int": ipaddress,
+            "roles": nodes_roles[nodename].split(","),
+        })
+        manifest["deployment"]["microceph_config"][nodename] = { "osd_devices": "/dev/sdb" }
 
     output_config = {}
     output_config["nodes"] = nodes
