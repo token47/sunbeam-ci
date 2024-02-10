@@ -130,7 +130,7 @@ def configure_hosts(config, vlans):
     vlan_oam = vlans["oam"]
     vlan_ovn = vlans["ovn"]
 
-    # we need to collect all hostnames first, then loop again later
+    # we need to collect all hostnames first (to use in /etc/hosts), then loop again later
     etc_hosts_snippet = ""
     for node in config["nodes"]:
         host_name_int = node["host-name-int"]
