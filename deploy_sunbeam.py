@@ -58,7 +58,11 @@ for role in primary_node["roles"]:
     cmd += f" --role {role}"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
-    utils.die("bootstrapping sunbeam failed, aborting")
+    # Retry once to overcome "Error: Unable to connect to websocket" issue
+    debug("Retrying to overcome websocket error -- temporary workaround")
+    rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+    if rc > 0:
+        utils.die("bootstrapping sunbeam failed, aborting")
 
 utils.ssh(user, p_host_ip_ext, "sunbeam cluster list")
 
