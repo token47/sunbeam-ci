@@ -3,8 +3,6 @@
 import os
 import utils
 
-ARTIFACTS_DIR = 'artifacts'
-
 config = utils.read_config()
 
 # Create temporary dir inside workspace
