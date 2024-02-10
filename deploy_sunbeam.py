@@ -74,12 +74,12 @@ utils.ssh_filtered(user, p_host_ip_ext, "sunbeam cluster list")
 ### Other nodes
 
 for node in nodes:
-    s_host_name_int = primary_node["host-name-int"]
-    s_host_name_ext = primary_node["host-name-ext"]
-    s_host_ip_int = primary_node["host-ip-int"]
-    s_host_ip_ext = primary_node["host-ip-ext"]
+    s_host_name_int = node["host-name-int"]
+    s_host_name_ext = node["host-name-ext"]
+    s_host_ip_int = node["host-ip-int"]
+    s_host_ip_ext = node["host-ip-ext"]
 
-    utils.debug(f"installing primary node {s_host_name_ext} / {s_host_ip_ext} " \
+    utils.debug(f"installing seconday node {s_host_name_ext} / {s_host_ip_ext} " \
                 f"/ {s_host_name_int} / {s_host_ip_int}")
     utils.ssh(user, s_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
