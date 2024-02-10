@@ -15,17 +15,11 @@ TODO
     - run tempest with a test list (from SQA)
 - capture evidences
     - most openstack resources (servers, networks, subnets, routers, images, flavors, etc.)
-    - terraform status after deployed - this one maybe right after aply finishes?
     - juju status, juju debug-logs?, microceph details, microk8s details, sunbeam logs (SQA has more)
 - plugins
     - enable most plugins (they usually time out enabling)
     - test plugins as possible (SQA has some tests already)
-- try to pass non-conflicting IPs for simultanous tests
+- try to pass non-conflicting IPs for simultanous tests in maas?
     - although this might not be a problem for single machine tests
-    - this is a problem only in maas, equinix has isolated vlans for each group
 - try to optimize equinix costs with spot instances
-- silence apt during upgrades (quietest possible)
 - silence juju installs with spinning status / downloaded status
-- switch cluster list command to filtered ssh to remove colors
-- review all last builds without error status
-- need to change hostname to match sunbeamXX pattern? primary different from secondary nodes? (test)
