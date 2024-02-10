@@ -153,11 +153,6 @@ def configure_hosts(config, vlans):
         if rc > 0:
             utils.die("running apt update/upgrade failed, aborting")        
 
-        cmd = "apt update && DEBIAN_FRONTEND=noninteractive apt upgrade -y"
-        rc = utils.ssh("root", host_ip_ext, cmd)
-        if rc > 0:
-            utils.die("running apt update/upgrade failed, aborting")        
-
         cmd = \
             'echo "\n' \
             f'auto bond0.{vlan_oam}\n' \
