@@ -131,11 +131,11 @@ def write_config(config):
         fd.write(yaml.dump(config))
 
 
-def write_file(content, filename)
+def write_file(content, filename):
     """Write arbitraty data to a file"""
     debug(f"writing a file:\n{filename}")
     with open(filename, "w", encoding='ascii') as fd:
-        fd.write(content))
+        fd.write(content)
 
 
 def hostname_generator(prefix, start, domain): 
