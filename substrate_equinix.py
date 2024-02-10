@@ -83,6 +83,10 @@ def build(input_config):
     if rc > 0:
         utils.die("could not run terraform apply")
 
+    rc = utils.exec_cmd("terraform -chdir=terraform/equinix show -no-color")
+    if rc > 0:
+        utils.die("could not run terraform show")
+
     equinix_vlans = json.loads(
         utils.exec_cmd_capture("terraform -chdir=terraform/equinix output -no-color -json equinix_vlans"))
     utils.debug(f"captured 'equinix_vlans' terraform output: {equinix_vlans}")
