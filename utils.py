@@ -82,7 +82,7 @@ def ssh_capture(user, host, cmd):
     cmd = f"ssh -o StrictHostKeyChecking=no {user}@{host} '{cmd}'"
     debug(f"SSH-CAPTURE: {cmd}")
     result = subprocess.run(cmd, shell=True, check=False,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return result.stdout.decode()
 
 
