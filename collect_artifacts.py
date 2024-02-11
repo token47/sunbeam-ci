@@ -8,6 +8,13 @@ config = utils.read_config()
 # Create temporary dir inside workspace
 os.mkdir('artifacts')
 
+utils.debug("collecting common build artifacts")
+
+#utils.write_file(
+#    "<BUILD-INFO>",
+#    "artifacts/build-info.txt"
+#)
+
 user = config["user"]
 for node in config["nodes"]:
     host_name_int = node["host-name-int"]
@@ -30,7 +37,6 @@ for node in config["nodes"]:
             hostname -f
             hostname -s
             ip addr list
-            cat /etc/networking/interfaces
             cat /etc/hosts
         """), f"artifacts/network-{host_name_int}.txt")
 
@@ -60,9 +66,18 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
         """ set -x
+            sunbeam cluster list
+        """), f"artifacts/sunbeam-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
             sunbeam inspect
         """), f"artifacts/sunbeam-inspect-{host_name_int}.txt")
 
     utils.scp_get(user, host_ip_ext,
-        "~/snap/openstack/common/sunbeam-inspection*",
+        "~/snap/openstack/common/logs/*",
         "artifacts/")
+    # rename "s/^sunbeam-/inspection-{host_name_int}/" sunbeam-202.....-......\.......\.log 
+
+    #most openstack resources servers, networks, subnets, routers, images, flavors
