@@ -62,6 +62,7 @@ for role in primary_node["roles"]:
     cmd += f" --role {role}"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
+    # TODO: improve this to only trigger with specific websocket issue
     utils.debug("Retrying -- temporary hack to overcome websocker error")
     rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
     if rc > 0:

@@ -13,12 +13,9 @@ TODO
     - ping the initial demo vm, ssh to it and test communication to internet
     - manually create more VMs in admin and demo projects, same test as above
     - run tempest with a test list (from SQA)
-- capture evidences
-    - most openstack resources (servers, networks, subnets, routers, images, flavors, etc.)
 - plugins
     - enable most plugins (they usually time out enabling)
     - test plugins as possible (SQA has some tests already)
-- try to pass non-conflicting IPs for simultanous tests in maas?
-    - although this might not be a problem for single machine tests
+- try to pass non-conflicting IPs for simultanous clusters tests in maas?
 - try to optimize equinix costs with spot instances
 - silence juju installs with spinning status / downloaded status
