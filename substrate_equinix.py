@@ -184,19 +184,20 @@ def configure_hosts(config, vlans):
         if rc > 0:
             utils.die("error updating network configs, aborting")        
 
-        cmd = \
-            'useradd -m ubuntu && \\\n' \
-            'adduser ubuntu adm && \\\n' \
-            'adduser ubuntu admin && \\\n' \
-            'chsh -s /bin/bash ubuntu && \\\n' \
-            'echo "ubuntu:ubuntu" | chpasswd ubuntu && \\\n' \
-            'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \\\n' \
-            'mkdir /home/ubuntu/.ssh && \\\n' \
-            'chmod 700 /home/ubuntu/.ssh && \\\n' \
-            'touch /home/ubuntu/.ssh/authorized_keys && \\\n' \
-            'chmod 600 /home/ubuntu/.ssh/authorized_keys && \\\n' \
-            'chown -R ubuntu:ubuntu /home/ubuntu/.ssh && \\\n' \
-            'cat /root/.ssh/authorized_keys >> /home/ubuntu/.ssh/authorized_keys\n'
+        cmd = """ set -e
+            useradd -m ubuntu
+            adduser ubuntu adm
+            adduser ubuntu admin
+            chsh -s /bin/bash ubuntu
+            echo "ubuntu:ubuntu" | chpasswd ubuntu
+            echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+            mkdir /home/ubuntu/.ssh
+            chmod 700 /home/ubuntu/.ssh
+            touch /home/ubuntu/.ssh/authorized_keys
+            chmod 600 /home/ubuntu/.ssh/authorized_keys
+            chown -R ubuntu:ubuntu /home/ubuntu/.ssh
+            cat /root/.ssh/authorized_keys >> /home/ubuntu/.ssh/authorized_keys
+        """
         rc = utils.ssh("root", host_ip_ext, cmd)
         if rc > 0:
             utils.die("error configuring ubuntu user, aborting")        
