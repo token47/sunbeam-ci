@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 import os
 import utils
@@ -75,6 +75,6 @@ for node in config["nodes"]:
 
     utils.scp_get(user, host_ip_ext,
         "~/snap/openstack/common/logs/*", "artifacts/")
-    utils.exec_cmd('rename "s/^sunbeam-/sunbeam-logs-{host_name_int}/" sunbeam-202?????-??????.??????.log')
+    utils.exec_cmd(f"rename 's/^sunbeam-/sunbeam-logs-{host_name_int}/' sunbeam-202?????-??????.??????.log")
 
     #most openstack resources servers, networks, subnets, routers, images, flavors
