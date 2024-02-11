@@ -133,7 +133,7 @@ def write_config(config):
 
 def write_file(content, filename):
     """Write arbitraty data to a file"""
-    debug(f"writing a file:\n{filename}")
+    debug(f"writing file {filename}")
     with open(filename, "w", encoding='ascii') as fd:
         fd.write(content)
 
