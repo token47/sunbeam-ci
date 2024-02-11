@@ -15,7 +15,6 @@ TODO
     - run tempest with a test list (from SQA)
 - capture evidences
     - most openstack resources (servers, networks, subnets, routers, images, flavors, etc.)
-    - juju status, juju debug-logs?, microceph details, microk8s details, sunbeam logs (SQA has more)
 - plugins
     - enable most plugins (they usually time out enabling)
     - test plugins as possible (SQA has some tests already)
