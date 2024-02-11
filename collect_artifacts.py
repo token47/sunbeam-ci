@@ -10,8 +10,10 @@ os.mkdir('artifacts')
 
 utils.debug("collecting common build artifacts")
 
+utils.exec_cmd("cp config.yaml artifacts/")
+
 #utils.write_file(
-#    "<BUILD-INFO>",
+#    "<MORE-BUILD-INFO>",
 #    "artifacts/build-info.txt"
 #)
 
