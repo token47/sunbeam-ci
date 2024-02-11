@@ -153,7 +153,7 @@ def configure_hosts(config, vlans):
 
         cmd = "apt -q update && DEBIAN_FRONTEND=noninteractive apt -q -o " \
             "Dpkg::Progress-Fancy=0 -o APT::Color=0 -o Dpkg::Use-Pty=0 upgrade -y"
-        rc = utils.ssh("root", host_ip_ext, cmd)
+        rc = utils.ssh_filtered("root", host_ip_ext, cmd)
         if rc > 0:
             utils.die("running apt update/upgrade failed, aborting")        
 
