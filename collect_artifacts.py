@@ -45,8 +45,14 @@ for node in config["nodes"]:
             juju models
             juju status -m admin/controller
             juju status -m openstack
-            juju debug-log --replay --no-tail
-        """), f"artifacts/juju-{host_name_int}.txt")
+        """), f"artifacts/juju-status-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            juju debug-log -m admin/controller --replay --no-tail
+            juju debug-log -m openstack --replay --no-tail
+        """), f"artifacts/juju-debuglog-{host_name_int}.txt")
 
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
@@ -66,13 +72,15 @@ for node in config["nodes"]:
         user, host_ip_ext,
         """ set -x
             sunbeam cluster list
-        """), f"artifacts/sunbeam-{host_name_int}.txt")
+        """), f"artifacts/cluster-{host_name_int}.txt")
 
     utils.scp_get(user, host_ip_ext,
         "/var/log/syslog", f"artifacts/syslog-{host_name_int}")
 
     utils.scp_get(user, host_ip_ext,
         "~/snap/openstack/common/logs/*", "artifacts/")
-    utils.exec_cmd(f"rename 's/^sunbeam-/sunbeam-logs-{host_name_int}/' sunbeam-202?????-??????.??????.log")
+    utils.exec_cmd(
+        f"rename 's/^sunbeam-/sunbeam-logs-{host_name_int}/' " \
+        "artifacts/sunbeam-202?????-??????.??????.log")
 
     #most openstack resources servers, networks, subnets, routers, images, flavors
