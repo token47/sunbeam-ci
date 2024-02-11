@@ -186,6 +186,7 @@ def configure_hosts(config, vlans):
 
         cmd = \
             'useradd -m ubuntu && \\\n' \
+            'adduser ubuntu adm && \\\n' \
             'adduser ubuntu admin && \\\n' \
             'chsh -s /bin/bash ubuntu && \\\n' \
             'echo "ubuntu:ubuntu" | chpasswd ubuntu && \\\n' \
