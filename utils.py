@@ -51,7 +51,7 @@ def ssh_filtered(user, host, cmd):
     """Same as ssh() but tries to suppress repeated lines in output"""
     stripgarbage1 = re.compile(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$")
     stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *")
-    stripgarbage3 = re.compile(r"\(Reading database \.\.\..*")
+    stripgarbage3 = re.compile(r"\(Reading database \.\.\.")
     detecttwolines = re.compile(
         r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
         r"> No sunbeam key found in OpenStack\. Creating SSH key at")
@@ -65,7 +65,8 @@ def ssh_filtered(user, host, cmd):
     while len(line := result.stdout.readline()) > 0:
         line = stripgarbage1.sub('', line)
         line = stripgarbage2.sub('> ', line)
-        line = stripgarbage3.sub('', line)
+        if stripgarbage3.search(line):
+            line = ""
         if line:
             if delayed:
                 line = f"{delayed} {line}"
@@ -76,8 +77,8 @@ def ssh_filtered(user, host, cmd):
             if line != lastline:
                 print(f"{line}\r") # \r is needed here, not sure why
                 lastline = line
-            if "Error: Unable to connect to websocket" in line:
-                websocket_error = True
+                if "Error: Unable to connect to websocket" in line:
+                    websocket_error = True
     result.wait()
     if result.returncode > 0 and websocket_error:
         return 1001
