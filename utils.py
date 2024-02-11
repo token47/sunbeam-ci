@@ -51,7 +51,7 @@ def ssh_filtered(user, host, cmd):
     """Same as ssh() but tries to suppress repeated lines in output"""
     stripgarbage1 = re.compile(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$")
     stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *")
-    stripgarbage3 = re.compile(r"^\(Reading database \.\.\..*$")
+    stripgarbage3 = re.compile(r"\(Reading database \.\.\..*")
     detecttwolines = re.compile(
         r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
         r"> No sunbeam key found in OpenStack\. Creating SSH key at")
