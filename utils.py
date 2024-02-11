@@ -61,6 +61,7 @@ def ssh_filtered(user, host, cmd):
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     delayed = None
     lastline = ""
+    websocket_error = False
     while len(line := result.stdout.readline()) > 0:
         line = stripgarbage1.sub('', line)
         line = stripgarbage2.sub('> ', line)
@@ -75,11 +76,11 @@ def ssh_filtered(user, host, cmd):
             if line != lastline:
                 print(f"{line}\r") # \r is needed here, not sure why
                 lastline = line
+            if "Error: Unable to connect to websocket" in line:
+                websocket_error = True
     result.wait()
-    # workaround for "websocket" but
-    if result.returncode > 0 and "Unable to connect to websocket" in lastline:
+    if result.returncode > 0 and websocket_error:
         return 1001
-    # enf of workaround
     return result.returncode
 
 
