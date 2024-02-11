@@ -76,6 +76,10 @@ def ssh_filtered(user, host, cmd):
                 print(f"{line}\r") # \r is needed here, not sure why
                 lastline = line
     result.wait()
+    # workaround for "websocket" but
+    if result.returncode > 0 and "Unable to connect to websocket" in lastline:
+        return 1001
+    # enf of workaround
     return result.returncode
 
 

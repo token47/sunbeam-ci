@@ -61,12 +61,13 @@ cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
-if rc > 0:
-    # TODO: improve this to only trigger with specific websocket issue
+# workaround for websocket issue
+if rc == 1001:
     utils.debug("Retrying -- temporary hack to overcome websocker error")
     rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
-    if rc > 0:
-        utils.die("bootstrapping sunbeam failed, aborting")
+# end of workaround
+if rc > 0:
+    utils.die("bootstrapping sunbeam failed, aborting")
 
 utils.ssh_filtered(user, p_host_ip_ext, "sunbeam cluster list")
 
