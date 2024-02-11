@@ -157,7 +157,7 @@ def configure_hosts(config, vlans):
         if rc > 0:
             utils.die("running apt update/upgrade failed, aborting")        
 
-        # TODO: managed etc/hosts, change template instead
+        # TODO: managed etc/hosts in equinix?, change template instead?
 
         cmd = \
             'echo "\n' \
