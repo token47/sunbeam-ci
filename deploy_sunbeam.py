@@ -41,7 +41,6 @@ p_host_ip_ext = primary_node["host-ip-ext"]
 
 utils.debug(f"installing primary node {p_host_name_ext} / {p_host_ip_ext} " \
             f"/ {p_host_name_int} / {p_host_ip_int}")
-utils.ssh(user, p_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
 utils.ssh_clean(p_host_ip_ext)
 utils.test_ssh(user, p_host_ip_ext)
@@ -80,7 +79,6 @@ for node in nodes:
 
     utils.debug(f"installing seconday node {s_host_name_ext} / {s_host_ip_ext} " \
                 f"/ {s_host_name_int} / {s_host_ip_int}")
-    utils.ssh(user, s_host_ip_ext, "hostname -f; hostname -s; cat /etc/hosts; ip addr list")
 
     utils.ssh_clean(s_host_ip_ext)
     utils.test_ssh(user, s_host_ip_ext)
