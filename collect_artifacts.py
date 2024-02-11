@@ -18,10 +18,51 @@ for node in config["nodes"]:
     utils.debug(f"collecting artifacts from node {host_name_ext} / {host_ip_ext} " \
                 f"/ {host_name_int} / {host_ip_int}")
 
-    cmd = """set -e
-        juju models
-        juju status -m admin/controller
-        juju status -m openstack
-    """
-    utils.write_file(utils.ssh_capture(user, host_ip_ext, cmd),
-                     "artifacts/juju-status-{host_name_int}.txt")
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            sudo snap list
+        """), f"artifacts/software-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            hostname -f
+            hostname -s
+            ip addr list
+            cat /etc/networking/interfaces
+            cat /etc/hosts
+        """), f"artifacts/network-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            juju models
+            juju status -m admin/controller
+            juju status -m openstack
+            juju debug-log --replay --no-tail
+        """), f"artifacts/juju-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            sudo microk8s.kubectl get all -A
+            sudo microk8s.kubectl get nodes
+        """), f"artifacts/microk8s-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            sudo microceph status
+            sudo ceph -s
+        """), f"artifacts/microceph-{host_name_int}.txt")
+
+    utils.write_file(utils.ssh_capture(
+        user, host_ip_ext,
+        """ set -x
+            sunbeam inspect
+        """), f"artifacts/sunbeam-inspect-{host_name_int}.txt")
+
+    utils.scp_get(user, host_ip_ext,
+        "~/snap/openstack/common/sunbeam-inspection*",
+        "artifacts/")
