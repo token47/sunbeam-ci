@@ -22,8 +22,7 @@ for node in config["nodes"]:
     host_ip_int = node["host-ip-int"]
     host_ip_ext = node["host-ip-ext"]
 
-    utils.debug(f"collecting artifacts from node {host_name_ext} / {host_ip_ext} " \
-                f"/ {host_name_int} / {host_ip_int}")
+    utils.debug(f"collecting artifacts from node {host_name_int}")
 
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
@@ -69,18 +68,11 @@ for node in config["nodes"]:
             sunbeam cluster list
         """), f"artifacts/sunbeam-{host_name_int}.txt")
 
-    # Useless? Just writes a tar file, same as logs?
-    #utils.write_file(utils.ssh_capture(
-    #    user, host_ip_ext,
-    #    """ set -x
-    #        sunbeam inspect
-    #    """), f"artifacts/sunbeam-inspect-{host_name_int}.txt")
-
     utils.scp_get(user, host_ip_ext,
         "/var/log/syslog", f"artifacts/syslog-{host_name_int}")
 
     utils.scp_get(user, host_ip_ext,
         "~/snap/openstack/common/logs/*", "artifacts/")
-    utils.exec_cmd('rename "s/^sunbeam-/inspection-{host_name_int}/" sunbeam-202?????-??????.??????.log')
+    utils.exec_cmd('rename "s/^sunbeam-/sunbeam-logs-{host_name_int}/" sunbeam-202?????-??????.??????.log')
 
     #most openstack resources servers, networks, subnets, routers, images, flavors
