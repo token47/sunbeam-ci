@@ -10,12 +10,10 @@ os.mkdir('artifacts')
 
 utils.debug("collecting common build artifacts")
 
-utils.exec_cmd("cp config.yaml artifacts/")
-
-#utils.write_file(
-#    "<MORE-BUILD-INFO>",
-#    "artifacts/build-info.txt"
-#)
+utils.write_file(utils.exec_cmd_capture(
+    """ set -x
+        cat config.yaml
+    """), "artifacts/build-info.txt")
 
 user = config["user"]
 for node in config["nodes"]:
