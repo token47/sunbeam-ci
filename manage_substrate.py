@@ -20,7 +20,7 @@ if not (creds_json := os.environ.get("JENKINS_JSON_CREDS")):
 config = json.loads(config_json)
 creds = json.loads(creds_json)
 
-utils.debug(f"input_config set to {config}")
+utils.debug(f"input_config (from Jenkins) set to {config}")
 
 # first parameter must be the action (i.e. 'build', 'destroy', ...)
 action = sys.argv[1]
