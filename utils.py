@@ -36,12 +36,12 @@ def exec_cmd_capture(cmd):
 def ssh_clean(host):
     """Clear previous entries of hosts in ssh known hosts file"""
     cmd = f"ssh-keygen -f ~/.ssh/known_hosts -R {host}"
-    subprocess.run(cmd, shell=True, check=False)
+    exec_cmd(cmd)
 
 
 def ssh(user, host, cmd):
     """Run an ssh command using system ssh executable"""
-    cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no -tt '{user}@{host}' 'set -x; {cmd}'"
     debug(f"SSH: {user}@{host}")
     result = subprocess.run(cmd, shell=True, check=False)
     return result.returncode
@@ -54,7 +54,7 @@ def ssh_filtered(user, host, cmd):
     detecttwolines = re.compile(
         r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
         r"> No sunbeam key found in OpenStack\. Creating SSH key at")
-    cmd = f"ssh -o StrictHostKeyChecking=no -tt {user}@{host} 'set -x; {cmd}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no -tt '{user}@{host}' 'set -x; {cmd}'"
     debug(f"SSH-FILTERED: {user}@{host}")
     result = subprocess.Popen(cmd, shell=True, encoding="utf-8",
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -86,7 +86,7 @@ def ssh_filtered(user, host, cmd):
 
 def ssh_capture(user, host, cmd):
     """Run an ssh command and captures the output"""
-    cmd = f"ssh -o StrictHostKeyChecking=no {user}@{host} '{cmd}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no '{user}@{host}' '{cmd}'"
     debug(f"SSH-CAPTURE: {cmd}")
     result = subprocess.run(cmd, shell=True, check=False,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -95,7 +95,7 @@ def ssh_capture(user, host, cmd):
 
 def put(user, host, file, content):
     """Uploads a text file to a remote server via ssh"""
-    cmd = f"ssh -o StrictHostKeyChecking=no {user}@{host} 'tee {file}'"
+    cmd = f"ssh -o StrictHostKeyChecking=no '{user}@{host}' 'tee {file}'"
     debug(f"PUT: {user}@{host} {file}")
     result = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
     result.stdin.write(content.encode())
