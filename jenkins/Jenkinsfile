@@ -10,8 +10,7 @@ pipeline {
             steps {
                 cleanWs()
                 git branch: 'main', url: 'http://github.com/token47/sunbeam-ci.git'
-                sh "ls -la"
-                sh "cat Jenkinsfile"
+                sh "ls -lRa"
             }
         }
         stage('Prepare substrate') {
