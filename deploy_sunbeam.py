@@ -116,8 +116,3 @@ cmd = "sunbeam openrc > ~/admin-openrc"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("exporting admin credentials failed, aborting")
-
-cmd = "sunbeam launch ubuntu --name test"
-rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
-if rc > 0:
-    utils.die("creating test vm failed, aborting")
