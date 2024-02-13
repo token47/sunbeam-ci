@@ -24,7 +24,7 @@ test_failed = False
 cmd = "sunbeam launch ubuntu --name test"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
-    debug("TEST FAIL: creating test vm failed (launch command)")
+    utils.debug("TEST FAIL: creating test vm failed (launch command)")
     test_failed = True
 
 if test_failed:
