@@ -36,6 +36,11 @@ pipeline {
                     build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
                 }
             }
+            stage ('sunbeam-equinix-3h3c-nostorage-2023.2-edge') {
+                steps {
+                    build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                }
+            }
             stage ('sunbeam-equinix-3h3c-storage-2023.2-edge') {
                 steps {
                     build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
