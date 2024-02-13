@@ -5,7 +5,10 @@ import os
 import re
 import utils
 
-config = utils.read_config()
+try:
+    config = utils.read_config()
+except IOError:
+    utils.die("Config file does not exist, aborting artifacts collection entirely")
 
 # Create temporary dir inside workspace
 os.mkdir('artifacts')
