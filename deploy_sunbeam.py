@@ -4,18 +4,8 @@
 This script deploys sunbeam on a substrate that has already been prepared for it.
 """
 
-import re
 import utils
 import yaml
-
-
-def token_extract(text):
-    match = re.search("Token for the Node [^ ]+: ([^ \\r\\n]+)", text)
-    if match is None:
-        utils.debug("RE for add host token did not match")
-        utils.debug(text)
-        utils.die("aborting")
-    return match.group(1)
 
 
 config = utils.read_config()
@@ -96,7 +86,7 @@ for node in nodes:
     utils.put(user, s_host_ip_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
 
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
-    token = token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
+    token = utils.token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
 
     cmd = "sunbeam cluster join " # removed?? -m ~/manifest.yaml
     for role in node["roles"]:

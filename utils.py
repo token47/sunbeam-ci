@@ -152,3 +152,12 @@ def hostname_generator(prefix, start, domain):
             "fqdn": f"sunbeam{num}.{domain}",
             "ip": f"{prefix}{num}", }
         num += 1
+
+
+def token_extract(text):
+    match = re.search("Token for the Node [^ ]+: ([^ \\r\\n]+)", text)
+    if match is None:
+        debug("RE for add host token did not match")
+        debug(text)
+        die("aborting")
+    return match.group(1)
