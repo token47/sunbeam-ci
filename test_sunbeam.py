@@ -16,10 +16,16 @@ p_host_name_ext = primary_node["host-name-ext"]
 p_host_ip_int = primary_node["host-ip-int"]
 p_host_ip_ext = primary_node["host-ip-ext"]
 
+test_failed = False
+
 # this is a basic test, there will be better ones later
 # but we keep this one as it is on the documentation
 # and the user will likely execute exactly this
 cmd = "sunbeam launch ubuntu --name test"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
-    utils.die("creating test vm failed, aborting")
+    debug("TEST FAIL: creating test vm failed (launch command)")
+    test_failed = True
+
+if test_failed:
+    utils.die("At least one test failed, exiting with error")
