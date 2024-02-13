@@ -13,11 +13,9 @@ TODO
     - ping the initial demo vm, ssh to it and test communication to internet
     - manually create more VMs in admin and demo projects, same test as above
     - run tempest with a test list (from SQA)
-    - move the vm creation (launch-vm) to the testing section instead of build section
-    - making test failures to mark build as unstable? (differentiate from build failure)
 - plugins
     - enable most plugins (they usually time out enabling)
     - test plugins as possible (SQA has some tests already)
 - try to pass non-conflicting IPs for simultanous clusters tests in maas?
-- try to optimize equinix costs with spot instances
+- try to optimize equinix costs with spot instances?
 - silence juju installs with spinning status / downloaded status
