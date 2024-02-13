@@ -64,11 +64,7 @@ def build(input_config):
             },
             "microceph_config": {}, # to be filled later
         },
-        #"software": {
-        #    "juju": { "bootstrap_args": [ "--debug" ], },
-        #    "charms": { "mysql-k8s": { "channel": "8.0/edge", }, "mysql-router-k8s": { "channel": "8.0/edge", },
-        #    },
-        #}
+        #"software": { ... }
     }
 
     hosts_qty = len(input_config["roles"])
