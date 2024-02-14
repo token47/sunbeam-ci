@@ -65,6 +65,18 @@ def build(input_config):
             "microceph_config": {}, # to be filled later
         },
         #"software": { ... }
+        "software": {
+        #    "juju": {
+        #        "bootstrap_args": [ "--debug" ],
+        #    },
+            "charms": {
+        #        "mysql-k8s": { "channel": "8.0/edge", },
+        #        "mysql-router-k8s": { "channel": "8.0/edge", },
+        #        "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
+                "cinder-ceph": { "config": { "ceph-osd-replication-count": 3 } },
+                "glance": { "config": { "ceph-osd-replication-count": 3 } },
+            },
+        }
     }
 
     hosts_qty = len(input_config["roles"])
