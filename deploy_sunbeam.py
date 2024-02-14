@@ -24,6 +24,7 @@ config["manifest"]["software"].update({
         "glance": { "config": { "ceph-osd-replication-count": 3 }, },
     },
 })
+utils.debug(f"Final manifest/software section after workarounds: {config['manifest']['software']}")
 
 # order hosts to have control nodes first, then separete primary node from others
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
