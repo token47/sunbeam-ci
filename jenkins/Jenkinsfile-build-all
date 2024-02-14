@@ -10,73 +10,75 @@ each build may get different/specific parameters
 
 pipeline {
     agent any
-    stages{
-        parallel {
-            stage("substrate-equinix") {
-                stage ('sunbeam-equinix-1h1c-nostorage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                            //parameters: [
-                            //    string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
-                            //    booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
-                            //]
+    stages {
+        stage("build-all") {
+            parallel {
+                stage("substrate-equinix") {
+                    stage ('sunbeam-equinix-1h1c-nostorage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                                //parameters: [
+                                //    string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
+                                //    booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
+                                //]
+                        }
+                    }
+                    stage ('sunbeam-equinix-1h1c-storage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
+                    }
+                    stage ('sunbeam-equinix-3h1c-nostorage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
+                    }
+                    stage ('sunbeam-equinix-3h1c-storage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
+                    }
+                    stage ('sunbeam-equinix-3h3c-nostorage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
+                    }
+                    stage ('sunbeam-equinix-3h3c-storage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
                 }
-                stage ('sunbeam-equinix-1h1c-storage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                stage("substrate-ob76") {
+                    stage ('sunbeam-ob76-1h1c-nostorage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-ob76-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
-                }
-                stage ('sunbeam-equinix-3h1c-nostorage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                    stage ('sunbeam-ob76-1h1c-storage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-ob76-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
-                }
-                stage ('sunbeam-equinix-3h1c-storage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                    stage ('sunbeam-ob76-3h1c-nostorage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-ob76-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
-                }
-                stage ('sunbeam-equinix-3h3c-nostorage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                    stage ('sunbeam-ob76-3h1c-storage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-ob76-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
-                }
-                stage ('sunbeam-equinix-3h3c-storage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                    stage ('sunbeam-ob76-3h3c-nostorage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-ob76-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
-                }
-            }
-            stage("substrate-ob76") {
-                stage ('sunbeam-ob76-1h1c-nostorage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-ob76-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                    }
-                }
-                stage ('sunbeam-ob76-1h1c-storage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-ob76-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
-                    }
-                }
-                stage ('sunbeam-ob76-3h1c-nostorage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-ob76-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                    }
-                }
-                stage ('sunbeam-ob76-3h1c-storage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-ob76-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
-                    }
-                }
-                stage ('sunbeam-ob76-3h3c-nostorage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-ob76-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                    }
-                }
-                stage ('sunbeam-ob76-3h3c-storage-2023.2-edge') {
-                    steps {
-                        build job: 'sunbeam-ob76-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                    stage ('sunbeam-ob76-3h3c-storage-2023.2-edge') {
+                        steps {
+                            build job: 'sunbeam-ob76-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        }
                     }
                 }
             }
