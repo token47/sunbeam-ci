@@ -83,12 +83,10 @@ for node in nodes:
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
 
-    utils.put(user, s_host_ip_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
-
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
     token = utils.token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
 
-    cmd = "sunbeam cluster join " # removed?? -m ~/manifest.yaml
+    cmd = "sunbeam cluster join"
     for role in node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
@@ -107,7 +105,7 @@ else:
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
-cmd = "sunbeam configure -m ~/manifest.yaml --openrc ~/demo-openrc && echo > ~/demo-openrc"
+cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("configuring demo project failed, aborting")
