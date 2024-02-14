@@ -2,8 +2,9 @@
 
 import json
 import os
-import substrate_ob76
 import substrate_equinix
+import substrate_ob76
+import substrate_tokenlabs
 import sys
 import utils
 
@@ -30,5 +31,7 @@ if config["substrate"] == "ob76":
     substrate_ob76.execute(config, creds, action)
 elif config["substrate"] == "equinix":
     substrate_equinix.execute(config, creds, action)
+elif config["substrate"] == "tokenlabs":
+    substrate_tokenlabs.execute(config, creds, action)
 else:
     utils.die(f"substrate {config['substrate']} not valid, aborting")
