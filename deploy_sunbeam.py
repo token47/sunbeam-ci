@@ -20,11 +20,10 @@ config["manifest"]["software"].update({
     #    "mysql-router-k8s": { "channel": "8.0/edge", },
     #    "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
         # temporary hack - issue with repcount=1 and n.osds<3
-        "cinder-ceph": { "config": { "ceph-osd-replication-count": 3 }, },
-        "glance": { "config": { "ceph-osd-replication-count": 3 }, },
+        "cinder-ceph-k8s": { "config": { "ceph-osd-replication-count": 3 }, },
+        "glance-k8s": { "config": { "ceph-osd-replication-count": 3 }, },
     },
 })
-utils.debug(f"Final manifest/software section after workarounds: {config['manifest']['software']}")
 
 # order hosts to have control nodes first, then separete primary node from others
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
