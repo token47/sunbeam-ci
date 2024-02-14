@@ -11,7 +11,7 @@ import yaml
 config = utils.read_config()
 
 # manifest software override options
-config["manifest"]["software"] += {
+config["manifest"]["software"].update({
     #"juju": {
     #    "bootstrap_args": [ "--debug" ],
     #},
@@ -23,7 +23,7 @@ config["manifest"]["software"] += {
         "cinder-ceph": { "config": { "ceph-osd-replication-count": 3 }, },
         "glance": { "config": { "ceph-osd-replication-count": 3 }, },
     },
-}
+})
 
 # order hosts to have control nodes first, then separete primary node from others
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
