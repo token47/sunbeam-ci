@@ -63,8 +63,9 @@ for node in config["nodes"]:
     #############################################
     juju_status_text = ""
 
-    juju_status_text = utils.ssh_capture(user, host_ip_ext,
-        'set -x; juju models; echo')
+    juju_models_text = utils.ssh_capture(user, host_ip_ext,
+        'set -x; juju models')
+    utils.write_file(juju_models_text, f"artifacts/juju-models-{host_name_int}.txt")
 
     juju_models_yaml = utils.ssh_capture(user, host_ip_ext,
         "juju models --format=yaml")
@@ -73,9 +74,9 @@ for node in config["nodes"]:
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
 
-        # store all juju status in single buffer to write later
-        juju_status_text += utils.ssh_capture(user, host_ip_ext,
-            f'set -x; juju status -m {model}; echo')
+        juju_status_text = utils.ssh_capture(user, host_ip_ext,
+            f'set -x; juju status -m {model}')
+        utils.write_file(juju_status_text, f"artifacts/juju-status-{model.replace('/', '%')}-{host_name_int}.txt")
 
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
@@ -91,9 +92,6 @@ for node in config["nodes"]:
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit_key}"),
                     f"artifacts/juju-showunit-{unit_key.replace('/', '%')}-{host_name_int}.txt")
-
-    utils.write_file(juju_status_text, f"artifacts/juju-status-{host_name_int}.txt")
-
 
     #############################################
     # Microk8s
