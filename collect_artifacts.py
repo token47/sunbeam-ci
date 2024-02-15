@@ -5,20 +5,20 @@ import os
 import re
 import utils
 
-try:
-    config = utils.read_config()
-except IOError:
-    utils.die("Config file does not exist, aborting artifacts collection entirely")
-
-# Create temporary dir inside workspace
-os.mkdir('artifacts')
-
 utils.debug("collecting common build artifacts")
 
+os.mkdir('artifacts')
+
+# minimum info, even without a config
 utils.write_file(utils.exec_cmd_capture(
     """ set -x
         cat config.yaml
     """), "artifacts/build-info.txt")
+
+try:
+    config = utils.read_config()
+except IOError:
+    utils.die("Config file does not exist, aborting artifacts collection")
 
 user = config["user"]
 for node in config["nodes"]:
