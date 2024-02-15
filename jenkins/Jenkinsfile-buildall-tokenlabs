@@ -1,0 +1,20 @@
+/*
+it is not a good idea to hardcode in the repository the names of the
+jobs created inside jenkins, but this will have to do for now
+TODO: find a way to dinamically iterate throug existing jobs and
+      classify them between substrates, then build them serially
+
+Also, we're not using a for loop here on purpose because eventually
+each build may get different/specific parameters
+*/
+
+pipeline {
+    agent any
+    stages {
+        stage("substrate-ob76") {
+            steps {
+                build job: 'sunbeam-tokenlabs-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+            }
+        }
+    }
+}
