@@ -56,7 +56,7 @@ pipeline {
                 archiveArtifacts artifacts: '**/*', allowEmptyArchive: true
             }
             // adds console output to the artifacts so we also get it when downloading zip file
-            sh "ln ../../jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/{log,archive/console-output.log || :"
+            sh "ln ../../jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/{log,archive/console-output.log} || :"
             sh "./manage_substrate.py destroy"
         }
     }
