@@ -21,7 +21,5 @@ TODO
 - add proxy support (whatever sunbeam proxy support is at the moment)
 - External portal with build results and artifacts
 - convert all those independent ssh calls to paramiko lib
-
-- split config in profiles/substrates with subdirs (find other repeated code)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
-- Improve artifacts collection, juju debug per unit, others? review sqa ones again
+- split config in profiles/substrates with subdirs (find other repeated code)
