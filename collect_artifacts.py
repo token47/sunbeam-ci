@@ -9,7 +9,10 @@ import yaml
 
 utils.debug("collecting common build artifacts")
 
-os.mkdir('artifacts')
+try:
+    os.mkdir('artifacts')
+except FileExistsError:
+    pass
 
 # minimum info, even without a config
 utils.write_file(utils.exec_cmd_capture(
@@ -65,8 +68,7 @@ for node in config["nodes"]:
         "juju models --format=yaml")
     juju_models_dict = yaml.safe_load(juju_models_yaml)
 
-    for model in juju_models_dict["models"].items():
-        model_name = model["name"]
+    for model in [ x["name"] for x in juju_models_dict["models"] ]:
 
         # store all juju status in single buffer to write later
         juju_status_text += utils.ssh_capture(user, host_ip_ext,
@@ -75,7 +77,7 @@ for node in config["nodes"]:
         # juju debug-status goes one per file right away
         utils.write_file(utils.ssh_capture(user, host_ip_ext,
             f"set -x; juju debug-log -m {model} --replay --no-tail"),
-            f"artifacts/juju-debuglog-{model}-{host_name_int}.txt")
+            f"artifacts/juju-debuglog-{model.replace('/', '!')}-{host_name_int}.txt")
 
         # juju status in yaml format is for iterating over applications
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
@@ -87,11 +89,11 @@ for node in config["nodes"]:
             for unit in application["units"]:
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit}"),
-                    f"artifacts/juju-showunit-{unit}-{host_name_int}.txt")
+                    f"artifacts/juju-showunit-{unit.replace('/', '!')}-{host_name_int}.txt")
                 # again debug-log, now separate per unit
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju debug-log -m {model} --include {unit} --replay --no-tail"),
-                    f"artifacts/juju-debuglog-{unit}-{host_name_int}.txt")
+                    f"artifacts/juju-debuglog-{unit.replace('/', '!')}-{host_name_int}.txt")
 
     utils.write_file(juju_status_text, f"artifacts/juju-status-{host_name_int}.txt")
 
