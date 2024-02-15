@@ -44,7 +44,7 @@ for node in config["nodes"]:
         """), f"artifacts/software-{host_name_int}.txt")
 
     #############################################
-    # Network
+    # System
     #############################################
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
@@ -54,6 +54,9 @@ for node in config["nodes"]:
             cat /etc/hosts
             ip addr list
         """), f"artifacts/network-{host_name_int}.txt")
+
+    utils.scp_get(user, host_ip_ext,
+        "/var/log/syslog", f"artifacts/syslog-{host_name_int}.txt")
 
     #############################################
     # Juju
@@ -73,10 +76,6 @@ for node in config["nodes"]:
         # store all juju status in single buffer to write later
         juju_status_text += utils.ssh_capture(user, host_ip_ext,
             f'set -x; juju status -m {model}; echo')
-
-        utils.write_file(utils.ssh_capture(user, host_ip_ext,
-            f"set -x; juju debug-log -m {model} --replay --no-tail"),
-            f"artifacts/juju-debuglog-{model.replace('/', '%')}-{host_name_int}.txt")
 
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
@@ -123,10 +122,7 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(user, host_ip_ext,
         """ set -x
             sunbeam cluster list
-        """), f"artifacts/cluster-{host_name_int}.txt")
-
-    utils.scp_get(user, host_ip_ext,
-        "/var/log/syslog", f"artifacts/syslog-{host_name_int}.txt")
+        """), f"artifacts/sunbeam-cluster-{host_name_int}.txt")
 
     utils.scp_get(user, host_ip_ext,
         "~/snap/openstack/common/logs/*", "artifacts/")
