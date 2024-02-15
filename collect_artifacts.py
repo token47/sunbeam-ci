@@ -80,7 +80,7 @@ for node in config["nodes"]:
 
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
-        utils.write_file(juju_status_yaml, f"artifacts/juju-status-{model}-{host_name_int}.yaml")
+        utils.write_file(juju_status_yaml, f"artifacts/juju-status-{model.replace('/', '%')}-{host_name_int}.yaml")
         juju_status_dict = yaml.safe_load(juju_status_yaml)
 
         for app_key, app_val in juju_status_dict.get("applications", {}).items():
