@@ -85,8 +85,8 @@ for node in config["nodes"]:
         juju_status_dict = yaml.safe_load(juju_status_yaml)
 
         # get show-unit for all units of all apps in all models
-        for application in juju_status_dict["applications"].items():
-            for unit in application["units"]:
+        for application_key, application_values in juju_status_dict["applications"].items():
+            for unit in application_values["units"]:
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit}"),
                     f"artifacts/juju-showunit-{unit.replace('/', '!')}-{host_name_int}.txt")
