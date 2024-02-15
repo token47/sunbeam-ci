@@ -9,9 +9,9 @@ TODO
 - testing
     - ping the initial demo vm, ssh to it and test communication to internet
     - manually create more VMs in admin and demo projects, same test as above
-    - run tempest with a test list (from SQA)
     - enable most plugins (they usually time out enabling)
     - test plugins as possible (SQA has some tests already)
+    - run tempest with a test list (from SQA) -- will need various plugins enabled
 - artifacts
     - collect openstack internal stuff
 - try to pass non-conflicting IPs for simultanous clusters tests in maas?
