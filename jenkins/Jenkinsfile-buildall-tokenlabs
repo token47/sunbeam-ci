@@ -11,7 +11,7 @@ each build may get different/specific parameters
 pipeline {
     agent any
     stages {
-        stage("substrate-ob76") {
+        stage("substrate-tokenlabs") {
             steps {
                 build job: 'sunbeam-tokenlabs-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
             }
