@@ -72,7 +72,7 @@ for node in config["nodes"]:
 
     juju_models_yaml = utils.ssh_capture(user, host_ip_ext,
         "juju models --format=yaml")
-    utils.write_file(juju_models_yaml, f"artifacts/juju-models-{host_name_int}.yaml")
+    utils.write_file(juju_models_yaml, f"artifacts/juju-models-{host_name_int}.yaml.txt")
     juju_models_dict = yaml.safe_load(juju_models_yaml)
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
@@ -83,7 +83,7 @@ for node in config["nodes"]:
 
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
-        utils.write_file(juju_status_yaml, f"artifacts/juju-status-{model.replace('/', '%')}-{host_name_int}.yaml")
+        utils.write_file(juju_status_yaml, f"artifacts/juju-status-{model.replace('/', '%')}-{host_name_int}.yaml.txt")
         juju_status_dict = yaml.safe_load(juju_status_yaml)
 
         for app_key, app_val in juju_status_dict.get("applications", {}).items():
