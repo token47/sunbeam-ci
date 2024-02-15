@@ -51,8 +51,8 @@ for node in config["nodes"]:
         """ set -x
             hostname -f
             hostname -s
-            ip addr list
             cat /etc/hosts
+            ip addr list
         """), f"artifacts/network-{host_name_int}.txt")
 
     #############################################
@@ -61,39 +61,37 @@ for node in config["nodes"]:
     juju_status_text = ""
 
     juju_status_text = utils.ssh_capture(user, host_ip_ext,
-        'set -x; juju models; echo "--------"')
+        'set -x; juju models; echo')
 
-    # juju models in yaml format is for iterating over models
     juju_models_yaml = utils.ssh_capture(user, host_ip_ext,
         "juju models --format=yaml")
+    utils.write_file(juju_models_yaml, f"artifacts/juju-models-{host_name_int}.yaml")
     juju_models_dict = yaml.safe_load(juju_models_yaml)
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
 
         # store all juju status in single buffer to write later
         juju_status_text += utils.ssh_capture(user, host_ip_ext,
-            f'set -x; juju status -m {model}; echo "--------"')
+            f'set -x; juju status -m {model}; echo')
 
-        # juju debug-status goes one per file right away
         utils.write_file(utils.ssh_capture(user, host_ip_ext,
             f"set -x; juju debug-log -m {model} --replay --no-tail"),
             f"artifacts/juju-debuglog-{model.replace('/', '%')}-{host_name_int}.txt")
 
-        # juju status in yaml format is for iterating over applications
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
+        utils.write_file(juju_status_yaml, f"artifacts/juju-status-{model}-{host_name_int}.yaml")
         juju_status_dict = yaml.safe_load(juju_status_yaml)
 
-        # get show-unit for all units of all apps in all models
-        for application_key, application_values in juju_status_dict.get("applications", {}).items():
-            for unit_key, unit_values in application_values.get("units", {}).items():
+        for app_key, app_val in juju_status_dict.get("applications", {}).items():
+            # we do debug-log per app (and not per unit) b/c k8s-operators do not support it
+            utils.write_file(utils.ssh_capture(user, host_ip_ext,
+                f"set -x; juju debug-log -m {model} --include {app_key} --replay --no-tail"),
+                f"artifacts/juju-debuglog-{app_key}-{host_name_int}.txt")
+            for unit_key, unit_val in app_val.get("units", {}).items():
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit_key}"),
                     f"artifacts/juju-showunit-{unit_key.replace('/', '%')}-{host_name_int}.txt")
-                # again debug-log, now separate per unit
-                utils.write_file(utils.ssh_capture(user, host_ip_ext,
-                    f"set -x; juju debug-log -m {model} --include {unit_key} --replay --no-tail"),
-                    f"artifacts/juju-debuglog-{unit_key.replace('/', '%')}-{host_name_int}.txt")
 
     utils.write_file(juju_status_text, f"artifacts/juju-status-{host_name_int}.txt")
 
@@ -104,9 +102,9 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(user, host_ip_ext,
         """ set -x
             sudo microk8s.kubectl get nodes
-            echo "--------"
+            echo
             sudo microk8s.kubectl get all -A
-            echo "--------"
+            echo
             sudo microk8s.kubectl get pod -A -o yaml
         """), f"artifacts/microk8s-{host_name_int}.txt")
 
