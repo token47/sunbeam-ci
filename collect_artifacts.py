@@ -86,9 +86,7 @@ for node in config["nodes"]:
 
         # get show-unit for all units of all apps in all models
         for application_key, application_values in juju_status_dict["applications"].items():
-            utils.debug(f"processing juju application {application_key}")
-            for unit_key, unit_values in application_values["units"].items():
-                utils.debug(f"processing juju unit {unit_key}")
+            for unit_key, unit_values in application_values.items().get("units", None):
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit_key}"),
                     f"artifacts/juju-showunit-{unit_key.replace('/', '!')}-{host_name_int}.txt")
