@@ -69,8 +69,8 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
         """ set -x
-            sudo microceph status
-            sudo ceph -s
+            sudo timeout -k10 30 microceph status
+            sudo timeout -k10 30 ceph -s
         """), f"artifacts/microceph-{host_name_int}.txt")
 
     utils.write_file(utils.ssh_capture(
@@ -87,4 +87,4 @@ for node in config["nodes"]:
     for f in glob.glob("artifacts/sunbeam-202?????-??????.??????.log"):
         os.rename(f, re.sub("sunbeam-", f"sunbeam-logs-{host_name_int}-", f))
 
-    #most openstack resources servers, networks, subnets, routers, images, flavors
+    # algo get most openstack resources servers, networks, subnets, routers, images, flavors
