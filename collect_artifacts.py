@@ -77,7 +77,7 @@ for node in config["nodes"]:
         # juju debug-status goes one per file right away
         utils.write_file(utils.ssh_capture(user, host_ip_ext,
             f"set -x; juju debug-log -m {model} --replay --no-tail"),
-            f"artifacts/juju-debuglog-{model.replace('/', '!')}-{host_name_int}.txt")
+            f"artifacts/juju-debuglog-{model.replace('/', '%')}-{host_name_int}.txt")
 
         # juju status in yaml format is for iterating over applications
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
@@ -89,11 +89,11 @@ for node in config["nodes"]:
             for unit_key, unit_values in application_values.get("units", {}).items():
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit_key}"),
-                    f"artifacts/juju-showunit-{unit_key.replace('/', '!')}-{host_name_int}.txt")
+                    f"artifacts/juju-showunit-{unit_key.replace('/', '%')}-{host_name_int}.txt")
                 # again debug-log, now separate per unit
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju debug-log -m {model} --include {unit_key} --replay --no-tail"),
-                    f"artifacts/juju-debuglog-{unit_key.replace('/', '!')}-{host_name_int}.txt")
+                    f"artifacts/juju-debuglog-{unit_key.replace('/', '%')}-{host_name_int}.txt")
 
     utils.write_file(juju_status_text, f"artifacts/juju-status-{host_name_int}.txt")
 
