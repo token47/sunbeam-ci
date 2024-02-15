@@ -74,7 +74,7 @@ def ssh_filtered(user, host, cmd):
                 delayed = line
                 continue
             if line != lastline:
-                print(f"{line}\r") # \r is needed here, not sure why
+                print(f"{line}") # \r is needed here if at console
                 lastline = line
                 if "Error: Unable to connect to websocket" in line: # hack
                     websocket_error = True
