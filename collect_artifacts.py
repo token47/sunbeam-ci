@@ -50,8 +50,11 @@ for node in config["nodes"]:
         user, host_ip_ext,
         """ set -x
             hostname -f
+            echo
             hostname -s
+            echo
             cat /etc/hosts
+            echo
             ip addr list
         """), f"artifacts/network-{host_name_int}.txt")
 
@@ -111,6 +114,7 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(user, host_ip_ext,
         """ set -x
             sudo timeout -k10 30 microceph status
+            echo
             sudo timeout -k10 30 ceph -s
         """), f"artifacts/microceph-{host_name_int}.txt")
 
