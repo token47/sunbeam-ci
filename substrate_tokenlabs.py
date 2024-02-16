@@ -96,7 +96,7 @@ def build(input_config):
             "host-ip-int": ipaddress[0], # let's take the first one now, TODO: find the OAM one
             "roles": nodes_roles[nodename].split(","),
         })
-        manifest["deployment"]["microceph_config"][nodename] = { "osd_devices": "/dev/sda3" }
+        manifest["deployment"]["microceph_config"][nodename] = { "osd_devices": "/dev/sdb" }
 
     output_config = {}
     output_config["nodes"] = nodes
