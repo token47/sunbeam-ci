@@ -53,6 +53,7 @@ def ssh_filtered(user, host, cmd):
     stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *")
     detecttwolines = re.compile(
         r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
+        r"> Resizing OpenStack Control Plane to match appropriate topology \.\.\.|"
         r"> No sunbeam key found in OpenStack\. Creating SSH key at")
     cmd = f"ssh -o StrictHostKeyChecking=no -tt '{user}@{host}' 'set -x; {cmd}'"
     debug(f"SSH-FILTERED: {user}@{host}")
