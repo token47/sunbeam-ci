@@ -3,7 +3,7 @@ TODO
 
 - matrix of tests
     - find a way to easily test a huge number of combinations (channels/substrates/topologies/etc)
-    - (1h, 3h1c, 3h3c, 6h3c?) x (storage / no-storage) x (all substrates) / (1 db / many dbs) (all channels)
+    - (1h1c, 3h1c, 3h3c, 6h3c?) + disaggregated x (storage / no-storage) x (all substrates) / (1 db / many dbs) (all channels)
 - testing
     - ping the initial demo vm, ssh to it and test communication to internet
     - manually create more VMs in admin and demo projects, same test as above
