@@ -11,8 +11,6 @@ TODO
     - test plugins as possible (SQA has some tests already)
     - run tempest with a test list (from SQA) -- will need various plugins enabled
 + show decoded join token in console log to help debugging
-- artifacts
-    + collect openstack internal stuff
 - try to pass non-conflicting IPs for simultanous clusters tests in maas?
 - try to optimize equinix costs with spot instances?
 - silence juju installs with spinning status / downloaded status
