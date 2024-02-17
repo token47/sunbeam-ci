@@ -1,5 +1,6 @@
 #!/bin/false
 
+import base64
 import re
 import subprocess
 import sys
@@ -171,3 +172,7 @@ def token_extract(text):
 
 def sleep(seconds):
     time.sleep(seconds)
+
+
+def base64_decode(coded_string)
+    return base64.b64decode(coded_string)

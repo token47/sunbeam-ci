@@ -97,6 +97,8 @@ for node in nodes:
 
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
     token = utils.token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
+    utils.debug(f"Got token: {token}")
+    utils.debug(f"Decoded token: {utils.base64_decode(token)}")
 
     cmd = "sunbeam cluster join"
     for role in node["roles"]:
