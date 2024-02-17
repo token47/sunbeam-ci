@@ -19,10 +19,7 @@ import utils
     }
 
     creds:
-    {
-        "project_id": "xxx",
-        "api_key": "xxx"
-    }
+    { "project_id": "xxx", "api_key": "xxx" }
 """
 
 
