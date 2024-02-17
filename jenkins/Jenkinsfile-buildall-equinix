@@ -13,11 +13,12 @@ pipeline {
     stages {
          stage("buildall-equinix") {
              steps {
+                 //build job: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', propagate: false, quietPeriod: 60
+                 //    parameters: [
+                 //        string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
+                 //        booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
+                 //    ]
                  build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                     //parameters: [
-                     //    string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
-                     //    booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
-                     //]
                  build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
                  build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
                  build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
