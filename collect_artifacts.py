@@ -138,10 +138,10 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(user, host_ip_ext,
         """ set -xe
             source admin-openrc
-            openstack server list; echo
-            openstack network list; echo
-            openstack subnet list; echo
-            openstack router list; echo
-            openstack image list; echo
-            openstack flavor list; echo
+            openstack server list --all-projects --long; echo
+            openstack network list --long; echo
+            openstack subnet list --long; echo
+            openstack router list --long; echo
+            openstack image list --long; echo
+            openstack flavor list --all --long; echo
         """), f"artifacts/openstack_{host_name_int}.txt")
