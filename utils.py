@@ -174,5 +174,5 @@ def sleep(seconds):
     time.sleep(seconds)
 
 
-def base64_decode(coded_string)
+def b64decode(coded_string):
     return base64.b64decode(coded_string)
