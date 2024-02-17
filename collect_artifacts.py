@@ -22,7 +22,7 @@ except IOError:
 # local info (from the build itself, not from the nodes)
 utils.write_file(utils.exec_cmd_capture(
     """ set -x
-        cat config.yaml; echo
+        cat config.yaml
     """), "artifacts/build-info.txt")
 
 user = config["user"]
@@ -53,8 +53,8 @@ for node in config["nodes"]:
 
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
-        """ set -x; journalctl -x --no-tail --no-pager
-        """), f"artifacts/journalctl_{host_name_int}.txt")
+        "set -x; SYSTEMD_COLORS=false journalctl -x --no-tail --no-pager"),
+        f"artifacts/journalctl_{host_name_int}.txt")
 
     utils.scp_get(user, host_ip_ext,
         "/var/log/syslog", f"artifacts/syslog_{host_name_int}.txt")
