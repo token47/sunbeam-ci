@@ -49,16 +49,15 @@ for node in config["nodes"]:
             lsblk; echo
             df -h; echo
             snap list
-        """), f"artifacts/system-info-{host_name_int}.txt")
+        """), f"artifacts/system-info_{host_name_int}.txt")
 
     utils.write_file(utils.ssh_capture(
         user, host_ip_ext,
-        """ set -x
-            journalctl -x --no-tail --no-pager
-        """), f"artifacts/journalctl-{host_name_int}.txt")
+        """ set -x; journalctl -x --no-tail --no-pager
+        """), f"artifacts/journalctl_{host_name_int}.txt")
 
     utils.scp_get(user, host_ip_ext,
-        "/var/log/syslog", f"artifacts/syslog-{host_name_int}.txt")
+        "/var/log/syslog", f"artifacts/syslog_{host_name_int}.txt")
 
     #############################################
     # Juju
@@ -67,51 +66,49 @@ for node in config["nodes"]:
 
     juju_models_text = utils.ssh_capture(user, host_ip_ext,
         'set -x; juju models')
-    utils.write_file(juju_models_text,
-        f"artifacts/juju-models-{host_name_int}.txt")
-
     juju_models_yaml = utils.ssh_capture(user, host_ip_ext,
         "juju models --format=yaml")
-    utils.write_file(juju_models_yaml,
-        f"artifacts/juju-models-{host_name_int}.yaml.txt")
     juju_models_dict = yaml.safe_load(juju_models_yaml)
+    utils.write_file(juju_models_text,
+        f"artifacts/juju-models_{host_name_int}.txt")
+    utils.write_file(juju_models_yaml,
+        f"artifacts/juju-models_{host_name_int}.yaml.txt")
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
 
         juju_status_text = utils.ssh_capture(user, host_ip_ext,
             f'set -x; juju status -m {model}')
-        utils.write_file(juju_status_text,
-            f"artifacts/juju-status-{model.replace('/', '%')}-{host_name_int}.txt")
-
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
-        utils.write_file(juju_status_yaml,
-            f"artifacts/juju-status-{model.replace('/', '%')}-{host_name_int}.yaml.txt")
         juju_status_dict = yaml.safe_load(juju_status_yaml)
+        utils.write_file(juju_status_text,
+            f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.txt")
+        utils.write_file(juju_status_yaml,
+            f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.yaml.txt")
 
         # we do debug-log per model (and not per unit or app) because k8s-operators 
         # are too temperamental with exact unit/app names that can be specified
         utils.write_file(utils.ssh_capture(user, host_ip_ext,
             f"set -x; juju debug-log -m {model} --replay --no-tail"),
-            f"artifacts/juju-debuglog-{model.replace('/', '%')}-{host_name_int}.txt")
+            f"artifacts/juju-debuglog_{model.replace('/', '%')}_{host_name_int}.txt")
 
         for app_key, app_val in juju_status_dict.get("applications", {}).items():
             for unit_key, unit_val in app_val.get("units", {}).items():
                 utils.write_file(utils.ssh_capture(user, host_ip_ext,
                     f"set -x; juju show-unit -m {model} {unit_key}"),
-                    f"artifacts/juju-showunit-{unit_key.replace('/', '%')}-{host_name_int}.txt")
+                    f"artifacts/juju-showunit_{unit_key.replace('/', '%')}_{host_name_int}.txt")
 
-        # maybe scp juju logs (/var/log/juju/*.log) from nodes?
+        # maybe scp juju logs (/var/log/juju/*.log) from nodes + rename or subdir?
 
     #############################################
     # Microk8s
     #############################################
     utils.write_file(utils.ssh_capture(user, host_ip_ext,
-        """ set -x
+        """ set -xe
             sudo microk8s.kubectl get nodes; echo
             sudo microk8s.kubectl get all -A; echo
             sudo microk8s.kubectl get pod -A -o yaml
-        """), f"artifacts/microk8s-{host_name_int}.txt")
+        """), f"artifacts/microk8s_{host_name_int}.txt")
 
     #############################################
     # Microceph
@@ -120,7 +117,7 @@ for node in config["nodes"]:
         """ set -x
             sudo timeout -k10 30 microceph status; echo
             sudo timeout -k10 30 ceph -s
-        """), f"artifacts/microceph-{host_name_int}.txt")
+        """), f"artifacts/microceph_{host_name_int}.txt")
 
     #############################################
     # Sunbeam
@@ -128,14 +125,23 @@ for node in config["nodes"]:
     utils.write_file(utils.ssh_capture(user, host_ip_ext,
         """ set -x
             sunbeam cluster list
-        """), f"artifacts/sunbeam-cluster-{host_name_int}.txt")
+        """), f"artifacts/sunbeam-cluster_{host_name_int}.txt")
 
     utils.scp_get(user, host_ip_ext,
         "~/snap/openstack/common/logs/*", "artifacts/")
     for fn in glob.glob("artifacts/sunbeam-202?????-??????.??????.log"):
-        os.rename(fn, re.sub("sunbeam-", f"sunbeam-logs-{host_name_int}-", fn))
+        os.rename(fn, re.sub("sunbeam-", f"sunbeam-logs_{host_name_int}_", fn))
 
     #############################################
     # Openstack
     #############################################
-    # get most openstack resources servers, networks, subnets, routers, images, flavors
+    utils.write_file(utils.ssh_capture(user, host_ip_ext,
+        """ set -xe
+            source admin-openrc
+            openstack server list; echo
+            openstack network list; echo
+            openstack subnet list; echo
+            openstack router list; echo
+            openstack image list; echo
+            openstack flavor list; echo
+        """), f"artifacts/openstack_{host_name_int}.txt")
