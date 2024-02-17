@@ -17,5 +17,6 @@ TODO
 - add proxy support (whatever sunbeam proxy support is at the moment)
 - convert all those independent ssh calls to paramiko lib (not as easy as it seems)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
+- External portal with build results and artifacts, easy sync of artifacts
 + split config in profiles/substrates with subdirs (find other repeated code)
-+ External portal with build results and artifacts, easy sync of artifacts
++ protect artifacts collection (individual ones) with try/catch so it does not interrupt whole collection in case of one error
