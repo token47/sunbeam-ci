@@ -167,3 +167,7 @@ def token_extract(text):
         debug(text)
         die("aborting")
     return match.group(1)
+
+
+def sleep(seconds):
+    time.sleep(seconds)
