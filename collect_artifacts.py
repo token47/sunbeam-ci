@@ -66,11 +66,11 @@ for node in config["nodes"]:
 
     juju_models_text = utils.ssh_capture(user, host_ip_ext,
         'set -x; juju models')
+    utils.write_file(juju_models_text,
+        f"artifacts/juju-models_{host_name_int}.txt")
     juju_models_yaml = utils.ssh_capture(user, host_ip_ext,
         "juju models --format=yaml")
     juju_models_dict = yaml.safe_load(juju_models_yaml)
-    utils.write_file(juju_models_text,
-        f"artifacts/juju-models_{host_name_int}.txt")
     utils.write_file(juju_models_yaml,
         f"artifacts/juju-models_{host_name_int}.yaml.txt")
 
@@ -78,11 +78,11 @@ for node in config["nodes"]:
 
         juju_status_text = utils.ssh_capture(user, host_ip_ext,
             f'set -x; juju status -m {model}')
+        utils.write_file(juju_status_text,
+            f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.txt")
         juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
             f"juju status -m {model} --format=yaml")
         juju_status_dict = yaml.safe_load(juju_status_yaml)
-        utils.write_file(juju_status_text,
-            f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.txt")
         utils.write_file(juju_status_yaml,
             f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.yaml.txt")
 
