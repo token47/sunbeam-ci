@@ -33,7 +33,7 @@ def execute(config, creds, action):
         # avoid triggering error on snap install -- "error: too early for
         # operation, device not yet seeded or device model not acknowledged"
         utils.debug("Sleeping 5s to let host settle (seed, snap, etc)")
-        utils.sleep(5)
+        utils.sleep(10)
     elif action == "destroy":
         destroy(config)
     else:
