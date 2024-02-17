@@ -7,15 +7,15 @@ TODO
 - testing
     - ping the initial demo vm, ssh to it and test communication to internet
     - manually create more VMs in admin and demo projects, same test as above
-    - enable most plugins (they usually time out enabling)
+    - enable most plugins (they usually time out enabling) - build or test stage?
     - test plugins as possible (SQA has some tests already)
     - run tempest with a test list (from SQA) -- will need various plugins enabled
 - try to pass non-conflicting IPs for simultanous clusters tests in maas?
 - try to optimize equinix costs with spot instances?
 - silence juju installs with spinning status / downloaded status
-- maybe add dockerhub credentials to all microk8s to help avoiding timeouts?
+- maybe add dockerhub credentials to all microk8s to help avoiding thottling timeouts? they seem rare now
 - add proxy support (whatever sunbeam proxy support is at the moment)
-- External portal with build results and artifacts
 - convert all those independent ssh calls to paramiko lib (not as easy as it seems)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
 + split config in profiles/substrates with subdirs (find other repeated code)
++ External portal with build results and artifacts, easy sync of artifacts
