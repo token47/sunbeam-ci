@@ -62,8 +62,6 @@ for node in config["nodes"]:
     #############################################
     # Juju
     #############################################
-    juju_status_text = ""
-
     juju_models_text = utils.ssh_capture(user, host_ip_ext,
         'set -x; juju models')
     utils.write_file(juju_models_text,
