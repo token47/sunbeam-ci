@@ -99,7 +99,7 @@ def ssh_filtered(user, host, cmd):
 def ssh_capture(user, host, cmd):
     """Run an ssh command and captures the output"""
     cmd = ("ssh -o StrictHostKeyChecking=no -o ControlMaster=auto "
-        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m -tt "
+        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m "
         f"'{user}@{host}' '{cmd}'")
     debug(f"SSH-CAPTURE: {cmd}")
     result = subprocess.run(cmd, shell=True, check=False,
