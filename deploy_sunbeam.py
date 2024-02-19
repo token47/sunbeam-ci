@@ -5,7 +5,6 @@ This script deploys sunbeam on a substrate that has already been prepared for it
 """
 
 import utils
-import yaml
 
 
 config = utils.read_config()
@@ -59,7 +58,8 @@ if rc > 0:
 # kill master so new user groups activate next connection
 utils.ssh_master_stop(user, p_host_ip_ext)
 
-utils.put(user, p_host_ip_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
+utils.put(user, p_host_ip_ext, "~/manifest.yaml",
+    utils.string_to_yaml(config["manifest"]))
 
 cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:

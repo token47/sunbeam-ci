@@ -192,3 +192,7 @@ def sleep(seconds):
 
 def b64decode(coded_string):
     return base64.b64decode(coded_string)
+
+
+def string_to_yaml(string):
+    return yaml.dump(string)
