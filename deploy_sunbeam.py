@@ -96,6 +96,7 @@ for node in nodes:
     rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
+    utils.ssh_master_stop(user, s_host_ip_ext)
 
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
     token = utils.token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
