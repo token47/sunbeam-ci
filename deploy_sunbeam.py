@@ -56,6 +56,8 @@ cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
 rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
+# kill master so new user groups activate next connection
+utils.ssh_master_stop(user, p_host_ip_ext)
 
 utils.put(user, p_host_ip_ext, "~/manifest.yaml", yaml.dump(config["manifest"]))
 

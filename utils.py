@@ -40,10 +40,16 @@ def ssh_clean(host):
     exec_cmd(cmd)
 
 
+def ssh_master_stop(user, host):
+    """Kills the current ssh master so that new master comes up next connection"""
+    cmd = f"ssh -o ControlPath=/tmp/ssh-master-%r@%h:%p -O exit '{user}@{host}'"
+    exec_cmd(cmd)
+
+
 def ssh(user, host, cmd):
     """Run an ssh command using system ssh executable"""
     cmd = ("ssh -o StrictHostKeyChecking=no -o ControlMaster=auto "
-        "-o ControlPath=/tmp/%r@%h:%p -o ControlPersist=5m -tt "
+        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m -tt "
         f"'{user}@{host}' 'set -x; {cmd}'")
     debug(f"SSH: {user}@{host}")
     result = subprocess.run(cmd, shell=True, check=False)
@@ -59,7 +65,7 @@ def ssh_filtered(user, host, cmd):
         r"> Resizing OpenStack Control Plane to match appropriate topology \.\.\.|"
         r"> No sunbeam key found in OpenStack\. Creating SSH key at")
     cmd = ("ssh -o StrictHostKeyChecking=no -o ControlMaster=auto "
-        "-o ControlPath=/tmp/%r@%h:%p -o ControlPersist=5m -tt "
+        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m -tt "
         f"'{user}@{host}' 'set -x; {cmd}'")
     debug(f"SSH-FILTERED: {user}@{host}")
     result = subprocess.Popen(cmd, shell=True, encoding="utf-8",
@@ -93,7 +99,7 @@ def ssh_filtered(user, host, cmd):
 def ssh_capture(user, host, cmd):
     """Run an ssh command and captures the output"""
     cmd = ("ssh -o StrictHostKeyChecking=no -o ControlMaster=auto "
-        "-o ControlPath=/tmp/%r@%h:%p -o ControlPersist=5m -tt "
+        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m -tt "
         f"'{user}@{host}' '{cmd}'")
     debug(f"SSH-CAPTURE: {cmd}")
     result = subprocess.run(cmd, shell=True, check=False,
@@ -104,7 +110,7 @@ def ssh_capture(user, host, cmd):
 def put(user, host, file, content):
     """Uploads a text file to a remote server via ssh"""
     cmd = ("ssh -o StrictHostKeyChecking=no -o ControlMaster=auto "
-        "-o ControlPath=/tmp/%r@%h:%p -o ControlPersist=5m -tt "
+        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m "
         f"'{user}@{host}' 'tee {file}'")
     debug(f"PUT: {user}@{host} {file}")
     result = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
@@ -116,7 +122,7 @@ def put(user, host, file, content):
 def scp_get(user, host, src, dst):
     """Copies files from remote to local system using scp"""
     cmd = ("scp -o StrictHostKeyChecking=no -o ControlMaster=auto "
-        "-o ControlPath=/tmp/%r@%h:%p -o ControlPersist=5m "
+        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m "
         f"'{user}@{host}:{src}' '{dst}'")
     debug(f"SCP-GET: {user}@{host}:{src} {dst}")
     result = subprocess.run(cmd, shell=True, check=False)
