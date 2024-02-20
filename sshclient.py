@@ -111,13 +111,14 @@ class SSHClient:
         stderr = channel.makefile_stderr("r", 1)
         stdout_buffer = ""
         stderr_buffer = ""
-        # hacks to detect websocket error and retry and to join separate lines that repeat as a pair
+        # hacks to detect websocket error and retry, suppress two consecutively repeated lines
+        # and to join specific separate lines that repeat as a pair
         # unfortunately these are easier to do here and not in a function because it is too much
         # context to pass out and in again (and hopefully they are temporary)
         websocket_error = False
         websocket_message = "Error: Unable to connect to websocket"
-        #delayed_line = None
         #last_line = ""
+        #delayed_line = None
         #detect_two_lines = re.compile(
         #    r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
         #    r"> Resizing OpenStack Control Plane to match appropriate topology \.\.\.|"
@@ -127,13 +128,15 @@ class SSHClient:
         can_exit = False
         while not can_exit:
             if (stderr_r := stderr.readline()):
-                stderr_buffer += stderr_r if not filtered else utils.strip_garbage(stderr_r)
+                t = stderr_r if not filtered else utils.strip_garbage(stderr_r)
+                stderr_buffer += t
                 if verbose:
-                    print(stderr_r, end="")
+                    print(t, end="")
             if (stdout_r := stdout.readline()):
-                stdout_buffer += stdout_r if not filtered else utils.strip_garbage(stdout_r)
+                t = stdout_r if not filtered else utils.strip_garbage(stdout_r)
+                stdout_buffer += t
                 if verbose:
-                    print(stdout_r, end="")
+                    print(t, end="")
             if not stdout_r and not stderr_r:
                 if channel.exit_status_ready():
                     can_exit = True
@@ -147,6 +150,14 @@ class SSHClient:
             rc = 1001
 
         return stdout_buffer, stderr_buffer, rc
+
+    # still missing:
+    # - repeated lines suppression
+    # - two lines join
+    # done / testing:
+    # - remove garbage
+    # - websocket error detection
+
 
     #    if delayed_line:
     #        line = f"{delayed} {line}"
