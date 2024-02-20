@@ -103,7 +103,7 @@ class SSHClient:
         # different from sftp, exec needs a new channel every time
         channel = self.transport.open_channel("session")
         if get_pty:
-            channel.get_pty() (term="xterm-256color")
+            channel.get_pty(term="xterm-256color")
         channel.set_combine_stderr(combine_stderr)
         channel.exec_command(cmd)
 
