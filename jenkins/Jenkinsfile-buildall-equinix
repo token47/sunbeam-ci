@@ -8,23 +8,32 @@ Also, we're not using a for loop here on purpose because eventually
 each build may get different/specific parameters
 */
 
+//build job: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', propagate: false, quietPeriod: 60
+//    parameters: [
+//        string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
+//        booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
+//    ]
+
 pipeline {
     agent any
     stages {
-         stage("buildall-equinix") {
-             steps {
-                 //build job: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', propagate: false, quietPeriod: 60
-                 //    parameters: [
-                 //        string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
-                 //        booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
-                 //    ]
-                 build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                 build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
-                 build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                 build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
-                 build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                 build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
-             }
-         }
+        stage("buildall-profile-equinix") {
+            parallel {
+                stage("Batch 1/2") {
+                    steps {
+                        build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                    }
+                }
+                stage("Batch 2/2") {
+                    steps {
+                        build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
+                        build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                    }
+                }
+            }
+        }
     }
 }
