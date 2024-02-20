@@ -68,7 +68,7 @@ m = utils.yaml_dump(config["manifest"])
 p_sshclient.file_write("manifest.yaml", m)
 utils.debug(f"Manifest contents are:\n{m}")
 
-cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
+cmd = "FORCE_COLOR=1 sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
 out, err, rc = p_sshclient.execute(
@@ -140,19 +140,19 @@ for node in nodes:
 if control_count < 3:
     utils.debug("Skipping 'resize' because there's not enough control nodes")
 else:
-    cmd = "sunbeam cluster resize"
+    cmd = "FORCE_COLOR=1 sunbeam cluster resize"
     out, err, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
-cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
+cmd = "FORCE_COLOR=1 sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
 out, err, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("configuring demo project failed, aborting")
 
-cmd = "sunbeam openrc > ~/admin-openrc"
+cmd = "FORCE_COLOR=1 sunbeam openrc > ~/admin-openrc"
 out, err, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:

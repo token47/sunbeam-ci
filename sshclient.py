@@ -2,7 +2,7 @@
 import fnmatch
 import os
 import paramiko
-import re
+#import re
 import time
 import utils
 
