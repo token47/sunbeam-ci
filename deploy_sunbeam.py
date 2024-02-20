@@ -61,7 +61,7 @@ out, err, rc = p_sshclient.execute(
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
 
-utils.die("Force new SSH connection to activate new groups on remote user")
+utils.debug("Force new SSH connection to activate new groups on remote user")
 p_sshclient.close()
 
 m = utils.yaml_dump(config["manifest"])
