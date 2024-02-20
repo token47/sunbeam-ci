@@ -2,6 +2,7 @@
 import fnmatch
 import os
 import paramiko
+import re
 import time
 import utils
 
@@ -101,39 +102,61 @@ class SSHClient:
         utils.debug(f"SSH-EXECUTE: starting new execute at host {self.host}:\n{cmd}")
         # different from sftp, exec needs a new channel every time
         channel = self.transport.open_channel("session")
-        channel.set_combine_stderr(combine_stderr)
         if get_pty:
-            channel.get_pty()
+            channel.get_pty() (term="xterm-256color")
+        channel.set_combine_stderr(combine_stderr)
         channel.exec_command(cmd)
 
-        stdout = channel.makefile("r", 1024)
-        stderr = channel.makefile_stderr("r", 1024)
+        stdout = channel.makefile("r", 1)
+        stderr = channel.makefile_stderr("r", 1)
         stdout_buffer = ""
         stderr_buffer = ""
+        # hacks to detect websocket error and retry and to join separate lines that repeat as a pair
+        # unfortunately these are easier to do here and not in a function because it is too much
+        # context to pass out and in again (and hopefully they are temporary)
+        websocket_error = False
+        websocket_message = "Error: Unable to connect to websocket"
+        #delayed_line = None
+        #last_line = ""
+        #detect_two_lines = re.compile(
+        #    r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
+        #    r"> Resizing OpenStack Control Plane to match appropriate topology \.\.\.|"
+        #    r"> No sunbeam key found in OpenStack\. Creating SSH key at")
         # hack b/c of paramiko weirdness (detecting rc before all data sent)
-        stdout_can_exit = False
-        stderr_can_exit = False
+        # this is a potential race condition but best solution so far
         can_exit = False
         while not can_exit:
-            if (r := stdout.read().decode()):
-                stdout_buffer += r
+            if (stderr_r := stderr.readline()):
+                stderr_buffer += stderr_r if not filtered else utils.strip_garbage(stderr_r)
                 if verbose:
-                    print(r, end="")
-            elif channel.exit_status_ready():
-                stdout_can_exit = True
-            if (r := stderr.read().decode()):
-                stderr_buffer += r
+                    print(stderr_r, end="")
+            if (stdout_r := stdout.readline()):
+                stdout_buffer += stdout_r if not filtered else utils.strip_garbage(stdout_r)
                 if verbose:
-                    print(r, end="")
-            elif channel.exit_status_ready():
-                stderr_can_exit = True
-            if stdout_can_exit and stderr_can_exit:
-                can_exit = True
-            time.sleep(0.01)
+                    print(stdout_r, end="")
+            if not stdout_r and not stderr_r:
+                if channel.exit_status_ready():
+                    can_exit = True
+                time.sleep(0.001) # some releaf to polling
+            if websocket_message in stderr_r or websocket_message in stdout_r:
+                websocket_error = True
 
         rc = channel.recv_exit_status()
 
+        if rc > 0 and websocket_error:
+            rc = 1001
+
         return stdout_buffer, stderr_buffer, rc
+
+    #    if delayed_line:
+    #        line = f"{delayed} {line}"
+    #        delayed = None
+    #    elif detect_two_lines.search(line):
+    #        delayed_line = line
+    #        continue
+    #    if line != last_line:
+    #        print(f"{line}")
+    #        last_line = line
 
 
     def file_put(self, localpath, remotepath):

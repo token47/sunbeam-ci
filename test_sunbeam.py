@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -u
 
 import utils
-import sshclient
+from sshclient import SSHClient
 
 
 utils.debug("started testing")
@@ -16,6 +16,8 @@ p_host_name_int = primary_node["host-name-int"]
 p_host_name_ext = primary_node["host-name-ext"]
 p_host_ip_int = primary_node["host-ip-int"]
 p_host_ip_ext = primary_node["host-ip-ext"]
+
+sshclient = SSHClient(user, p_host_ip_ext)
 
 tests_failed = False
 

@@ -35,46 +35,12 @@ def exec_cmd_capture(cmd):
     return result.stdout.decode()
 
 
-#def ssh_filtered(user, host, cmd):
-#    """Same as ssh() but tries to suppress repeated lines in output"""
-#    stripgarbage1 = re.compile(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$")
-#    stripgarbage2 = re.compile("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *")
-#    detecttwolines = re.compile(
-#        r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\) \.\.\.|"
-#        r"> Resizing OpenStack Control Plane to match appropriate topology \.\.\.|"
-#        r"> No sunbeam key found in OpenStack\. Creating SSH key at")
-#    cmd = ("ssh -o StrictHostKeyChecking=no -o ControlMaster=auto "
-#        "-o ControlPath=/tmp/ssh-master-%r@%h:%p -o ControlPersist=5m -tt "
-#        f"'{user}@{host}' 'set -x; {cmd}'")
-#    debug(f"SSH-FILTERED: {user}@{host}")
-#    result = subprocess.Popen(cmd, shell=True, encoding="utf-8",
-#        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#    delayed = None
-#    lastline = ""
-#    websocket_error = False
-#    while len(line := result.stdout.readline()) > 0:
-#        line = stripgarbage1.sub('', line)
-#        line = stripgarbage2.sub('> ', line)
-#        if r"(Reading database ..." in line: # hack
-#            line = ""
-#        if line:
-#            if delayed:
-#                line = f"{delayed} {line}"
-#                delayed = None
-#            elif detecttwolines.search(line):
-#                delayed = line
-#                continue
-#            if line != lastline:
-#                print(f"{line}") # \r is needed here if at console
-#                lastline = line
-#                if "Error: Unable to connect to websocket" in line: # hack
-#                    websocket_error = True
-#    result.wait()
-#    if result.returncode > 0 and websocket_error:
-#        return 1001
-#    return result.returncode
-#
-#
+def strip_garbage(line):
+    result = re.sub(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$", '', line)
+    result = re.sub("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *", '> ', line)
+    if r"(Reading database ..." in line:
+        line = ""
+    return result
 
 
 def read_config():
