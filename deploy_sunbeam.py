@@ -5,6 +5,7 @@ This script deploys sunbeam on a substrate that has already been prepared for it
 """
 
 import utils
+from sshclient import SSHClient
 
 
 config = utils.read_config()
@@ -43,35 +44,45 @@ p_host_ip_ext = primary_node["host-ip-ext"]
 utils.debug(f"installing primary node {p_host_name_ext} / {p_host_ip_ext} " \
             f"/ {p_host_name_int} / {p_host_ip_int}")
 
-utils.ssh_clean(p_host_ip_ext)
-utils.test_ssh(user, p_host_ip_ext)
+p_sshclient = SSHClient(user, p_host_ip_ext)
+
+if not p_sshclient.server_available():
+    utils.die("Aborting")
 
 cmd = f"sudo snap install openstack --channel {config['channel']}"
-rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+out, err, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+out, err, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
-# kill master so new user groups activate next connection
-utils.ssh_master_stop(user, p_host_ip_ext)
 
-utils.put(user, p_host_ip_ext, "~/manifest.yaml",
-    utils.string_to_yaml(config["manifest"]))
+utils.die("Force new SSH connection to activate new groups on remote user")
+p_sshclient.close()
+
+m = utils.yaml_dump(config["manifest"])
+p_sshclient.file_write("manifest.yaml", m)
+utils.debug(f"Manifest contents are:\n{m}")
 
 cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
-rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
-if rc == 1001:
-    utils.debug("Retrying because of websocker error")
-    rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+out, err, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+#if rc == 1001:
+#    utils.debug("Retrying because of websocker error")
+#    out, err, rc = p_sshclient.execute(
+#        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
-utils.ssh_filtered(user, p_host_ip_ext, "sunbeam cluster list")
+cmd = "sunbeam cluster list"
+out, err, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 
 ### Other nodes
 
@@ -84,22 +95,30 @@ for node in nodes:
     utils.debug(f"installing seconday node {s_host_name_ext} / {s_host_ip_ext} " \
                 f"/ {s_host_name_int} / {s_host_ip_int}")
 
-    utils.ssh_clean(s_host_ip_ext)
-    utils.test_ssh(user, s_host_ip_ext)
+    s_sshclient = SSHClient(user, s_host_ip_ext)
+
+    if not s_sshclient.server_available():
+        utils.die("Aborting")
 
     cmd = f"sudo snap install openstack --channel {config['channel']}\n"
-    rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
+    out, err, rc = s_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("installing openstack snap failed, aborting")
 
     cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-    rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
+    out, err, rc = s_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
-    utils.ssh_master_stop(user, s_host_ip_ext)
+
+    utils.die("Force new SSH connection to activate new groups on remote user")
+    s_sshclient.close()
 
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
-    token = utils.token_extract(utils.ssh_capture(user, p_host_ip_ext, cmd))
+    out, err, rc = p_sshclient.execute(
+        cmd, verbose=False, get_pty=True, combine_stderr=False, filtered=False)
+    token = utils.token_extract(out)
     utils.debug(f"Got token: {token}")
     utils.debug(f"Decoded token: {utils.b64decode(token)}")
 
@@ -107,27 +126,36 @@ for node in nodes:
     for role in node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
-    rc = utils.ssh_filtered(user, s_host_ip_ext, cmd)
+    out, err, rc = s_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("joining node failed, aborting")
 
-    # get some status
-    utils.ssh_filtered(user, p_host_ip_ext, "sunbeam cluster list")
+    cmd = "sunbeam cluster list"
+    out, err, rc = p_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+
+    s_sshclient.close()
 
 if control_count < 3:
     utils.debug("Skipping 'resize' because there's not enough control nodes")
 else:
     cmd = "sunbeam cluster resize"
-    rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+    out, err, rc = p_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
 cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
-rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+out, err, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("configuring demo project failed, aborting")
 
 cmd = "sunbeam openrc > ~/admin-openrc"
-rc = utils.ssh_filtered(user, p_host_ip_ext, cmd)
+out, err, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("exporting admin credentials failed, aborting")
+
+p_sshclient.close()

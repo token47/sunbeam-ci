@@ -4,7 +4,7 @@ import glob
 import os
 import re
 import utils
-import yaml
+from sshclient import SSHClient
 
 
 utils.debug("collecting common build artifacts")
@@ -20,10 +20,10 @@ except IOError:
     utils.die("Config file does not exist, aborting artifacts collection")
 
 # local info (from the build itself, not from the nodes)
-utils.write_file(utils.exec_cmd_capture(
-    """ set -x
-        cat config.yaml
-    """), "artifacts/build-info.txt")
+cmd = """set -x
+    cat config.yaml
+"""
+utils.write_file(utils.exec_cmd_capture(cmd), "artifacts/build-info.txt")
 
 user = config["user"]
 for node in config["nodes"]:
@@ -34,112 +34,126 @@ for node in config["nodes"]:
 
     utils.debug(f"collecting artifacts from node {host_name_int}")
 
+    sshclient = SSHClient(user, host_ip_ext)
+
     #############################################
     # System
     #############################################
-    utils.write_file(utils.ssh_capture(
-        user, host_ip_ext,
-        """ set -x
-            hostname -f; echo
-            hostname -s; echo
-            cat /etc/hosts; echo
-            ip addr list; echo
-            free -h; echo
-            lscpu; echo
-            lsblk; echo
-            df -h; echo
-            snap list
-        """), f"artifacts/system-info_{host_name_int}.txt")
+    cmd = """set -x
+        hostname -f; echo
+        hostname -s; echo
+        cat /etc/hosts; echo
+        ip addr list; echo
+        free -h; echo
+        lscpu; echo
+        lsblk; echo
+        df -h; echo
+        snap list
+    """
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/system-info_{host_name_int}.txt")
 
-    utils.write_file(utils.ssh_capture(
-        user, host_ip_ext,
-        "set -x; SYSTEMD_COLORS=false journalctl -x --no-tail --no-pager"),
-        f"artifacts/journalctl_{host_name_int}.txt")
+    cmd = "set -x; SYSTEMD_COLORS=false journalctl -x --no-tail --no-pager"
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/journalctl_{host_name_int}.txt")
 
-    utils.scp_get(user, host_ip_ext,
-        "/var/log/syslog", f"artifacts/syslog_{host_name_int}.txt")
+    sshclient.file_get("/var/log/syslog", f"artifacts/syslog_{host_name_int}.txt")
 
     #############################################
     # Juju
     #############################################
-    juju_models_text = utils.ssh_capture(user, host_ip_ext,
-        'set -x; juju models')
-    utils.write_file(juju_models_text,
-        f"artifacts/juju-models_{host_name_int}.txt")
-    juju_models_yaml = utils.ssh_capture(user, host_ip_ext,
-        "juju models --format=yaml")
-    juju_models_dict = yaml.safe_load(juju_models_yaml)
-    utils.write_file(juju_models_yaml,
-        f"artifacts/juju-models_{host_name_int}.yaml.txt")
+    cmd = "set -x; juju models"
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/juju-models_{host_name_int}.txt")
+    cmd = "juju models --format=yaml"
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+    utils.write_file(out, f"artifacts/juju-models_{host_name_int}.yaml.txt")
+    juju_models_dict = utils.yaml_safe_load(out)
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
 
-        juju_status_text = utils.ssh_capture(user, host_ip_ext,
-            f'set -x; juju status -m {model}')
-        utils.write_file(juju_status_text,
-            f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.txt")
-        juju_status_yaml = utils.ssh_capture(user, host_ip_ext,
-            f"juju status -m {model} --format=yaml")
-        juju_status_dict = yaml.safe_load(juju_status_yaml)
-        utils.write_file(juju_status_yaml,
-            f"artifacts/juju-status_{model.replace('/', '%')}_{host_name_int}.yaml.txt")
+        model_r = model.replace('/', '%')
+        cmd = f"set -x; juju status -m {model}"
+        out, err, rc = sshclient.execute(
+            cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+        utils.write_file(out, f"artifacts/juju-status_{model_r}_{host_name_int}.txt")
+        cmd = f"juju status -m {model} --format=yaml"
+        out, err, rc = sshclient.execute(
+            cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+        utils.write_file(out, f"artifacts/juju-status_{model_r}_{host_name_int}.yaml.txt")
+        juju_status_dict = utils.yaml_safe_load(out)
 
         # we do debug-log per model (and not per unit or app) because k8s-operators 
         # are too temperamental with exact unit/app names that can be specified
-        utils.write_file(utils.ssh_capture(user, host_ip_ext,
-            f"set -x; juju debug-log -m {model} --replay --no-tail"),
-            f"artifacts/juju-debuglog_{model.replace('/', '%')}_{host_name_int}.txt")
+        cmd = f"set -x; juju debug-log -m {model} --replay --no-tail"
+        out, err, rc = sshclient.execute(
+            cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+        utils.write_file(out, f"artifacts/juju-debuglog_{model_r}_{host_name_int}.txt")
 
         for app_key, app_val in juju_status_dict.get("applications", {}).items():
             for unit_key, unit_val in app_val.get("units", {}).items():
-                utils.write_file(utils.ssh_capture(user, host_ip_ext,
-                    f"set -x; juju show-unit -m {model} {unit_key}"),
-                    f"artifacts/juju-showunit_{unit_key.replace('/', '%')}_{host_name_int}.txt")
+                unit_key_r = unit_key.replace('/', '%')
+                cmd = f"set -x; juju show-unit -m {model} {unit_key}"
+                out, err, rc = sshclient.execute(
+                    cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+                utils.write_file(
+                    out, f"artifacts/juju-showunit_{unit_key_r}_{host_name_int}.txt")
 
-        # maybe scp juju logs (/var/log/juju/*.log) from nodes + rename or subdir?
+        # maybe get juju logs (/var/log/juju/*.log) from nodes (rename or subdir)?
 
     #############################################
     # Microk8s
     #############################################
-    utils.write_file(utils.ssh_capture(user, host_ip_ext,
-        """ set -xe
-            sudo microk8s.kubectl get nodes; echo
-            sudo microk8s.kubectl get all -A; echo
-            sudo microk8s.kubectl get pod -A -o yaml
-        """), f"artifacts/microk8s_{host_name_int}.txt")
+    cmd = """set -x
+        sudo microk8s.kubectl get nodes; echo
+        sudo microk8s.kubectl get all -A; echo
+        sudo microk8s.kubectl get pod -A -o yaml
+    """
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/microk8s_{host_name_int}.txt")
 
     #############################################
     # Microceph
     #############################################
-    utils.write_file(utils.ssh_capture(user, host_ip_ext,
-        """ set -x
-            sudo timeout -k10 30 microceph status; echo
-            sudo timeout -k10 30 ceph -s
-        """), f"artifacts/microceph_{host_name_int}.txt")
+    cmd = """set -x
+        sudo timeout -k10 30 microceph status; echo
+        sudo timeout -k10 30 ceph -s
+    """
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/microceph_{host_name_int}.txt")
 
     #############################################
     # Sunbeam
     #############################################
-    utils.write_file(utils.ssh_capture(user, host_ip_ext,
-        """ set -x
-            sunbeam cluster list
-        """), f"artifacts/sunbeam-cluster_{host_name_int}.txt")
+    cmd = """set -x
+        sunbeam cluster list
+    """
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/sunbeam-cluster_{host_name_int}.txt")
 
-    utils.scp_get(user, host_ip_ext,
-        "~/snap/openstack/common/logs/*", "artifacts/")
+    sshclient.file_get_glob("snap/openstack/common/logs/", "*", "artifacts/")
     for fn in glob.glob("artifacts/sunbeam-202?????-??????.??????.log"):
         os.rename(fn, re.sub("sunbeam-", f"sunbeam-logs_{host_name_int}_", fn))
 
     #############################################
     # Openstack
     #############################################
-    utils.write_file(utils.ssh_capture(user, host_ip_ext,
-        """ set -xe
-            source admin-openrc
-            openstack server list --all-projects --long; echo
-            openstack network list --long; echo
-            openstack subnet list --long; echo
-            openstack router list --long; echo
-            openstack image list --long; echo
-            openstack flavor list --all --long; echo
-        """), f"artifacts/openstack_{host_name_int}.txt")
+    cmd = """set -xe
+        source admin-openrc
+        openstack server list --all-projects --long; echo
+        openstack network list --long; echo
+        openstack subnet list --long; echo
+        openstack router list --long; echo
+        openstack image list --long; echo
+        openstack flavor list --all --long; echo
+    """
+    out, err, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/openstack_{host_name_int}.txt")

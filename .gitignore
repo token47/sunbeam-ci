@@ -41,3 +41,6 @@ __pycache__
 
 # config files
 config.yaml
+
+# temporary cache
+artifacts/**

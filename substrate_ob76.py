@@ -1,7 +1,6 @@
 #!/bin/false
 
 import os
-import json
 import utils
 
 """
@@ -84,7 +83,7 @@ def build(input_config):
     if rc > 0:
         utils.die("could not run terraform show")
 
-    maas_hosts = json.loads(
+    maas_hosts = utils.json_loads(
         utils.exec_cmd_capture("terraform -chdir=terraform/maas output -no-color -json maas_hosts"))
     utils.debug(f"captured 'maas_hosts' terraform output: {maas_hosts}")
 
