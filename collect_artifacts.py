@@ -75,7 +75,6 @@ for node in config["nodes"]:
     utils.write_file(out, f"artifacts/juju-models_{host_name_int}.yaml.txt")
     try:
         juju_models_dict = utils.yaml_safe_load(out)
-        print(juju_models_dict)
     except Exception:
         utils.debug("Could not load yaml from juju models, ignoring juju logs")
         juju_models_dict = { "models": [] }
