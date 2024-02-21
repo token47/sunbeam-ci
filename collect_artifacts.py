@@ -64,6 +64,7 @@ for node in config["nodes"]:
     #############################################
     # Juju
     #############################################
+    # capture models, in text and yaml
     cmd = "set -x; juju models"
     out, err, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
@@ -72,11 +73,23 @@ for node in config["nodes"]:
     out, err, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
     utils.write_file(out, f"artifacts/juju-models_{host_name_int}.yaml.txt")
-    juju_models_dict = utils.yaml_safe_load(out)
+    try:
+        juju_models_dict = utils.yaml_safe_load(out)
+    except Exception:
+        utils.debug("Could not load yaml from juju models, ignoring juju logs")
+        juju_models_dict = {}
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
-
         model_r = model.replace('/', '%')
+
+        # we do debug-log per model (and not per unit or app) because k8s-operators 
+        # are too temperamental with exact unit/app names that can be specified
+        cmd = f"set -x; juju debug-log -m {model} --replay --no-tail"
+        out, err, rc = sshclient.execute(
+            cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+        utils.write_file(out, f"artifacts/juju-debuglog_{model_r}_{host_name_int}.txt")
+
+        # go for juju status of the model, in text and yaml
         cmd = f"set -x; juju status -m {model}"
         out, err, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
@@ -85,14 +98,11 @@ for node in config["nodes"]:
         out, err, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
         utils.write_file(out, f"artifacts/juju-status_{model_r}_{host_name_int}.yaml.txt")
-        juju_status_dict = utils.yaml_safe_load(out)
-
-        # we do debug-log per model (and not per unit or app) because k8s-operators 
-        # are too temperamental with exact unit/app names that can be specified
-        cmd = f"set -x; juju debug-log -m {model} --replay --no-tail"
-        out, err, rc = sshclient.execute(
-            cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-        utils.write_file(out, f"artifacts/juju-debuglog_{model_r}_{host_name_int}.txt")
+        try:
+            juju_status_dict = utils.yaml_safe_load(out)
+        except Exception:
+            utils.debug(f"Could not load yaml from juju status -m {model}, ignoring this model")
+            juju_status_dict = {}
 
         for app_key, app_val in juju_status_dict.get("applications", {}).items():
             for unit_key, unit_val in app_val.get("units", {}).items():
