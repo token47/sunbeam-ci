@@ -1,36 +1,34 @@
-/*
-it is not a good idea to hardcode in the repository the names of the
-jobs created inside jenkins, but this will have to do for now
-TODO: find a way to dinamically iterate throug existing jobs and
-      classify them between substrates, then build them serially
-
-Also, we're not using a for loop here on purpose because eventually
-each build may get different/specific parameters
-*/
-
-//build job: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', propagate: false, quietPeriod: 60
-//    parameters: [
-//        string(name: 'keyNameOfParam1', value: 'valueNameOfParam1'),
-//        booleanParam(name: 'keyNameOfParam2', value:'valueNameOfParam2'),
-//    ]
-
 pipeline {
     agent any
     stages {
         stage("buildall-profile-equinix") {
             parallel {
-                stage("Batch 1/2") {
+                stage("Batch AR Queue1") {
                     steps {
-                        build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                        build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                            parameters: [ string(name: 'JSONCreds', value: 'equinix_andre_creds'), ]
+                        build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                            parameters: [ string(name: 'JSONCreds', value: 'equinix_andre_creds'), ]
                     }
                 }
-                stage("Batch 2/2") {
+                stage("Batch AR Queue2") {
                     steps {
-                        build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                        build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60
-                        build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60
-                        build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60
+                        build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                            parameters: [ string(name: 'JSONCreds', value: 'equinix_andre_creds'), ]
+                    }
+                }
+                stage("Batch MM Queue1") {
+                    steps {
+                        build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
+                            parameters: [ string(name: 'JSONCreds', value: 'equinix_marcelo_creds'), ]
+                        build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
+                            parameters: [ string(name: 'JSONCreds', value: 'equinix_marcelo_creds'), ]
+                    }
+                }
+                stage("Batch MM Queue2") {
+                    steps {
+                        build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
+                            parameters: [ string(name: 'JSONCreds', value: 'equinix_marcelo_creds'), ]
                     }
                 }
             }
