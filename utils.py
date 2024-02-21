@@ -35,14 +35,6 @@ def exec_cmd_capture(cmd):
     return result.stdout.decode()
 
 
-def strip_garbage(line):
-    result = re.sub(r"\x1b\[\??[0-9;]*[hlmAGKHF]|\r|\n| *$", '', line)
-    result = re.sub("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *", '> ', line)
-    if r"(Reading database ..." in line:
-        line = ""
-    return result
-
-
 def read_config():
     with open("config.yaml", "r", encoding='ascii') as stream:
         return yaml.safe_load(stream)
