@@ -152,7 +152,7 @@ def configure_hosts(config, vlans):
 
         cmd = "set -xe; apt -q update; DEBIAN_FRONTEND=noninteractive apt -q -o " \
             "Dpkg::Progress-Fancy=0 -o APT::Color=0 -o Dpkg::Use-Pty=0 upgrade -y"
-        out, err, rc = sshclient.execute(
+        out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=True)
         if rc > 0:
             utils.die("running apt update/upgrade failed, aborting")
@@ -181,7 +181,7 @@ def configure_hosts(config, vlans):
             '" > /etc/hosts\n'
             f'hostnamectl set-hostname {host_name_int}\n'
             'systemctl restart networking\n' )
-        out, err, rc = sshclient.execute(
+        out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
         if rc > 0:
             utils.die("error updating network configs, aborting")
@@ -200,7 +200,7 @@ def configure_hosts(config, vlans):
             chown -R ubuntu:ubuntu /home/ubuntu/.ssh
             cat /root/.ssh/authorized_keys >> /home/ubuntu/.ssh/authorized_keys
         """
-        out, err, rc = sshclient.execute(
+        out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
         if rc > 0:
             utils.die("error configuring ubuntu user, aborting")

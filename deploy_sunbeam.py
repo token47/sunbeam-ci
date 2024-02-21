@@ -50,13 +50,13 @@ if not p_sshclient.server_available():
     utils.die("Aborting")
 
 cmd = f"sudo snap install openstack --channel {config['channel']}"
-out, err, rc = p_sshclient.execute(
+out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-out, err, rc = p_sshclient.execute(
+out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
@@ -71,17 +71,17 @@ utils.debug(f"Manifest contents are:\n{m}")
 cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
-out, err, rc = p_sshclient.execute(
+out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc == 1001:
     utils.debug("Retrying because of websocker error")
-    out, err, rc = p_sshclient.execute(
+    out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
 cmd = "sunbeam cluster list"
-out, err, rc = p_sshclient.execute(
+out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 
 ### Other nodes
@@ -101,13 +101,13 @@ for node in nodes:
         utils.die("Aborting")
 
     cmd = f"sudo snap install openstack --channel {config['channel']}\n"
-    out, err, rc = s_sshclient.execute(
+    out, rc = s_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("installing openstack snap failed, aborting")
 
     cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
-    out, err, rc = s_sshclient.execute(
+    out, rc = s_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
@@ -116,7 +116,7 @@ for node in nodes:
     s_sshclient.close()
 
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
-    out, err, rc = p_sshclient.execute(
+    out, rc = p_sshclient.execute(
         cmd, verbose=False, get_pty=True, combine_stderr=False, filtered=False)
     token = utils.token_extract(out)
     utils.debug(f"Got token: {token}")
@@ -126,13 +126,13 @@ for node in nodes:
     for role in node["roles"]:
         cmd += f" --role {role}"
     cmd += f" --token {token}"
-    out, err, rc = s_sshclient.execute(
+    out, rc = s_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("joining node failed, aborting")
 
     cmd = "sunbeam cluster list"
-    out, err, rc = p_sshclient.execute(
+    out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 
     s_sshclient.close()
@@ -141,19 +141,19 @@ if control_count < 3:
     utils.debug("Skipping 'resize' because there's not enough control nodes")
 else:
     cmd = "sunbeam cluster resize"
-    out, err, rc = p_sshclient.execute(
+    out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
 cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
-out, err, rc = p_sshclient.execute(
+out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("configuring demo project failed, aborting")
 
 cmd = "sunbeam openrc > ~/admin-openrc"
-out, err, rc = p_sshclient.execute(
+out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("exporting admin credentials failed, aborting")

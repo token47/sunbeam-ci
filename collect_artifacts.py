@@ -50,12 +50,12 @@ for node in config["nodes"]:
         df -h; echo
         snap list
     """
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/system-info_{host_name_int}.txt")
 
     cmd = "set -x; SYSTEMD_COLORS=false journalctl -x --no-tail --no-pager"
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/journalctl_{host_name_int}.txt")
 
@@ -66,18 +66,19 @@ for node in config["nodes"]:
     #############################################
     # capture models, in text and yaml
     cmd = "set -x; juju models"
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/juju-models_{host_name_int}.txt")
     cmd = "juju models --format=yaml"
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
     utils.write_file(out, f"artifacts/juju-models_{host_name_int}.yaml.txt")
     try:
         juju_models_dict = utils.yaml_safe_load(out)
+        print(juju_models_dict)
     except Exception:
         utils.debug("Could not load yaml from juju models, ignoring juju logs")
-        juju_models_dict = {}
+        juju_models_dict = { "models": [] }
 
     for model in [ x["name"] for x in juju_models_dict["models"] ]:
         model_r = model.replace('/', '%')
@@ -85,17 +86,17 @@ for node in config["nodes"]:
         # we do debug-log per model (and not per unit or app) because k8s-operators 
         # are too temperamental with exact unit/app names that can be specified
         cmd = f"set -x; juju debug-log -m {model} --replay --no-tail"
-        out, err, rc = sshclient.execute(
+        out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
         utils.write_file(out, f"artifacts/juju-debuglog_{model_r}_{host_name_int}.txt")
 
         # go for juju status of the model, in text and yaml
         cmd = f"set -x; juju status -m {model}"
-        out, err, rc = sshclient.execute(
+        out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
         utils.write_file(out, f"artifacts/juju-status_{model_r}_{host_name_int}.txt")
         cmd = f"juju status -m {model} --format=yaml"
-        out, err, rc = sshclient.execute(
+        out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
         utils.write_file(out, f"artifacts/juju-status_{model_r}_{host_name_int}.yaml.txt")
         try:
@@ -108,7 +109,7 @@ for node in config["nodes"]:
             for unit_key, unit_val in app_val.get("units", {}).items():
                 unit_key_r = unit_key.replace('/', '%')
                 cmd = f"set -x; juju show-unit -m {model} {unit_key}"
-                out, err, rc = sshclient.execute(
+                out, rc = sshclient.execute(
                     cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
                 utils.write_file(
                     out, f"artifacts/juju-showunit_{unit_key_r}_{host_name_int}.txt")
@@ -123,7 +124,7 @@ for node in config["nodes"]:
         sudo microk8s.kubectl get all -A; echo
         sudo microk8s.kubectl get pod -A -o yaml
     """
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/microk8s_{host_name_int}.txt")
 
@@ -134,7 +135,7 @@ for node in config["nodes"]:
         sudo timeout -k10 30 microceph status; echo
         sudo timeout -k10 30 ceph -s
     """
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/microceph_{host_name_int}.txt")
 
@@ -144,7 +145,7 @@ for node in config["nodes"]:
     cmd = """set -x
         sunbeam cluster list
     """
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/sunbeam-cluster_{host_name_int}.txt")
 
@@ -164,6 +165,6 @@ for node in config["nodes"]:
         openstack image list --long; echo
         openstack flavor list --all --long; echo
     """
-    out, err, rc = sshclient.execute(
+    out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/openstack_{host_name_int}.txt")

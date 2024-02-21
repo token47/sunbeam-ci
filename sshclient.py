@@ -20,7 +20,6 @@ class SSHClient:
         self.host = host
         self.transport = None
         self.ssh_agent = paramiko.Agent()
-        self.sftp_channel = None
 
 
     def __is_connected(self):
@@ -66,9 +65,6 @@ class SSHClient:
         if not self.transport.is_authenticated():
             utils.die("Could not find a suitable ssh key to authenticate")
 
-        # start a new long standing sftp channel
-        self.sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
-
 
     def close(self):
         utils.debug(f"Closing SSH connection to {self.user}@{self.host}")
@@ -109,27 +105,31 @@ class SSHClient:
                 r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\)|"
                 r"> Resizing OpenStack Control Plane to match appropriate topology|"
                 r"> No sunbeam key found in OpenStack\. Creating SSH key at")
+
+            if not filtered:
+                if verbose:
+                    print(lineraw)
+                return lineraw
+
             # we may have received lots of lines with \r separator in one raw line
+            # output may be delayed until a \n comes, but then all lines are shown
             lines_buffer = ""
             for line in lineraw.rstrip().split("\r"):
-                if filtered:
-                    line = strip_garbage(line)
-                    # some lines get empty after removing all garbage
-                    if not line:
-                        continue
-                    if delayed_line:
-                        line = f"{delayed_line} {line}"
-                        delayed_line = None
-                    elif detect_two_lines.search(line):
-                        delayed_line = line
-                        continue
-                    if line != last_line:
-                        if verbose:
-                            print(line)
-                        last_line = line
-                else:
+                line = strip_garbage(line)
+                # some lines get empty after removing all garbage
+                # this ends up removing originally empty lines too
+                if not line:
+                    continue
+                if delayed_line:
+                    line = f"{delayed_line} {line}"
+                    delayed_line = None
+                elif detect_two_lines.search(line):
+                    delayed_line = line
+                    continue
+                if line != last_line:
                     if verbose:
                         print(line)
+                    last_line = line
                 lines_buffer += f"{line}\n"
             return lines_buffer
 
@@ -143,33 +143,24 @@ class SSHClient:
         channel.exec_command(cmd)
 
         stdout = channel.makefile("r", 1)
-        stderr = channel.makefile_stderr("r", 1)
         stdout_buffer = ""
-        stderr_buffer = ""
         # hacks to detect websocket error and retry
         websocket_error = False
         websocket_message = "Error: Unable to connect to websocket"
-        # hack b/c of paramiko weirdness (detecting rc before all data sent)
-        # this is a potential race condition but best solution so far
-        can_exit = False
         last_line = None
         delayed_line = None
-        while not can_exit:
-            # TODO: separate contexts of out/err in the maybe_filter_and_print
-            # to avoid the chance of one ruining duplication suppression of the other
+        while True:
             stdout_read = ""
-            stderr_read = ""
-            if (channel.recv_stderr_ready()):
-                stderr_read = stderr.readline()
-                stderr_buffer += maybe_filter_and_print(stderr_read, verbose, filtered)
-            if (channel.recv_ready()):
-                stdout_read = stdout.readline()
+            if stdout_read := stdout.readline():
                 stdout_buffer += maybe_filter_and_print(stdout_read, verbose, filtered)
-            if not stdout_read and not stderr_read:
-                if channel.exit_status_ready():
-                    can_exit = True
-                time.sleep(0.001) # some releaf to cpu while polling
-            if websocket_message in stderr_read or websocket_message in stdout_read:
+            else:
+                # empty read means stream closed
+                break
+            # empty stderr buffer but ignore it as an independent stream
+            # the only ways to get stderr is to get a pty or combine it
+            if channel.recv_stderr_ready():
+                bogus = channel.recv_stderr()  # noqa: F841
+            if websocket_message in stdout_read:
                 websocket_error = True
 
         rc = channel.recv_exit_status()
@@ -177,23 +168,27 @@ class SSHClient:
         if rc > 0 and websocket_error:
             rc = 1001
 
-        return stdout_buffer, stderr_buffer, rc
+        return stdout_buffer, rc
 
 
     def file_put(self, localpath, remotepath):
         self.__connect()
         utils.debug(f"SSH-FILE-PUT: uploading local path '{localpath}' "
             "to remote path '{remotepath}'")
-        self.sftp_channel.put(localpath, remotepath)
+        sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
+        sftp_channel.put(localpath, remotepath)
+        sftp_channel.close()
 
 
     def file_get(self, remotepath, localpath):
         """both remote and local paths need to be exact files (no globs,
            not any other epansions)"""
         self.__connect()
-        utils.debug(f"SSH-FILE-GET: downloading remote path '{remotepath}' "
-            "to local path '{localpath}'")
-        self.sftp_channel.get(remotepath, localpath)
+        utils.debug("SSH-FILE-GET: downloading remote path "
+            f"'{remotepath}' to local path '{localpath}'")
+        sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
+        sftp_channel.get(remotepath, localpath)
+        sftp_channel.close()
 
 
     def file_get_glob(self, remotepath, pattern, localpath):
@@ -202,20 +197,27 @@ class SSHClient:
         self.__connect()
         utils.debug(f"SSH-FILE-GET-GLOB: downloading remote path '{remotepath}' "
             f"glob: '{pattern}', to local dir '{localpath}'")
-        for remotefile in self.sftp_channel.listdir(remotepath):
+        sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
+        for remotefile in sftp_channel.listdir(remotepath):
             if fnmatch.fnmatch(remotefile, pattern):
-                self.file_get(f"{remotepath}{remotefile}", f"{localpath}{remotefile}")
+                sftp_channel.get(f"{remotepath}{remotefile}", f"{localpath}{remotefile}")
+        sftp_channel.close()
 
 
     def file_read(self, remotepath):
         self.__connect()
         utils.debug(f"SSH-FILE-READ: reading remote path '{self.host}:{remotepath}'")
-        fd = self.sftp_channel.open(remotepath, mode='r')
-        return fd.read()
+        sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
+        fd = sftp_channel.open(remotepath, mode='r')
+        data = fd.read()
+        sftp_channel.close()
+        return data
 
 
     def file_write(self, remotepath, contents):
         self.__connect()
         utils.debug(f"SSH-FILE-WRITE: writing remote path '{self.host}:{remotepath}'")
-        fd = self.sftp_channel.open(remotepath, mode='w')
+        sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
+        fd = sftp_channel.open(remotepath, mode='w')
         fd.write(contents)
+        sftp_channel.close()

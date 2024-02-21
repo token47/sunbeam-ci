@@ -25,7 +25,7 @@ tests_failed = False
 # but we keep this one as it is on the documentation
 # and the user will likely execute exactly this
 cmd = "sunbeam launch ubuntu --name test"
-out, err, rc = sshclient.execute(
+out, rc = sshclient.execute(
     cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.debug("TEST FAIL: creating test vm failed (launch command)")
