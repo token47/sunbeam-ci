@@ -68,15 +68,15 @@ m = utils.yaml_dump(config["manifest"])
 p_sshclient.file_write("manifest.yaml", m)
 utils.debug(f"Manifest contents are:\n{m}")
 
-cmd = "FORCE_COLOR=1 sunbeam cluster bootstrap -m ~/manifest.yaml"
+cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
     cmd += f" --role {role}"
 out, err, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
-#if rc == 1001:
-#    utils.debug("Retrying because of websocker error")
-#    out, err, rc = p_sshclient.execute(
-#        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+if rc == 1001:
+    utils.debug("Retrying because of websocker error")
+    out, err, rc = p_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
@@ -140,19 +140,19 @@ for node in nodes:
 if control_count < 3:
     utils.debug("Skipping 'resize' because there's not enough control nodes")
 else:
-    cmd = "FORCE_COLOR=1 sunbeam cluster resize"
+    cmd = "sunbeam cluster resize"
     out, err, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
-cmd = "FORCE_COLOR=1 sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
+cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
 out, err, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
     utils.die("configuring demo project failed, aborting")
 
-cmd = "FORCE_COLOR=1 sunbeam openrc > ~/admin-openrc"
+cmd = "sunbeam openrc > ~/admin-openrc"
 out, err, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
