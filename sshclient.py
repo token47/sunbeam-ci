@@ -177,8 +177,7 @@ class SSHClient:
 
     def file_put(self, localpath, remotepath):
         self.__connect()
-        utils.debug(f"SSH-FILE-PUT: uploading local path '{localpath}' "
-            "to remote path '{remotepath}'")
+        utils.debug(f"SSH-FILE-PUT: local '{localpath}' -> remote '{remotepath}'")
         sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
         sftp_channel.put(localpath, remotepath)
         sftp_channel.close()
@@ -188,8 +187,7 @@ class SSHClient:
         """both remote and local paths need to be exact files (no globs,
            not any other epansions)"""
         self.__connect()
-        utils.debug("SSH-FILE-GET: downloading remote path "
-            f"'{remotepath}' to local path '{localpath}'")
+        utils.debug(f"SSH-FILE-GET: remote '{remotepath}' -> local '{localpath}'")
         sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
         sftp_channel.get(remotepath, localpath)
         sftp_channel.close()
@@ -205,12 +203,12 @@ class SSHClient:
         try:
             list_dir = sftp_channel.listdir(remotepath)
         except FileNotFoundError:
-            utils.debug("Error, remote dir does not exist")
+            utils.debug("remote dir does not exist, ignoring")
             return
         for remotefile in list_dir:
             if fnmatch.fnmatch(remotefile, pattern):
-                utils.debug("SSH-FILE-GET-GLOB: downloading remote path "
-                    f"'{remotepath}{remotefile}' to local path '{localpath}{remotefile}'")
+                utils.debug(f"SSH-FILE-GET-GLOB: remote '{remotepath}{remotefile}' "
+                    f"-> local '{localpath}{remotefile}'")
                 sftp_channel.get(f"{remotepath}{remotefile}", f"{localpath}{remotefile}")
         sftp_channel.close()
 
