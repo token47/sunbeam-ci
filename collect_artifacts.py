@@ -168,3 +168,5 @@ for node in config["nodes"]:
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/openstack_{host_name_int}.txt")
+
+    sshclient.close()

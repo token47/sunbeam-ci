@@ -33,3 +33,5 @@ if rc > 0:
 
 if tests_failed:
     utils.die("At least one test failed, exiting with error")
+
+sshclient.close()
