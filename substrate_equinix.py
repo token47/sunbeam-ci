@@ -147,9 +147,6 @@ def configure_hosts(config, vlans):
 
         sshclient = SSHClient("root", host_ip_ext)
 
-        if not sshclient.server_available():
-            utils.die("Aborting")
-
         cmd = "set -xe; apt -q update; DEBIAN_FRONTEND=noninteractive apt -q -o " \
             "Dpkg::Progress-Fancy=0 -o APT::Color=0 -o Dpkg::Use-Pty=0 upgrade -y"
         out, rc = sshclient.execute(

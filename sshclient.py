@@ -35,8 +35,25 @@ class SSHClient:
             return
 
         utils.debug(f"Starting SSH connection to {self.user}@{self.host}")
+
+        # grab a new transport layer that will last for this connection
+        # it can be re-used but that was unstable last time I tried
         self.transport = paramiko.Transport((self.host, 22))
-        self.transport.start_client()
+        
+        # just make sure last used transport is closed and thread released
+        self.transport.close()
+
+        # actually try to connect (and retry a few times before giving up)
+        for t in range(1,11):
+            try:
+                self.transport.start_client()
+                break
+            except paramiko.SSHException:
+                utils.debug(f"SSH Connection failed (#{t}), retrying")
+                time.sleep(5)
+        else:
+            utils.die("SSH connection failed too many times, aborting")
+
         # try keys from ssh_agent and from files (if unencrypted)
         for key in self.ssh_agent.get_keys():
             # in case the key does not succeed authenticating
@@ -69,21 +86,6 @@ class SSHClient:
     def close(self):
         utils.debug(f"Closing SSH connection to {self.user}@{self.host}")
         self.transport.close()
-
-
-    def server_available(self):
-        start_time = time.time()
-        while True:
-            utils.debug(f"Testing ssh connection to host {self.host}")
-            self.__connect()
-            if self.__is_connected():
-                utils.debug("SSH connection is working, continuing")
-                return True
-            if time.time() - start_time > 60:
-                utils.debug("Timed out waiting on ssh server, giving up")
-                return False
-            utils.debug("SSH connection not working, retrying shortly")
-            time.sleep(5)
 
 
     def execute(self, cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False):
@@ -134,7 +136,9 @@ class SSHClient:
             return lines_buffer
 
         self.__connect()
-        utils.debug(f"SSH-EXECUTE: starting new execute at host {self.host}:\n{cmd}")
+        utils.debug(f"SSH-EXECUTE: starting new execute at host {self.host}:")
+        if not verbose:
+            utils.debug(f"Commands:\n{cmd}")
         # different from sftp, exec needs a new channel every time
         channel = self.transport.open_channel("session")
         if get_pty:

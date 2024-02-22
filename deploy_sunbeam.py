@@ -46,9 +46,6 @@ utils.debug(f"installing primary node {p_host_name_ext} / {p_host_ip_ext} " \
 
 p_sshclient = SSHClient(user, p_host_ip_ext)
 
-if not p_sshclient.server_available():
-    utils.die("Aborting")
-
 cmd = f"sudo snap install openstack --channel {config['channel']}"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
@@ -96,9 +93,6 @@ for node in nodes:
                 f"/ {s_host_name_int} / {s_host_ip_int}")
 
     s_sshclient = SSHClient(user, s_host_ip_ext)
-
-    if not s_sshclient.server_available():
-        utils.die("Aborting")
 
     cmd = f"sudo snap install openstack --channel {config['channel']}\n"
     out, rc = s_sshclient.execute(
