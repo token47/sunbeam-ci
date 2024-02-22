@@ -74,10 +74,11 @@ for node in config["nodes"]:
         cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
     utils.write_file(out, f"artifacts/juju-models_{host_name_int}.yaml.txt")
     try:
-        juju_models_dict = utils.yaml_safe_load(out)
+        t = None
+        t = utils.yaml_safe_load(out) # Returns None if string is empty, no error
     except Exception:
         utils.debug("Could not load yaml from juju models, ignoring juju logs for this host")
-        juju_models_dict = {}
+    juju_models_dict = t or {}
 
     for model in [ x["name"] for x in juju_models_dict.get("models", []) ]:
         model_r = model.replace('/', '%')
