@@ -204,6 +204,8 @@ class SSHClient:
         sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
         for remotefile in sftp_channel.listdir(remotepath):
             if fnmatch.fnmatch(remotefile, pattern):
+                utils.debug("SSH-FILE-GET-GLOB: downloading remote path "
+                    f"'{remotepath}' to local path '{localpath}'")
                 sftp_channel.get(f"{remotepath}{remotefile}", f"{localpath}{remotefile}")
         sftp_channel.close()
 
