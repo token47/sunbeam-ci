@@ -10,14 +10,11 @@ TODO
     - enable most plugins (they usually time out enabling) - build or test stage?
     - test plugins as possible (SQA has some tests already)
     - run tempest with a test list (from SQA) -- will need various plugins enabled
-- try to pass non-conflicting IPs for simultanous clusters tests in maas?
+- try to pass non-conflicting IPs for simultanous clusters tests in maas? (only releant if testing)
 - try to optimize equinix costs with spot instances?
 - silence juju installs with spinning status / downloaded status
-- maybe add dockerhub credentials to all microk8s to help avoiding thottling timeouts? they seem rare now
 - add proxy support (whatever sunbeam proxy support is at the moment)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
-- External portal with build results and artifacts, easy sync of artifacts
+- External portal with build results and artifacts, easy sync / updates
 
 + split config in profiles/substrates with subdirs (find other repeated code)
-+ protect artifacts collection (individual ones) with try/catch so it does not interrupt whole collection in case of one error
-+ reimplement output filtered in paramiko
