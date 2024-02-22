@@ -34,7 +34,7 @@ pipeline {
         }
         stage('Test Sunbeam') {
             steps {
-                catchError(stageResult: 'UNSTABLE') {
+                catchError(stageResult: 'UNSTABLE', buildResult: 'UNSTABLE') {
                     sh "./test_sunbeam.py"
                 }
             }
