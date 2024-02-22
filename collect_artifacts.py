@@ -76,10 +76,9 @@ for node in config["nodes"]:
     try:
         juju_models_dict = utils.yaml_safe_load(out)
     except Exception:
-        utils.debug("Could not load yaml from juju models, ignoring juju logs")
-        juju_models_dict = { "models": [] }
+        utils.debug("Could not load yaml from juju models, ignoring juju logs for this host")
 
-    for model in [ x["name"] for x in juju_models_dict["models"] ]:
+    for model in [ x["name"] for x in juju_models_dict.get("models", []) ]:
         model_r = model.replace('/', '%')
 
         # we do debug-log per model (and not per unit or app) because k8s-operators 
