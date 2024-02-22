@@ -202,7 +202,12 @@ class SSHClient:
         utils.debug(f"SSH-FILE-GET-GLOB: downloading remote path '{remotepath}' "
             f"glob: '{pattern}', to local dir '{localpath}'")
         sftp_channel = paramiko.SFTPClient.from_transport(self.transport)
-        for remotefile in sftp_channel.listdir(remotepath):
+        try:
+            list_dir = sftp_channel.listdir(remotepath)
+        except FileNotFoundError:
+            utils.debug("Error, remote dir does not exist")
+            return
+        for remotefile in list_dir:
             if fnmatch.fnmatch(remotefile, pattern):
                 utils.debug("SSH-FILE-GET-GLOB: downloading remote path "
                     f"'{remotepath}' to local path '{localpath}'")
