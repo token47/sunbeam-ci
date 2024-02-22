@@ -106,7 +106,7 @@ for node in nodes:
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
 
-    utils.die("Force new SSH connection to activate new groups on remote user")
+    utils.debug("Force new SSH connection to activate new groups on remote user")
     s_sshclient.close()
 
     cmd = f"sunbeam cluster add --name {s_host_name_int}"
