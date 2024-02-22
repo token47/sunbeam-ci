@@ -210,7 +210,7 @@ class SSHClient:
         for remotefile in list_dir:
             if fnmatch.fnmatch(remotefile, pattern):
                 utils.debug("SSH-FILE-GET-GLOB: downloading remote path "
-                    f"'{remotepath}' to local path '{localpath}'")
+                    f"'{remotepath}{remotefile}' to local path '{localpath}{remotefile}'")
                 sftp_channel.get(f"{remotepath}{remotefile}", f"{localpath}{remotefile}")
         sftp_channel.close()
 
