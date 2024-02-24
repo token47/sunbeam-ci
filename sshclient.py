@@ -22,30 +22,23 @@ class SSHClient:
         self.ssh_agent = paramiko.Agent()
 
 
-    def __is_connected(self):
+    def __connect(self):
         if self.transport:
             # this is better than 'is_active()' because it tests both
-            return self.transport.is_authenticated()
-        else:
-            return False
+            if self.transport.is_authenticated():
+                return
 
-
-    def __connect(self):
-        if self.__is_connected():
-            return
-
-        utils.debug(f"Starting SSH connection to {self.user}@{self.host}")
-
-        # to connect and negotiate session (and retry a few times before giving up)
+        # connect and negotiate session (and retry a few times before giving up)
         for t in range(1,11):
             try:
-                # in case last transport existed and is disconnected/timed out
+                # in case last transport existed and is now disconnected/timed out
                 # make sure to free the thread preemptively
                 if self.transport:
                     self.transport.close()
+                utils.debug(f"Starting new SSH connection to {self.user}@{self.host}")
                 # start the network connection (can emit SSHException)
                 self.transport = paramiko.Transport((self.host, 22))
-                # start the ssh2 negotiation (also emits SSHException)
+                # start the ssh2 negotiation (can also emit SSHException)
                 self.transport.start_client()
                 break
             except paramiko.SSHException:
@@ -54,7 +47,7 @@ class SSHClient:
         else:
             utils.die("SSH connection failed too many times, aborting")
 
-        # try keys from ssh_agent and from files (if unencrypted)
+        # try keys from ssh_agent and then from files (if unencrypted)
         for key in self.ssh_agent.get_keys():
             # in case the key does not succeed authenticating
             try:
@@ -80,7 +73,7 @@ class SSHClient:
                         break
         
         if not self.transport.is_authenticated():
-            utils.die("Could not find a suitable ssh key to authenticate")
+            utils.die("Could not find a suitable SSH key to authenticate")
 
 
     def close(self):
@@ -149,11 +142,11 @@ class SSHClient:
 
         stdout = channel.makefile("r", 1)
         stdout_buffer = ""
+        last_line = None
+        delayed_line = None
         # hacks to detect websocket error and retry
         websocket_error = False
         websocket_message = "Error: Unable to connect to websocket"
-        last_line = None
-        delayed_line = None
         while True:
             stdout_read = ""
             if stdout_read := stdout.readline():
@@ -162,7 +155,7 @@ class SSHClient:
                 # empty read means stream closed
                 break
             # empty stderr buffer but ignore it as an independent stream
-            # the only ways to get stderr is to get a pty or combine it
+            # the only ways to get stderr is to get a pty or combine it with stdout
             if channel.recv_stderr_ready():
                 bogus = channel.recv_stderr()  # noqa: F841
             if websocket_message in stdout_read:
@@ -170,6 +163,7 @@ class SSHClient:
 
         rc = channel.recv_exit_status()
 
+        # hack for websocket error
         if rc > 0 and websocket_error:
             rc = 1001
 
