@@ -36,9 +36,9 @@ class SSHClient:
                 if self.transport:
                     self.transport.close()
                 utils.debug(f"Starting new SSH connection to {self.user}@{self.host}")
-                # start the network connection (can emit SSHException)
+                # start the network connection (can emit SSHException if it fails)
                 self.transport = paramiko.Transport((self.host, 22))
-                # start the ssh2 negotiation (can also emit SSHException)
+                # start the ssh2 negotiation (can also emit SSHException if it fails)
                 self.transport.start_client()
                 break
             except paramiko.SSHException:
@@ -130,8 +130,12 @@ class SSHClient:
             return lines_buffer
 
         self.__connect()
-        utils.debug(f"SSH-EXECUTE: starting new execute at host {self.host}:")
-        if not verbose:
+        utils.debug(f"SSH-EXECUTE: starting new execute at host {self.host} "
+            f"verbose={verbose} get_pty={get_pty} combine_stderr={combine_stderr} "
+            f"filtered={filtered}")
+        if verbose:
+            cmd = "set -x; " + cmd
+        else:
             utils.debug(f"Commands:\n{cmd}")
         # different from sftp, exec needs a new channel every time
         channel = self.transport.open_channel("session")
