@@ -36,16 +36,16 @@ class SSHClient:
 
         utils.debug(f"Starting SSH connection to {self.user}@{self.host}")
 
-        # grab a new transport layer that will last for this connection
-        # it can be re-used but that was unstable last time I tried
-        self.transport = paramiko.Transport((self.host, 22))
-        
-        # just make sure last used transport is closed and thread released
-        self.transport.close()
-
-        # actually try to connect (and retry a few times before giving up)
+        # to connect and negotiate session (and retry a few times before giving up)
         for t in range(1,11):
             try:
+                # in case last transport existed and is disconnected/timed out
+                # make sure to free the thread preemptively
+                if self.transport:
+                    self.transport.close()
+                # start the network connection (can emit SSHException)
+                self.transport = paramiko.Transport((self.host, 22))
+                # start the ssh2 negotiation (also emits SSHException)
                 self.transport.start_client()
                 break
             except paramiko.SSHException:
