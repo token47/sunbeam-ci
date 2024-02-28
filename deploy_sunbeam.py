@@ -70,6 +70,7 @@ for role in primary_node["roles"]:
     cmd += f" --role {role}"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+# hack for websocket error
 if rc == 1001:
     utils.debug("Retrying because of websocker error")
     out, rc = p_sshclient.execute(

@@ -134,6 +134,19 @@ for node in config["nodes"]:
     cmd = """set -x
         sudo timeout -k10 30 microceph status; echo
         sudo timeout -k10 30 ceph -s
+        sudo timeout -k10 30 ceph health
+        sudo timeout -k10 30 ceph health detail
+        sudo timeout -k10 30 ceph osd pool ls
+        sudo timeout -k10 30 ceph osd pool ls detail
+        sudo timeout -k10 30 ceph df
+        sudo timeout -k10 30 ceph osd df
+        sudo timeout -k10 30 ceph osd tree
+        sudo timeout -k10 30 ceph osd crush rule ls
+        sudo timeout -k10 30 ceph osd crush tree
+        sudo timeout -k10 30 ceph osd crush class ls
+        sudo timeout -k10 30 ceph osd blocked-by
+        sudo timeout -k10 30 ceph pg ls
+        sudo timeout -k10 30 ceph config dump
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)

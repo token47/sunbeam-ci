@@ -137,7 +137,6 @@ class SSHClient:
             cmd = "set -x; " + cmd
         else:
             utils.debug(f"Commands:\n{cmd}")
-        # different from sftp, exec needs a new channel every time
         channel = self.transport.open_channel("session")
         if get_pty:
             channel.get_pty(term="xterm-256color")
