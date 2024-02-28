@@ -141,6 +141,21 @@ else:
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
+# START OF HACK -- workaround for ceph size/min_size bug (temporary):
+if "storage" in node["roles"]:
+    utils.debug("Applying temporary HACK for ceph size/min_size 3 issue")
+    cmd = """set -x
+        sudo ceph osd pool set glance min_size 1
+        sudo ceph osd pool set glance size 1 --yes-i-really-mean-it
+        sudo ceph osd pool set cinder-ceph min_size 1
+        sudo ceph osd pool set cinder-ceph size 1 --yes-i-really-mean-it
+    """
+    out, rc = p_sshclient.execute(
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    if rc > 0:
+        utils.die("error applying hack for ceph size/min_size issue, aborting")
+# END OF HACK
+
 cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
