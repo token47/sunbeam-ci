@@ -133,20 +133,19 @@ for node in config["nodes"]:
     #############################################
     cmd = """set -x
         sudo timeout -k10 30 microceph status; echo
-        sudo timeout -k10 30 ceph -s
-        sudo timeout -k10 30 ceph health
-        sudo timeout -k10 30 ceph health detail
-        sudo timeout -k10 30 ceph osd pool ls
-        sudo timeout -k10 30 ceph osd pool ls detail
-        sudo timeout -k10 30 ceph df
-        sudo timeout -k10 30 ceph osd df
-        sudo timeout -k10 30 ceph osd tree
-        sudo timeout -k10 30 ceph osd crush rule ls
-        sudo timeout -k10 30 ceph osd crush tree
-        sudo timeout -k10 30 ceph osd crush class ls
-        sudo timeout -k10 30 ceph osd blocked-by
-        sudo timeout -k10 30 ceph pg ls
-        sudo timeout -k10 30 ceph config dump
+        sudo timeout -k10 30 ceph -s; echo
+        sudo timeout -k10 30 ceph health detail; echo
+        sudo timeout -k10 30 ceph osd pool ls; echo
+        sudo timeout -k10 30 ceph osd pool ls detail; echo
+        sudo timeout -k10 30 ceph df; echo
+        sudo timeout -k10 30 ceph osd df; echo
+        sudo timeout -k10 30 ceph osd tree; echo
+        sudo timeout -k10 30 ceph osd crush rule ls; echo
+        sudo timeout -k10 30 ceph osd crush tree; echo
+        sudo timeout -k10 30 ceph osd crush class ls; echo
+        sudo timeout -k10 30 ceph osd blocked-by; echo
+        sudo timeout -k10 30 ceph pg ls; echo
+        sudo timeout -k10 30 ceph config dump; echo
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
