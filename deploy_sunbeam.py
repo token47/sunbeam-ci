@@ -147,6 +147,7 @@ out, rc = p_sshclient.execute(
 if rc > 0:
     # START OF HACK -- workaround for ceph size/min_size bug (temporary):
     # in case configure fails and the node has storage role, try this workaround
+    # this is considering first node is storage (as mentioned, just a quick hack)
     if "storage" in primary_node["roles"]:
         utils.debug("Applying HACK for ceph size/min_size 3 issue, retrying configure")
         cmd = """set -x

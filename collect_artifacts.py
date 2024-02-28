@@ -145,8 +145,8 @@ for node in config["nodes"]:
         sudo timeout -k10 30 ceph osd crush tree; echo
         sudo timeout -k10 30 ceph osd crush class ls; echo
         sudo timeout -k10 30 ceph osd blocked-by; echo
-        sudo timeout -k10 30 ceph pg ls; echo
         sudo timeout -k10 30 ceph config dump; echo
+        sudo timeout -k10 30 ceph pg ls; echo
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
