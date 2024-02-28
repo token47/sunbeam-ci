@@ -131,6 +131,7 @@ for node in config["nodes"]:
     #############################################
     # Microceph
     #############################################
+    # a few times this run got stuck so I added timeouts to all of them just in case
     cmd = """set -x
         sudo timeout -k10 30 microceph status; echo
         sudo timeout -k10 30 ceph -s; echo
