@@ -15,5 +15,3 @@ TODO
 - silence juju installs with spinning status / downloaded status
 - add proxy support (whatever sunbeam proxy support is at the moment)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
-
-+ split config in profiles/substrates with subdirs (find other repeated code)
