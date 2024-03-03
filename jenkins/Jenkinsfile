@@ -15,12 +15,12 @@ pipeline {
         }
         stage('Prepare substrate') {
             steps {
-                sh "./manage_substrate.py build"
+                sh "./src/manage_substrate.py build"
             }
         }
         stage('Deploy Sunbeam') {
             steps {
-                sh "./deploy_sunbeam.py"
+                sh "./src/deploy_sunbeam.py"
             }
             post {
                 failure {
@@ -35,7 +35,7 @@ pipeline {
         stage('Test Sunbeam') {
             steps {
                 catchError(stageResult: 'UNSTABLE', buildResult: 'UNSTABLE') {
-                    sh "./test_sunbeam.py"
+                    sh "./src/test_sunbeam.py"
                 }
             }
             post {
@@ -51,13 +51,13 @@ pipeline {
     }
     post {
         always {
-            sh "./collect_artifacts.py || :"
+            sh "./src/collect_artifacts.py || :"
             dir('artifacts') {
                 archiveArtifacts artifacts: '**/*', allowEmptyArchive: true
             }
             // adds console output to the artifacts so we also get it when downloading zip file
             sh "bash -c 'ln ../../jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/{log,archive/console-output.log} || :'"
-            sh "./manage_substrate.py destroy"
+            sh "./src/manage_substrate.py destroy"
         }
     }
 }

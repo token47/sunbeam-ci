@@ -1,0 +1,95 @@
+equinix:
+  # input_config: { "profile": "equinix", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] ] }
+  # creds: { "project_id": "xxx", "api_key": "xxx" }
+  substrate: equinix
+  api_url: not-used
+  sleep_after: 0
+  ceph_disks: "/dev/sdb" # space separated list
+  manifest:
+    deployment:
+      bootstrap:
+        management_cidr: 10.0.1.0/24
+      addons:
+        metallb: 10.0.1.20-10.0.1.29
+      user:
+        remote_access_location: remote
+        run_demo_setup: True
+        username: demo
+        password: password123
+        cidr: 192.168.122.0/24
+        nameservers: 8.8.8.8
+        security_group_rules: True
+      external_network:
+        cidr: 10.0.2.0/24
+        gateway: 10.0.2.1
+        start: 10.0.2.11
+        end: 10.0.2.254
+        network_type: flat
+        segmentation_id: 0
+        nic: bond0.1002
+      microceph_config: {} # to be filled by the tool
+    software: {}
+
+ob76:
+  # input_config: { "profile": "ob76", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] }
+  # creds: { "api_key": "xxx" }
+  substrate: maas
+  api_url: "http://ob76-node0.maas:5240/MAAS"
+  sleep_after: 0
+  ceph_disks: "/dev/sdb" # space separated list
+  manifest:
+    deployment:
+      bootstrap:
+        management_cidr: 172.27.76.0/23
+      addons:
+        metallb: 172.27.76.20-172.27.76.29
+      user:
+        remote_access_location: remote
+        run_demo_setup: True
+        username: demo
+        password: password123
+        cidr: 192.168.122.0/24
+        nameservers: 172.27.79.254
+        security_group_rules: True
+      external_network:
+        cidr: 172.27.78.0/23
+        gateway: 172.27.79.254
+        start: 172.27.78.1
+        end: 172.27.78.50
+        network_type: flat
+        segmentation_id: 0
+        nic: usb-nic
+      microceph_config: {} # to be filled by the tool
+    software: {}
+
+tokenlabs:
+  # input_config: { "profile": "ob76", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] }
+  # creds: { "api_key": "xxx" }
+  substrate: maas
+  api_url: "http://microserver.lab.token:5240/MAAS"
+  sleep_after: 0
+  ceph_disks: "/dev/sdb" # space separated list
+  manifest:
+    deployment:
+      bootstrap:
+        management_cidr: 192.168.47.0/24
+      addons:
+        metallb: 192.168.47.30-192.168.47.39
+      user:
+        remote_access_location: remote
+        run_demo_setup: True
+        username: demo
+        password: password123
+        cidr: 192.168.122.0/24
+        nameservers: 192.168.47.3
+        security_group_rules: True
+      external_network:
+        cidr: 192.168.50.0/24
+        gateway: 192.168.50.1
+        start: 192.168.50.11
+        end: 192.168.50.254
+        network_type: flat
+        segmentation_id: 0
+        nic: enp2s0.1001
+      microceph_config: {} # to be filled by the tool
+    software: {}

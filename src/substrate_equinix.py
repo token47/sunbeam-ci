@@ -4,69 +4,23 @@ import os
 import utils
 from sshclient import SSHClient
 
-"""
-    Config examples:
 
-    input_config:
-    {
-        "substrate": "equinix",
-        "channel": "2023.2/edge",
-        "roles": [
-            "storage,compute,control",
-            "storage,compute",
-            "storage,compute"
-        ]
-    }
-
-    creds:
-    { "project_id": "xxx", "api_key": "xxx" }
-"""
-
-
-def execute(config, creds, action):
+def execute(config, creds, profile, action):
     # use env so that sensitive info does not show in debug log
     os.environ["TF_VAR_equinix_project_id"] = creds["project_id"]
     os.environ["TF_VAR_equinix_api_key"] = creds["api_key"]
 
     if action == "build":
-        build(config)
-        # avoid triggering error on snap install -- "error: too early for
-        # operation, device not yet seeded or device model not acknowledged"
-        utils.debug("Sleeping a few seconds to let host settle (seed, snap, etc)")
-        utils.sleep(10)
+        build(config, profile)
+        utils.sleep(profile["sleep_after"])
     elif action == "destroy":
-        destroy(config)
+        destroy(config, profile)
     else:
         utils.die("Invalid action parameter")
 
 
-def build(input_config):
-    manifest = {
-        "deployment": {
-            "bootstrap": { "management_cidr": "10.0.1.0/24", },
-            "addons": { "metallb": "10.0.1.20-10.0.1.29", },
-            "user": {
-                "remote_access_location": "remote",
-                "run_demo_setup": True, # don't quote
-                "username": "demo",
-                "password": "password123",
-                "cidr": "192.168.122.0/24",
-                "nameservers": "8.8.8.8",
-                "security_group_rules": True, # don't quote
-            },
-            "external_network": {
-                "cidr": "10.0.2.0/24",
-                "gateway": "10.0.2.1",
-                "start": "10.0.2.11",
-                "end": "10.0.2.254",
-                "network_type": "flat",
-                "segmentation_id": "0",
-                "nic": "bond0.1002",
-            },
-            "microceph_config": {}, # to be filled later
-        },
-        "software": {}, # to be filled later
-    }
+def build(input_config, profile):
+    manifest = profile["manifest"]
 
     hosts_qty = len(input_config["roles"])
     utils.debug(f"allocating {hosts_qty} hosts in equinix")
@@ -85,16 +39,19 @@ def build(input_config):
         utils.die("could not run terraform show")
 
     equinix_vlans = utils.json_loads(
-        utils.exec_cmd_capture("terraform -chdir=terraform/equinix output -no-color -json equinix_vlans"))
+        utils.exec_cmd_capture("terraform -chdir=terraform/equinix output "
+                               "-no-color -json equinix_vlans"))
     utils.debug(f"captured 'equinix_vlans' terraform output: {equinix_vlans}")
 
     equinix_hosts = utils.json_loads(
-        utils.exec_cmd_capture("terraform -chdir=terraform/equinix output -no-color -json equinix_hosts"))
+        utils.exec_cmd_capture("terraform -chdir=terraform/equinix output "
+                               "-no-color -json equinix_hosts"))
     utils.debug(f"captured 'equinix_hosts' terraform output: {equinix_hosts}")
 
     nodes = []
     nodes_roles = dict(zip(equinix_hosts.keys(), input_config["roles"]))
-    sunbeam_hostname_generator = utils.hostname_generator(prefix="10.0.1.", start=11, domain="mydomain")
+    sunbeam_hostname_generator = utils.hostname_generator(
+        prefix="10.0.1.", start=11, domain="mydomain")
     for nodename, ipaddress in equinix_hosts.items():
         s = next(sunbeam_hostname_generator)
         nodes.append({
@@ -104,7 +61,8 @@ def build(input_config):
             "host-ip-int": s["ip"],
             "roles": nodes_roles[nodename].split(","),
         })
-        manifest["deployment"]["microceph_config"][s["fqdn"]] = { "osd_devices": "/dev/sdb" }
+        manifest["deployment"]["microceph_config"][s["fqdn"]] = \
+            { "osd_devices": profile["ceph_disks"] }
 
     output_config = {}
     output_config["nodes"] = nodes
@@ -118,7 +76,7 @@ def build(input_config):
     configure_hosts(output_config, equinix_vlans)
 
 
-def destroy(input_config):
+def destroy(input_config, profile):
     hosts_qty = len(input_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix destroy -auto-approve -no-color" \
                         f" -var='equinix_hosts_qty={hosts_qty}'")

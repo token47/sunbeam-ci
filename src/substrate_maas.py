@@ -3,69 +3,23 @@
 import os
 import utils
 
-"""
-    Config examples:
 
-    input_config:
-    {
-        "substrate": "ob76",
-        "channel": "2023.2/edge",
-        "roles": [
-            "storage,compute,control",
-            "storage,compute",
-            "storage,compute"
-        ]
-    }
-
-    creds:
-    { "api_key": "xxx" }
-"""
-
-
-def execute(config, creds, action):
+def execute(config, creds, profile, action):
     # use env so that sensitive info does not show in debug log
-    os.environ["TF_VAR_maas_api_url"] = "http://ob76-node0.maas:5240/MAAS"
+    os.environ["TF_VAR_maas_api_url"] = profile["api_url"]
     os.environ["TF_VAR_maas_api_key"] = creds["api_key"]
 
     if action == "build":
-        build(config)
-        # avoid triggering error on snap install -- "error: too early for
-        # operation, device not yet seeded or device model not acknowledged"
-        utils.debug("Sleeping a few seconds to let host settle (seed, snap, etc)")
-        utils.sleep(10)
+        build(config, profile)
+        utils.sleep(profile["sleep_after"])
     elif action == "destroy":
-        destroy(config)
+        destroy(config, profile)
     else:
         utils.die("Invalid action parameter")
 
 
-def build(input_config):
-    manifest = {
-        "deployment": {
-            "bootstrap": { "management_cidr": "172.27.76.0/23", },
-            "addons": { "metallb": "172.27.76.20-172.27.76.29", },
-            "user": {
-                "remote_access_location": "remote",
-                "run_demo_setup": True, # don't quote
-                "username": "demo",
-                "password": "password123",
-                "cidr": "192.168.122.0/24",
-                "nameservers": "172.27.79.254",
-                "security_group_rules": True, # don't quote
-            },
-            "external_network": {
-                "cidr": "172.27.78.0/23",
-                "gateway": "172.27.79.254",
-                "start": "172.27.78.1",
-                "end": "172.27.78.50",
-                "network_type": "flat",
-                "segmentation_id": "0",
-                "nic": "usb-nic",
-            },
-            "microceph_config": {}, # to be filled later
-        },
-        "software": {}, # to be filled later
-    }
+def build(input_config, profile):
+    manifest = profile["manifest"]
 
     hosts_qty = len(input_config["roles"])
     utils.debug(f"allocating {hosts_qty} hosts in maas")
@@ -97,7 +51,8 @@ def build(input_config):
             "host-ip-int": ipaddress[0], # let's take the first one now, TODO: find the OAM one
             "roles": nodes_roles[nodename].split(","),
         })
-        manifest["deployment"]["microceph_config"][nodename] = { "osd_devices": "/dev/sdb" }
+        manifest["deployment"]["microceph_config"][s["fqdn"]] = \
+            { "osd_devices": profile["ceph_disks"] }
 
     output_config = {}
     output_config["nodes"] = nodes
@@ -108,7 +63,7 @@ def build(input_config):
     utils.write_config(output_config)
 
 
-def destroy(input_config):
+def destroy(input_config, profile):
     hosts_qty = len(input_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/maas destroy -auto-approve -no-color" \
                         f" -var='maas_hosts_qty={hosts_qty}'")

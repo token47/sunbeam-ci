@@ -35,25 +35,6 @@ def exec_cmd_capture(cmd):
     return result.stdout.decode()
 
 
-def read_config():
-    with open("config.yaml", "r", encoding='ascii') as stream:
-        return yaml.safe_load(stream)
-
-
-def write_config(config):
-    """Write a config to config.yaml file"""
-    debug(f"writing config:\n{config}")
-    with open("config.yaml", "w", encoding='ascii') as fd:
-        fd.write(yaml.dump(config))
-
-
-def write_file(content, filename):
-    """Write arbitraty data to a file"""
-    debug(f"writing file {filename}")
-    with open(filename, "w", encoding='utf-8') as fd:
-        fd.write(content)
-
-
 def hostname_generator(prefix, start, domain): 
     num = start
     while True:
@@ -83,6 +64,30 @@ def sleep(seconds):
 
 def b64decode(coded_string):
     return base64.b64decode(coded_string)
+
+
+def read_config():
+    with open("config.yaml", "r", encoding='ascii') as stream:
+        return yaml.safe_load(stream)
+
+
+def read_profiles():
+    with open("profiles.yaml", "r", encoding='ascii') as stream:
+        return yaml.safe_load(stream)
+
+
+def write_config(config):
+    """Write a config to config.yaml file"""
+    debug(f"writing config:\n{config}")
+    with open("config.yaml", "w", encoding='ascii') as fd:
+        fd.write(yaml.dump(config))
+
+
+def write_file(content, filename):
+    """Write arbitraty data to a file"""
+    debug(f"writing file {filename}")
+    with open(filename, "w", encoding='utf-8') as fd:
+        fd.write(content)
 
 
 def yaml_safe_load(yamlinput):
