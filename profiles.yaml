@@ -42,7 +42,7 @@ ob76:
       bootstrap:
         management_cidr: 172.27.76.0/23
       addons:
-        metallb: 172.27.76.20-172.27.76.29
+        metallb: 172.27.76.21-172.27.76.30
       user:
         remote_access_location: remote
         run_demo_setup: True
