@@ -160,7 +160,7 @@ class SSHClient:
             # empty stderr buffer but ignore it as an independent stream
             # the only ways to get stderr is to get a pty or combine it with stdout
             if channel.recv_stderr_ready():
-                bogus = channel.recv_stderr()  # noqa: F841
+                bogus = channel.recv_stderr(8192)  # noqa: F841
             if websocket_message in stdout_read:
                 websocket_error = True
 
