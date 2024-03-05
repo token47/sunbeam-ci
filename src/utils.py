@@ -2,7 +2,6 @@
 
 import base64
 import json
-import re
 import subprocess
 import sys
 import time
@@ -42,20 +41,6 @@ def hostname_generator(prefix, start, domain):
             "fqdn": f"sunbeam{num}.{domain}",
             "ip": f"{prefix}{num}", }
         num += 1
-
-
-def token_extract(text):
-    # there are better ways of doing this (i.e. using -f yaml), but you also
-    # need to strip garbage from the start of the actual data or you need
-    # to redirect output (which is not done with the ssh-capture function)
-    # to suppress it, and in the end you need to extract the yaml which
-    # ends up being more code than this quick hack. TODO: improve
-    match = re.search("Token for the Node [^ ]+: ([^ \\r\\n]+)", text)
-    if match is None:
-        debug("RE for add host token did not match")
-        debug(text)
-        die("aborting")
-    return match.group(1)
 
 
 def sleep(seconds):

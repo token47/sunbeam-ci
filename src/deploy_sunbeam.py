@@ -110,10 +110,10 @@ for node in nodes:
     utils.debug("Force new SSH connection to activate new groups on remote user")
     s_sshclient.close()
 
-    cmd = f"sunbeam cluster add --name {s_host_name_int}"
+    cmd = f"sunbeam cluster add --format yaml --name {s_host_name_int}"
     out, rc = p_sshclient.execute(
-        cmd, verbose=False, get_pty=True, combine_stderr=False, filtered=False)
-    token = utils.token_extract(out)
+        cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+    token = utils.yaml_safe_load(out)["token"]
     utils.debug(f"Got token: {token}")
     utils.debug(f"Decoded token: {utils.b64decode(token)}")
 
