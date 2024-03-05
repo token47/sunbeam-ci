@@ -31,10 +31,6 @@ class SSHClient:
         # connect and negotiate session (and retry a few times before giving up)
         for t in range(1,11):
             try:
-                # in case last transport existed and is now disconnected/timed out
-                # make sure to free the thread preemptively
-                if self.transport:
-                    self.transport.close()
                 utils.debug(f"Starting new SSH connection to {self.user}@{self.host}")
                 # start the network connection (can emit SSHException if it fails)
                 self.transport = paramiko.Transport((self.host, 22))
