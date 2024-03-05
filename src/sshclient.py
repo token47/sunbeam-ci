@@ -84,8 +84,14 @@ class SSHClient:
     def execute(self, cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False):
 
         def strip_garbage(line):
-            # ANSI Codes, spaces at the end
-            line = re.sub(r"\x1b\[\??[0-9;]*[hlmAGKHF]| *$", '', line)
+            # Spaces at the end
+            line = re.sub(r" *$", '', line)
+            # ANSI Codes
+            line = re.sub(r"\x1b\[\??[0-9;]*[hlmAGKHF]", '', line)
+            # the spinning wheel + download percentage at snap install
+            line = re.sub("^((Ensure prerequisites|Download snap|Fetch and check assertions|"
+                "Mount snap|Setup snap|Run install hook|Start snap|Run service command|"
+                "Run configure hook).*) +([-\\\|/]|[0-9]+% .*)$", '\\1', line)
             # The spinning wheel at the status lines
             line = re.sub("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *", '> ', line)
             # Apt "Reading database" verboseness
