@@ -11,6 +11,8 @@ pipeline {
                 cleanWs()
                 git branch: 'main', url: 'http://github.com/token47/sunbeam-ci.git'
                 sh "ls -la"
+                echo "Config being used in this build: ${params.JSONConfig}"
+                echo "Credential being used in this build: ${params.JSONCreds}"
             }
         }
         stage('Prepare substrate') {
