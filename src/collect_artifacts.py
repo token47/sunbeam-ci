@@ -14,6 +14,10 @@ try:
 except FileExistsError:
     pass
 
+utils.write_file(
+    "# placeholder to avoid empty directory, you can ignore this file",
+    "artifacts/dirkeep.txt")
+
 try:
     config = utils.read_config()
 except IOError:
