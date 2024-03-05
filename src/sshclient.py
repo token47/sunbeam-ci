@@ -91,7 +91,8 @@ class SSHClient:
             # the spinning wheel + download percentage at snap install
             line = re.sub("^((Ensure prerequisites|Download snap|Fetch and check assertions|"
                 "Mount snap|Setup snap|Run install hook|Start snap|Run service command|"
-                "Run configure hook).*) +([-\\\|/]|[0-9]+% .*)$", '\\1', line)
+                "Run configure hook|Automatically connect eligible plugs).*?)"
+                " +([-\\\|/]|[0-9]+% .*)$", r'\1', line)
             # The spinning wheel at the status lines
             line = re.sub("[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏] *", '> ', line)
             # Apt "Reading database" verboseness
