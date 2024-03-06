@@ -83,13 +83,6 @@ class SSHClient:
 
     def execute(self, cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False):
 
-
-
-
-
-
-
-
         def strip_garbage(line):
             # Spaces at the end
             line = re.sub(r" *$", '', line)
