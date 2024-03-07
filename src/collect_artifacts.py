@@ -47,6 +47,7 @@ for node in config["nodes"]:
         hostname -f; echo
         hostname -s; echo
         cat /etc/hosts; echo
+        ip -o -4 addr list; echo
         ip addr list; echo
         free -h; echo
         lscpu; echo

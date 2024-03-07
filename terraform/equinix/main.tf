@@ -41,12 +41,17 @@ variable "equinix_api_key" {
 
 output "equinix_vlans" {
   description = "List of vlans created"
-  value       = { "oam" : equinix_metal_vlan.oam_vlan.vxlan, "ovn" : equinix_metal_vlan.ovn_vlan.vxlan }
+  value       = {
+    "oam" : equinix_metal_vlan.oam_vlan.vxlan,
+    "ovn" : equinix_metal_vlan.ovn_vlan.vxlan,
+  }
 }
 
 output "equinix_hosts" {
   description = "List of deployed hosts"
-  value       = { for i in resource.equinix_metal_device.equinix_hosts : i.hostname => i.access_public_ipv4 }
+  value       = {
+    for i in resource.equinix_metal_device.equinix_hosts : i.hostname => i.access_public_ipv4
+  }
 }
 
 # local variables
@@ -72,7 +77,7 @@ resource "equinix_metal_vlan" "oam_vlan" {
 }
 
 resource "equinix_metal_vlan" "ovn_vlan" {
-  metro       = "da"
+  metro       = local.metro
   project_id  = var.equinix_project_id
   description = "tf-sunbeam-${random_string.random_suffix.id}-OVN"
 }

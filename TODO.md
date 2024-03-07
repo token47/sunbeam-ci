@@ -12,6 +12,5 @@ TODO
     - run tempest with a test list (from SQA) -- will need various plugins enabled
 - try to pass non-conflicting IPs for simultanous clusters tests in maas? (only releant if testing)
 - try to optimize equinix costs with spot instances?
-- silence juju installs with spinning status / downloaded status
 - add proxy support (whatever sunbeam proxy support is at the moment)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
