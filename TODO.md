@@ -14,3 +14,6 @@ TODO
 - try to optimize equinix costs with spot instances?
 - add proxy support (whatever sunbeam proxy support is at the moment)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
+
++ Migrating equinix substrate to equinix_metal with shared L2 and public gateway
+    - how to get allocated ip block in terraform?
