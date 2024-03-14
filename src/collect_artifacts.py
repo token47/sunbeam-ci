@@ -128,6 +128,7 @@ for node in config["nodes"]:
         sudo microk8s.kubectl get nodes; echo
         sudo microk8s.kubectl get all -A; echo
         sudo microk8s.kubectl get pod -A -o yaml
+        cat ~/config || :
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
@@ -164,6 +165,8 @@ for node in config["nodes"]:
         sunbeam cluster list
         sunbeam --help
         sunbeam enable --help
+        cat ~/admin-openrc || :
+        cat ~/demo-openrc || :
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
@@ -177,7 +180,7 @@ for node in config["nodes"]:
         pass
 
     try:
-        sshclient.file_get_glob(".", "plugin-*", "artifacts/")
+        sshclient.file_get_glob("./", "plugin-*", "artifacts/")
     except FileNotFoundError:
         pass
 
