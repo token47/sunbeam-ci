@@ -162,6 +162,8 @@ for node in config["nodes"]:
     #############################################
     cmd = """set -x
         sunbeam cluster list
+        sunbeam --help
+        sunbeam enable --help
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
