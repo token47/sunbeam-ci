@@ -177,7 +177,7 @@ for node in config["nodes"]:
         pass
 
     try:
-        sshclient.file_get_glob(".", "sunbeam-plugin-*", "artifacts/")
+        sshclient.file_get_glob(".", "plugin-*", "artifacts/")
     except FileNotFoundError:
         pass
 

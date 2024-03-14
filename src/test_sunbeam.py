@@ -32,15 +32,22 @@ if rc > 0:
     tests_failed = True
 
 # this is a tempest test using the embedded validation plugin in sunbeam
-# reftest ≃ 150 tests, quick ≃ 24 tests, smoke ≃ 184 tests
+# "quick" ≃ 24 tests, "reftest" ≃ 150 tests, "smoke" ≃ 184 tests, "all" = all tests
 cmd = """set -x
     sunbeam enable validation
     sunbeam validation profiles
     sunbeam validation run quick
-    sunbeam validation get-last-result --output ~/sunbeam-plugin-validation-smoke.log
+    echo "Exit code: $?"
+    sunbeam validation get-last-result --output ~/plugin-validation.log
 """
 out, rc = sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+if rc > 0:
+    # This is relative to running the command itself, not to the tests results
+    # You can have a successful run even with failed tests
+    # Leaving it like this for now, TODO: parse failed tests output
+    utils.debug("TEST FAIL: validation run failed")
+    tests_failed = True
 
 # End of tests
 sshclient.close()
