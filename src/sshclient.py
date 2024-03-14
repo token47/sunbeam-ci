@@ -108,7 +108,8 @@ class SSHClient:
                 r"> Deploying OpenStack Control Plane to Kubernetes \(this may take a while\)|"
                 r"> Resizing OpenStack Control Plane to match appropriate topology|"
                 r"> Applying local hypervisor settings \.\.\. setting hypervisor configuration for|"
-                r"> No sunbeam key found in OpenStack\. Creating SSH key at")
+                r"> No sunbeam key found in OpenStack\. Creating SSH key at|"
+                r"> Copying .* from tempest")
 
             if not filtered:
                 if verbose:

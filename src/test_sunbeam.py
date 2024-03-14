@@ -36,7 +36,7 @@ if rc > 0:
 cmd = """set -x
     sunbeam enable validation
     sunbeam validation profiles
-    sunbeam validation run smoke
+    sunbeam validation run quick
     sunbeam validation get-last-result --output ~/sunbeam-plugin-validation-smoke.log
 """
 out, rc = sshclient.execute(
