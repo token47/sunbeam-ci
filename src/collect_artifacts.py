@@ -169,9 +169,17 @@ for node in config["nodes"]:
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/sunbeam-cluster_{host_name_int}.txt")
 
-    sshclient.file_get_glob("snap/openstack/common/logs/", "*", "artifacts/")
-    for fn in glob.glob("artifacts/sunbeam-202?????-??????.??????.log"):
-        os.rename(fn, re.sub("sunbeam-", f"sunbeam-logs_{host_name_int}_", fn))
+    try:
+        sshclient.file_get_glob("snap/openstack/common/logs/", "*", "artifacts/")
+        for fn in glob.glob("artifacts/sunbeam-202?????-??????.??????.log"):
+            os.rename(fn, re.sub("sunbeam-", f"sunbeam-logs_{host_name_int}_", fn))
+    except FileNotFoundError:
+        pass
+
+    try:
+        sshclient.file_get_glob(".", "sunbeam-plugin-*", "artifacts/")
+    except FileNotFoundError:
+        pass
 
     #############################################
     # Openstack

@@ -31,7 +31,19 @@ if rc > 0:
     utils.debug("TEST FAIL: creating test vm failed (launch command)")
     tests_failed = True
 
+# this is a tempest test using the embedded validation plugin in sunbeam
+# reftest ≃ 150 tests, quick ≃ 24 tests, smoke ≃ 184 tests
+cmd = """set -x
+    sunbeam enable validation
+    sunbeam validation profiles
+    sunbeam validation run smoke
+    sunbeam validation get-last-result --output ~/sunbeam-plugin-validation-smoke.log
+"""
+out, rc = sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+
+# End of tests
+sshclient.close()
+
 if tests_failed:
     utils.die("At least one test failed, exiting with error")
-
-sshclient.close()
