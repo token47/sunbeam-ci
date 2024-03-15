@@ -113,7 +113,7 @@ class SSHClient:
 
             if not filtered:
                 if verbose:
-                    print(lineraw)
+                    print(lineraw, end="") # avoid adding another \n in case of raw print
                 return lineraw
 
             # we may have received lots of lines with \r separator in one raw line
@@ -160,13 +160,12 @@ class SSHClient:
         websocket_error = False
         websocket_message = "Error: Unable to connect to websocket"
         while True:
-            stdout_read = ""
             if stdout_read := stdout.readline():
                 stdout_buffer += maybe_filter_and_print(stdout_read, verbose, filtered)
             else:
                 # empty read means stream closed
                 break
-            # empty stderr buffer but ignore it as an independent stream
+            # empty stderr buffer but ignore it's content as an independent stream
             # the only ways to get stderr is to get a pty or combine it with stdout
             if channel.recv_stderr_ready():
                 bogus = channel.recv_stderr(8192)  # noqa: F841
