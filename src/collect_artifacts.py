@@ -165,8 +165,6 @@ for node in config["nodes"]:
         sunbeam cluster list
         sunbeam --help
         sunbeam enable --help
-        cat ~/admin-openrc || :
-        cat ~/demo-openrc || :
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
@@ -188,6 +186,8 @@ for node in config["nodes"]:
     # Openstack
     #############################################
     cmd = """set -xe
+        cat ~/admin-openrc || :
+        cat ~/demo-openrc || :
         source admin-openrc
         openstack server list --all-projects --long; echo
         openstack network list --long; echo
