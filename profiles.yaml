@@ -7,6 +7,14 @@ equinix:
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
+      proxy:
+        proxy_required: False
+        http_proxy:
+        https_proxy:
+        no_proxy:
+      #certificates:
+      #  <CSR x500UniqueIdentifier>:
+      #    certificate:
       bootstrap:
         management_cidr: 10.0.1.0/24
       addons:
@@ -39,6 +47,14 @@ ob76:
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
+      proxy:
+        proxy_required: False
+        http_proxy:
+        https_proxy:
+        no_proxy:
+      #certificates:
+      #  <CSR x500UniqueIdentifier>:
+      #    certificate:
       bootstrap:
         management_cidr: 172.27.76.0/23
       addons:
@@ -71,6 +87,14 @@ tokenlabs:
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
+      proxy:
+        proxy_required: False
+        http_proxy:
+        https_proxy:
+        no_proxy:
+      #certificates:
+      #  <CSR x500UniqueIdentifier>:
+      #    certificate:
       bootstrap:
         management_cidr: 192.168.47.0/24
       addons:
