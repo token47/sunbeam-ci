@@ -2,7 +2,7 @@ equinix:
   # input_config: { "profile": "equinix", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] ] }
   # creds: { "project_id": "xxx", "api_key": "xxx" }
   substrate: equinix
-  api_url: not-used
+  #api_url: not-used
   sleep_after: 0
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
