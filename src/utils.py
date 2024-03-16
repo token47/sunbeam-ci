@@ -35,11 +35,13 @@ def exec_cmd_capture(cmd):
 
 
 def hostname_generator(prefix, start, domain): 
-    num = start
+    octets = prefix.split(".")
+    # if start is None, use last octet as first
+    num = start if start else octets[3]
     while True:
         yield {
             "fqdn": f"sunbeam{num}.{domain}",
-            "ip": f"{prefix}{num}", }
+            "ip": f"{octets[0]}.{octets[1]}.{octets[2]}.{num}", }
         num += 1
 
 
