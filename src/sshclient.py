@@ -15,14 +15,27 @@ KEY_FILES = [
 
 class SSHClient:
 
-    def __init__(self, user, host):
+    def __init__(self, user, host, jumphost = None):
         self.user = user
         self.host = host
         self.transport = None
         self.ssh_agent = paramiko.Agent()
+        self.jumphost = jumphost
 
 
     def __connect(self):
+
+        def get_new_transport():
+            if self.jumphost:
+                # Not sure what the src port here is used for, but it is needed
+                src_addr = (self.jumphost.host, 22)
+                dst_addr = (self.host, 22)
+                channel = self.jumphost.transport.open_channel(
+                    "direct-tcpip", src=src_addr, dst=dst_addr)
+                return paramiko.Transport(channel)
+            else:
+                return paramiko.Transport((self.host, 22))
+
         if self.transport:
             # this is better than 'is_active()' because it tests both
             if self.transport.is_authenticated():
@@ -30,14 +43,15 @@ class SSHClient:
 
         # connect and negotiate session (and retry a few times before giving up)
         for t in range(1,11):
+            # in case last transport existed and is now disconnected/timed out
+            # make sure to free the thread preemptively
+            if self.transport:
+                self.transport.close()
+            utils.debug(f"Starting new SSH connection to {self.user}@{self.host} "
+                f"jumphost={self.jumphost.host if self.jumphost else None}")
             try:
-                # in case last transport existed and is now disconnected/timed out
-                # make sure to free the thread preemptively
-                if self.transport:
-                    self.transport.close()
-                utils.debug(f"Starting new SSH connection to {self.user}@{self.host}")
                 # start the network connection (can emit SSHException if it fails)
-                self.transport = paramiko.Transport((self.host, 22))
+                self.transport = get_new_transport()
                 # start the ssh2 negotiation (can also emit SSHException if it fails)
                 self.transport.start_client()
                 break
