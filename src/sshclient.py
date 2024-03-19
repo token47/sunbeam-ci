@@ -159,7 +159,7 @@ class SSHClient:
         if verbose:
             cmd = "set -x; " + cmd
         else:
-            utils.debug(f"Commands:\n{cmd}")
+            utils.debug(f"Commands:\n{cmd.rstrip()}")
         channel = self.transport.open_channel("session")
         if get_pty:
             channel.get_pty(term="xterm-256color")
