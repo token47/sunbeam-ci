@@ -63,7 +63,7 @@ p_sshclient.close()
 
 m = utils.yaml_dump(config["manifest"])
 p_sshclient.file_write("manifest.yaml", m)
-utils.debug(f"Manifest contents are:\n{m}")
+utils.debug(f"Manifest contents are:\n{m.rstrip()}")
 
 cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:
