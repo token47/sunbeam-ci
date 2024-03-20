@@ -53,28 +53,33 @@ def b64decode(coded_string):
     return base64.b64decode(coded_string)
 
 
+def read_file(filename, encoding='utf-8'):
+    with open(filename, "r", encoding=encoding) as fd:
+        return fd.read()
+
+
+def read_file_lines(filename, encoding='utf-8'):
+    with open(filename, "r", encoding=encoding) as fd:
+        return fd.readlines()
+
+
 def read_config():
-    with open("config.yaml", "r", encoding='ascii') as stream:
-        return yaml.safe_load(stream)
+    return yaml.safe_load(read_file("config.yaml"))
 
 
 def read_profiles():
-    with open("profiles.yaml", "r", encoding='ascii') as stream:
-        return yaml.safe_load(stream)
+    return yaml.safe_load(read_file("profiles.yaml"))
+
+
+def write_file(content, filename, encoding='utf-8'):
+    debug(f"writing file {filename}")
+    with open(filename, "w", encoding=encoding) as fd:
+        fd.write(content)
 
 
 def write_config(config):
-    """Write a config to config.yaml file"""
-    debug(f"writing config:\n{config}")
-    with open("config.yaml", "w", encoding='ascii') as fd:
-        fd.write(yaml.dump(config))
-
-
-def write_file(content, filename):
-    """Write arbitraty data to a file"""
-    debug(f"writing file {filename}")
-    with open(filename, "w", encoding='utf-8') as fd:
-        fd.write(content)
+    debug(f"config to be written:\n{config}")
+    write_file(yaml.dump(config), "config.yaml")
 
 
 def yaml_safe_load(yamlinput):
