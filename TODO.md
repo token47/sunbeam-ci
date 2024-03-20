@@ -12,8 +12,10 @@ TODO
     - run tempest with a test list (from SQA) -- will need various plugins enabled
 - try to pass non-conflicting IPs for simultanous clusters tests in maas? (only releant if testing)
 - try to optimize equinix costs with spot instances?
-- add proxy support (whatever sunbeam proxy support is at the moment)
+- add proxy support tests (blocking direct access)
 - Remove escapes/colors/ConsoleNotes from jenkins console log?
-
-+ Migrating equinix substrate to equinix_metal with shared L2 and public gateway
+- Migrating equinix substrate to equinix_metal with shared L2 and public gateway
     - how to get allocated ip block in terraform?
+    - maybe wait for juju spaces support instead??
+
+

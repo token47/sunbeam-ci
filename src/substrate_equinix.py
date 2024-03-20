@@ -113,6 +113,7 @@ def configure_hosts(config, vlans):
             utils.die("running apt update/upgrade failed, aborting")
 
         # not using docstring because of indentation
+        # TODO: switch swparate strings for a dedent'ed docstring
         cmd = ( 'set -xe\n'
             'echo "\n'
             f'auto bond0.{vlan_oam}\n'
