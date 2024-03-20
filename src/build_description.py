@@ -46,6 +46,8 @@ EXTRA_INFO_RE = [
     ]
 ]
 
+# TODO: add support for needed hacks (websocket, ceph pool rep=1, ...)
+
 utils.debug(f"Creating description for job_name={args.job_name} build_number={args.build_number}")
 
 console_log = utils.read_file(CONSOLE_LOG_FILE) # read whole file as one string
@@ -58,12 +60,12 @@ groups = re.findall(' DIE: (.*)$', console_log, re.MULTILINE)
 die_message = groups[0]
 
 # Try to add some more info on fail reason
-extra_info = "n/a"
 for item in EXTRA_INFO_RE:
-    result = re.search(item[1], console_log)
-    if result:
+    if re.search(item[1], console_log):
         extra_info = item[0]
         break
+else:
+    extra_info = "n/a"
 
 rendered_template = textwrap.dedent(f"""\
     openstack_snap: {os_snap_channel} ({os_snap_release})
