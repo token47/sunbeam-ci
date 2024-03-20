@@ -54,12 +54,15 @@ pipeline {
     post {
         always {
             sh "./src/collect_artifacts.py || :"
-            sh "./src/build_description.py -j ${JOB_NAME} -b ${BUILD_NUMBER} || :"
             dir('artifacts') {
                 archiveArtifacts artifacts: '**/*', allowEmptyArchive: true
-                script {
-                    currentBuild.setDescription(readFile("build-description.txt"))
-                }
+            }
+            // create build-description.txt file directly in the job archive
+            sh "./src/build_description.py -j ${JOB_NAME} -b ${BUILD_NUMBER} || :"
+            script {
+                // and set the build description based on it
+                currentBuild.setDescription(readFile(
+                    "../../jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/archive/build-description.txt"))
             }
             // adds console output to the artifacts so we also get it when downloading zip file
             sh "bash -c 'ln ../../jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/{log,archive/console-output.log} || :'"
