@@ -46,7 +46,13 @@ EXTRA_INFO_RE = [
     ]
 ]
 
-# TODO: add support for needed hacks (websocket, ceph pool rep=1, ...)
+#HACKS_RE = [
+#    [
+#        # TODO: add websocket and ceph hacks
+#        'hack-name',
+#        'hack-string-to-search-for'
+#    ]
+#]
 
 utils.debug(f"Creating description for job_name={args.job_name} build_number={args.build_number}")
 
@@ -54,10 +60,10 @@ console_log = utils.read_file(CONSOLE_LOG_FILE) # read whole file as one string
 
 # Get the basic information (snap release, die message, etc.)
 groups = re.findall('Download snap "openstack" \((.*)\) from channel "(.*)"', console_log)
-os_snap_release = groups[0][0]
-os_snap_channel = groups[0][1]
+os_snap_release = groups[0][0] if groups else "n/a"
+os_snap_channel = groups[0][1] if groups else "n/a"
 groups = re.findall(' DIE: (.*)$', console_log, re.MULTILINE)
-die_message = groups[0]
+die_message = groups[0] if groups else "n/a"
 
 # Try to add some more info on fail reason
 for item in EXTRA_INFO_RE:
@@ -67,11 +73,20 @@ for item in EXTRA_INFO_RE:
 else:
     extra_info = "n/a"
 
+## Try to list all hacks needed, TODO: make them cumulative
+#for item in HACKS_RE:
+#    if re.search(item[1], console_log):
+#        hacks_needed = item[0]
+#        break
+#else:
+#    hacks_needed = "n/a"
+
 rendered_template = textwrap.dedent(f"""\
     openstack_snap: {os_snap_channel} ({os_snap_release})
     die_message: {die_message}
     extra_info: {extra_info}
 """)
+    #hacks_needed: {hacks_needed}
 
 utils.debug(f"Rendered template: \n{rendered_template.rstrip()}")
 
