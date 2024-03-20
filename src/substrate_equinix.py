@@ -2,6 +2,7 @@
 
 import os
 import utils
+import textwrap
 from sshclient import SSHClient
 
 
@@ -112,31 +113,31 @@ def configure_hosts(config, vlans):
         if rc > 0:
             utils.die("running apt update/upgrade failed, aborting")
 
-        # not using docstring because of indentation
-        # TODO: switch swparate strings for a dedent'ed docstring
-        cmd = ( 'set -xe\n'
-            'echo "\n'
-            f'auto bond0.{vlan_oam}\n'
-            f'iface bond0.{vlan_oam} inet static\n'
-            '    vlan-raw-device bond0\n'
-            f'    address {host_ip_int}\n'
-            '    netmask 255.255.255.0\n'
-            '    #post-up ip route add 10.0.2.0/24 via 10.0.1.1\n'
-            '\n'
-            f'auto bond0.{vlan_ovn}\n'
-            f'iface bond0.{vlan_ovn} inet manual\n'
-            '    vlan-raw-device bond0\n'
-            '" >> /etc/network/interfaces\n'
-            'echo "\\\n'
-            '::1 localhost ip6-localhost ip6-loopback\n'
-            'ff02::1 ip6-allnodes\n'
-            'ff02::2 ip6-allrouters\n'
-            '127.0.0.1   localhost\n'
-            '#10.0.1.1    sunbeamgw.mydomain sunbeamgw\n'
-            f'{etc_hosts_snippet}'
-            '" > /etc/hosts\n'
-            f'hostnamectl set-hostname {host_name_int}\n'
-            'systemctl restart networking\n' )
+        cmd = textwrap.dedent(f"""\
+            set -xe
+            echo "
+            auto bond0.{vlan_oam}
+            iface bond0.{vlan_oam} inet static
+                vlan-raw-device bond0
+                address {host_ip_int}
+                netmask 255.255.255.0
+                #post-up ip route add 10.0.2.0/24 via 10.0.1.1
+            
+            auto bond0.{vlan_ovn}
+            iface bond0.{vlan_ovn} inet manual
+                vlan-raw-device bond0
+            " >> /etc/network/interfaces
+            echo "\\
+            ::1 localhost ip6-localhost ip6-loopback
+            ff02::1 ip6-allnodes
+            ff02::2 ip6-allrouters
+            127.0.0.1   localhost
+            #10.0.1.1    sunbeamgw.mydomain sunbeamgw
+            {etc_hosts_snippet}
+            " > /etc/hosts
+            hostnamectl set-hostname {host_name_int}
+            systemctl restart networking
+            """)
         out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
         if rc > 0:
