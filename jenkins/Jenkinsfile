@@ -57,7 +57,9 @@ pipeline {
             sh "./src/build_description.py -j ${JOB_NAME} -b ${BUILD_NUMBER} || :"
             dir('artifacts') {
                 archiveArtifacts artifacts: '**/*', allowEmptyArchive: true
-                currentBuild.setDescription(readFile("build-description.txt"))
+                script {
+                    currentBuild.setDescription(readFile("build-description.txt"))
+                }
             }
             // adds console output to the artifacts so we also get it when downloading zip file
             sh "bash -c 'ln ../../jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/{log,archive/console-output.log} || :'"
