@@ -35,6 +35,9 @@ EXTRA_INFO_RE = [
         'microceph-unit-timeout',
         'Timed out while waiting for units microceph/. to be ready'
     ], [
+        'hypervisor-unit-timeout',
+        'Timed out while waiting for units openstack-hypervisor/. to be ready'
+    ], [
         'model-openstack-timeout',
         'Timed out while waiting for model .openstack. to be ready'
     ], [
