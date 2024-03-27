@@ -167,7 +167,7 @@ for node in config["nodes"]:
         sunbeam enable --help
     """
     out, rc = sshclient.execute(
-        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=True)
     utils.write_file(out, f"artifacts/sunbeam-cluster_{host_name_int}.txt")
 
     try:
