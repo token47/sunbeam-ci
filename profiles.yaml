@@ -83,7 +83,7 @@ tokenlabs:
   # creds: { "api_key": "xxx" }
   substrate: maas
   api_url: "http://microserver.lab.token:5240/MAAS"
-  sleep_after: 10 # boot slow, wait for services to settle
+  sleep_after: 15 # boot slow, wait for services to settle
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
