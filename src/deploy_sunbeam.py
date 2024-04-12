@@ -11,16 +11,17 @@ from sshclient import SSHClient
 config = utils.read_config()
 
 # manifest software override options
-#config["manifest"]["software"].update({
-#    #"juju": {
-#    #    "bootstrap_args": [ "--debug" ],
-#    #},
-#    #"charms": {
-#    #    "mysql-k8s": { "channel": "8.0/edge", },
-#    #    "mysql-router-k8s": { "channel": "8.0/edge", },
-#    #    "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
-#    #},
-#})
+config["manifest"]["software"].update({
+    #"juju": {
+    #    "bootstrap_args": [ "--debug" ],
+    #},
+    "charms": {
+        # temporary override for potential bug after release 477 (CP moved to stable)
+        "sunbeam-machine": { "channel": "2023.2/candidate" }
+    #    "mysql-k8s": { "channel": "8.0/edge", },
+    #    "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
+    },
+})
 
 # order hosts to have control nodes first, then separete primary node from others
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
