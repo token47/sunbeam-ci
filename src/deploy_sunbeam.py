@@ -11,15 +11,42 @@ from sshclient import SSHClient
 config = utils.read_config()
 
 # manifest software override options
+# TODO: implement importing edge.yaml file from snap instead of hardcoding these versions
+#       making this flexible (easy to chose between stable, candidate, edge, etc.)
+#       actually taking this as a parameter from the profile or from jenkins
+#       (make it possible to override specifics from the profile -- apply it AFTER this)
 config["manifest"]["software"].update({
     #"juju": {
     #    "bootstrap_args": [ "--debug" ],
     #},
     "charms": {
-        # temporary override for potential bug after release 477 (CP moved to stable)
-        "sunbeam-machine": { "channel": "2023.2/candidate" }
-    #    "mysql-k8s": { "channel": "8.0/edge", },
     #    "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
+        "aodh-k8s":                 { "channel": "2023.2/edge" },
+        "barbican-k8s":             { "channel": "2023.2/edge" },
+        "ceilometer-k8s":           { "channel": "2023.2/edge" },
+        "cinder-ceph-k8s":          { "channel": "2023.2/edge" },
+        "cinder-k8s":               { "channel": "2023.2/edge" },
+        "designate-bind-k8s":       { "channel": "9/edge" },
+        "designate-k8s":            { "channel": "2023.2/edge" },
+        "glance-k8s":               { "channel": "2023.2/edge" },
+        "gnocchi-k8s":              { "channel": "2023.2/edge" },
+        "heat-k8s":                 { "channel": "2023.2/edge" },
+        "horizon-k8s":              { "channel": "2023.2/edge" },
+        "keystone-k8s":             { "channel": "2023.2/edge" },
+        "keystone-ldap-k8s":        { "channel": "2023.2/edge" },
+        "magnum-k8s":               { "channel": "2023.2/edge" },
+        "neutron-k8s":              { "channel": "2023.2/edge" },
+        "nova-k8s":                 { "channel": "2023.2/edge" },
+        "octavia-k8s":              { "channel": "2023.2/edge" },
+        "openstack-exporter-k8s":   { "channel": "2023.2/edge" },
+        "openstack-hypervisor":     { "channel": "2023.2/edge", "config": { "snap-channel": "2023.2/edge" } },
+        "ovn-central-k8s":          { "channel": "23.09/edge" },
+        "ovn-relay-k8s":            { "channel": "23.09/edge" },
+        "placement-k8s":            { "channel": "2023.2/edge" },
+        "sunbeam-clusterd":         { "channel": "2023.2/edge", "config": { "snap-channel": "2023.2/edge" } },
+        "sunbeam-machine":          { "channel": "2023.2/edge" },
+        "tempest-k8s":              { "channel": "2023.2/edge" },
+        "microceph":                { "channel": "reef/edge" },
     },
 })
 
