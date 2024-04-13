@@ -20,3 +20,4 @@ TODO
 
 - improve the manifest override for edge (more details in deploy script)
 - rename current jobs to edge-edge, add more jobs for edge-stable and stable-stable
+- try mangling the token string to swap external IP for internal IP (microceph timeout issue)
