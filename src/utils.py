@@ -49,6 +49,10 @@ def sleep(seconds):
     time.sleep(seconds)
 
 
+def b64encode(plain_string):
+    return base64.b64encode(plain_string)
+
+
 def b64decode(coded_string):
     return base64.b64decode(coded_string)
 
@@ -92,3 +96,7 @@ def yaml_dump(stringinput):
 
 def json_loads(jsoninput):
     return json.loads(jsoninput)
+
+
+def json_dumps(dictinput):
+    return json.dumps(dictinput)

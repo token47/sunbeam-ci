@@ -143,7 +143,8 @@ for node in nodes:
         cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
     token = utils.yaml_safe_load(out)["token"]
     utils.debug(f"Got token: {token}")
-    utils.debug(f"Decoded token: {utils.b64decode(token)}")
+    token_decoded = utils.b64decode(token).decode("utf-8")
+    utils.debug(f"Decoded token: {token_decoded}")
 
     cmd = "sunbeam cluster join"
     for role in node["roles"]:
