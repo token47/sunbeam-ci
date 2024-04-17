@@ -67,23 +67,23 @@ def read_file_lines(filename, encoding='utf-8'):
         return fd.readlines()
 
 
+def read_profiles():
+    return yaml.safe_load(read_file("profiles.yaml"))
+
+
 def read_config():
     return yaml.safe_load(read_file("config.yaml"))
 
 
-def read_profiles():
-    return yaml.safe_load(read_file("profiles.yaml"))
+def write_config(config):
+    debug(f"config to be written:\n{config}")
+    write_file(yaml.dump(config), "config.yaml")
 
 
 def write_file(content, filename, encoding='utf-8'):
     debug(f"writing file {filename}")
     with open(filename, "w", encoding=encoding) as fd:
         fd.write(content)
-
-
-def write_config(config):
-    debug(f"config to be written:\n{config}")
-    write_file(yaml.dump(config), "config.yaml")
 
 
 def yaml_safe_load(yamlinput):
