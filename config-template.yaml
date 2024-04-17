@@ -1,5 +1,6 @@
 # this is a config template in case you want to skip preparation step -- normally not used
-channel: 2023.2/edge
+channel: 2024.1/edge
+channelcp: edge
 nodes:
 - host-name-ext: ob76-node9.maas
   host-name-int: ob76-node9.maas

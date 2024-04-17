@@ -100,3 +100,11 @@ def json_loads(jsoninput):
 
 def json_dumps(dictinput):
     return json.dumps(dictinput)
+
+
+def deep_dict_merge(dict1, dict2):
+    for k, v in dict2.items():
+        if (k in dict1 and isinstance(dict1[k], dict) and isinstance(dict2[k], dict)):
+            deep_dict_merge(dict1[k], dict2[k])
+        else:
+            dict1[k] = dict2[k]

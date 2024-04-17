@@ -10,46 +10,6 @@ from sshclient import SSHClient
 
 config = utils.read_config()
 
-# manifest software override options
-# TODO: implement importing edge.yaml file from snap instead of hardcoding these versions
-#       making this flexible (easy to chose between stable, candidate, edge, etc.)
-#       actually taking this as a parameter from the profile or from jenkins
-#       (make it possible to override specifics from the profile -- apply it AFTER this)
-config["manifest"]["software"].update({
-    #"juju": {
-    #    "bootstrap_args": [ "--debug" ],
-    #},
-    "charms": {
-    #    "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
-        "aodh-k8s":                 { "channel": "2023.2/edge" },
-        "barbican-k8s":             { "channel": "2023.2/edge" },
-        "ceilometer-k8s":           { "channel": "2023.2/edge" },
-        "cinder-ceph-k8s":          { "channel": "2023.2/edge" },
-        "cinder-k8s":               { "channel": "2023.2/edge" },
-        "designate-bind-k8s":       { "channel": "9/edge" },
-        "designate-k8s":            { "channel": "2023.2/edge" },
-        "glance-k8s":               { "channel": "2023.2/edge" },
-        "gnocchi-k8s":              { "channel": "2023.2/edge" },
-        "heat-k8s":                 { "channel": "2023.2/edge" },
-        "horizon-k8s":              { "channel": "2023.2/edge" },
-        "keystone-k8s":             { "channel": "2023.2/edge" },
-        "keystone-ldap-k8s":        { "channel": "2023.2/edge" },
-        "magnum-k8s":               { "channel": "2023.2/edge" },
-        "neutron-k8s":              { "channel": "2023.2/edge" },
-        "nova-k8s":                 { "channel": "2023.2/edge" },
-        "octavia-k8s":              { "channel": "2023.2/edge" },
-        "openstack-exporter-k8s":   { "channel": "2023.2/edge" },
-        "openstack-hypervisor":     { "channel": "2023.2/edge", "config": { "snap-channel": "2023.2/edge" } },
-        "ovn-central-k8s":          { "channel": "23.09/edge" },
-        "ovn-relay-k8s":            { "channel": "23.09/edge" },
-        "placement-k8s":            { "channel": "2023.2/edge" },
-        "sunbeam-clusterd":         { "channel": "2023.2/edge", "config": { "snap-channel": "2023.2/edge" } },
-        "sunbeam-machine":          { "channel": "2023.2/edge" },
-        "tempest-k8s":              { "channel": "2023.2/edge" },
-        "microceph":                { "channel": "reef/edge" },
-    },
-})
-
 # order hosts to have control nodes first, then separete primary node from others
 nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
 control_count = len(nodes)
@@ -89,9 +49,42 @@ if rc > 0:
 utils.debug("Force new SSH connection to activate new groups on remote user")
 p_sshclient.close()
 
-m = utils.yaml_dump(config["manifest"])
-p_sshclient.file_write("manifest.yaml", m)
-utils.debug(f"Manifest contents are:\n{m.rstrip()}")
+manifest = config["manifest"]
+
+# The snap carries a few manifest override files that you can use
+# to force candidate, edge, etc for the control plane (default is
+# stable channel for CP even for non-stable openstack snaps)
+channelcp = config.get("channelcp", "")
+snap_manifest_file = f"/snap/openstack/current/etc/manifests/{channelcp}.yml"
+if channelcp == "stable":
+    # for stable, we just do nothing, it's the default
+    utils.debug(f"deploying control plane with stable channels, no snap manifest needed")
+elif channelcp in ("candidate", "edge"):
+    # for others we merge default manifest from snap with ours
+    utils.debug(f"deploying control plane with {channelcp} channels, loading snap manifest")
+    manifest_temp = utils.yaml_safe_load(p_sshclient.file_read(snap_manifest_file))
+    # Get a merged manifest using the snap one for defaults
+    utils.deep_dict_merge(manifest_temp, manifest)
+    manifest = manifest_temp
+else:
+    utils.die("Missing or invalid 'channelcp' value")
+
+# Any other override that we may want to do on manifest can go here
+# This will be valid for all profiles. It can go into the config
+# file instead if it's for a specific profile.
+#manifest.update({
+    #"juju": {
+    #    "bootstrap_args": [ "--debug" ],
+    #},
+    #"charms": {
+    #    "microk8s": { config: { containerd_env: "..."}, custom_registries: [ { url: "...", host: "...", } ], },
+    #    "keystone-k8s": { "channel": "2023.2/edge" },
+    #},
+#})
+
+manifest_dump = utils.yaml_dump(manifest)
+utils.debug(f"Manifest contents are:\n{manifest_dump.rstrip()}")
+p_sshclient.file_write("manifest.yaml", manifest_dump)
 
 cmd = "sunbeam cluster bootstrap -m ~/manifest.yaml"
 for role in primary_node["roles"]:

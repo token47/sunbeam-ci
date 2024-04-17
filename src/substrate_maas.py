@@ -58,6 +58,7 @@ def build(input_config, profile):
     output_config["nodes"] = nodes
     output_config["user"] = "ubuntu"
     output_config["channel"] = input_config["channel"]
+    output_config["channelcp"] = input_config["channelcp"]
     output_config["manifest"] = manifest
 
     utils.write_config(output_config)
