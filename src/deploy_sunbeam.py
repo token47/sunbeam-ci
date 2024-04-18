@@ -58,14 +58,13 @@ channelcp = config.get("channelcp", "")
 snap_manifest_file = f"/snap/openstack/current/etc/manifests/{channelcp}.yml"
 if channelcp == "stable":
     # for stable, we just do nothing, it's the default
-    utils.debug(f"deploying control plane with stable channels, no snap manifest needed")
+    utils.debug("deploying control plane with 'stable' channels, no snap manifest needed")
 elif channelcp in ("candidate", "edge"):
     # for others we merge default manifest from snap with ours
     utils.debug(f"deploying control plane with {channelcp} channels, loading snap manifest")
     manifest_temp = utils.yaml_safe_load(p_sshclient.file_read(snap_manifest_file))
     # Get a merged manifest using the snap one for defaults
-    utils.deep_dict_merge(manifest_temp, manifest)
-    manifest = manifest_temp
+    manifest = utils.merge_dicts(manifest_temp, manifest)
 else:
     utils.die("Missing or invalid 'channelcp' value")
 

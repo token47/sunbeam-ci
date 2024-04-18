@@ -92,7 +92,7 @@ equinix:
           config:
             snap-channel: 2024.1/edge
         sunbeam-machine:
-          channel: 2024.1/edge
+          channel: 2023.2/edge
         tempest-k8s:
           channel: 2024.1/edge
 
