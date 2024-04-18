@@ -36,65 +36,7 @@ equinix:
         segmentation_id: 0
         nic: bond0.1002
       microceph_config: {} # to be filled by the tool
-    software:
-      # WORKAROUND for 2024.1 snap pointing to 2023.2 control plane
-      charms:
-        aodh-k8s:
-          channel: 2024.1/edge
-        barbican-k8s:
-          channel: 2024.1/edge
-        ceilometer-k8s:
-          channel: 2024.1/edge
-        cinder-ceph-k8s:
-          channel: 2024.1/edge
-        cinder-k8s:
-          channel: 2024.1/edge
-        designate-bind-k8s:
-          channel: 9/edge
-        designate-k8s:
-          channel: 2024.1/edge
-        glance-k8s:
-          channel: 2024.1/edge
-        gnocchi-k8s:
-          channel: 2024.1/edge
-        heat-k8s:
-          channel: 2024.1/edge
-        horizon-k8s:
-          channel: 2024.1/edge
-        keystone-k8s:
-          channel: 2024.1/edge
-        keystone-ldap-k8s:
-          channel: 2024.1/edge
-        magnum-k8s:
-          channel: 2024.1/edge
-        microceph:
-          channel: reef/edge
-        neutron-k8s:
-          channel: 2024.1/edge
-        nova-k8s:
-          channel: 2024.1/edge
-        octavia-k8s:
-          channel: 2024.1/edge
-        openstack-exporter-k8s:
-          channel: 2024.1/edge
-        openstack-hypervisor:
-          channel: 2024.1/edge
-          config:
-            snap-channel: 2024.1/edge
-        ovn-central-k8s:
-          channel: 23.09/edge
-        ovn-relay-k8s:
-          channel: 23.09/edge
-        placement-k8s:
-          channel: 2024.1/edge
-        sunbeam-clusterd:
-          channel: 2024.1/edge
-          config:
-            snap-channel: 2024.1/edge
-        sunbeam-machine:
-          channel: 2023.2/edge
-        tempest-k8s:
-          channel: 2024.1/edge
+    software: {}
 
 ob76:
   # input_config: { "profile": "ob76", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] }
