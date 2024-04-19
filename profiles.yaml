@@ -1,5 +1,5 @@
 equinix:
-  # input_config: { "profile": "equinix", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] ] }
+  # input_config: { "profile": "equinix", "channel": "2024.1/edge", "channelcp": "edge", "roles": [ "...", "...", "..." ] ] }
   # creds: { "project_id": "xxx", "api_key": "xxx" }
   substrate: equinix
   #api_url: not-used
@@ -39,7 +39,7 @@ equinix:
     software: {}
 
 ob76:
-  # input_config: { "profile": "ob76", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] }
+  # input_config: { "profile": "ob76", "channel": "2024.1/edge", "channelcp": "edge", "roles": [ "...", "...", "..." ] }
   # creds: { "api_key": "xxx" }
   substrate: maas
   api_url: "http://ob76-node0.maas:5240/MAAS"
@@ -79,7 +79,7 @@ ob76:
     software: {}
 
 tokenlabs:
-  # input_config: { "profile": "ob76", "channel": "2023.2/edge", "roles": [ "...", "...", "..." ] }
+  # input_config: { "profile": "ob76", "channel": "2024.1/edge", "channelcp": "edge", "roles": [ "...", "...", "..." ] }
   # creds: { "api_key": "xxx" }
   substrate: maas
   api_url: "http://microserver.lab.token:5240/MAAS"
