@@ -34,7 +34,7 @@ equinix:
         end: 10.0.2.254
         network_type: flat
         segmentation_id: 0
-        nic: bond0.1002
+        nic: bond0.1001 # 1000=main 1001=provider
       microceph_config: {} # to be filled by the tool
     software: {}
 
