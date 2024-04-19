@@ -37,12 +37,14 @@ p_sshclient = SSHClient(user, p_host_ip_ext)
 cmd = f"sudo snap install openstack --channel {config['channel']}"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
 if rc > 0:
     utils.die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
 
@@ -90,17 +92,20 @@ for role in primary_node["roles"]:
     cmd += f" --role {role}"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
 # hack for websocket error
 if rc == 1001:
     utils.debug("Retrying because of websocker error")
     out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
 cmd = "sunbeam cluster list"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
 
 ### Other nodes
 
@@ -118,12 +123,14 @@ for node in nodes:
     cmd = f"sudo snap install openstack --channel {config['channel']}\n"
     out, rc = s_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
     if rc > 0:
         utils.die("installing openstack snap failed, aborting")
 
     cmd = "sunbeam prepare-node-script | grep -v newgrp | bash -x"
     out, rc = s_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
     if rc > 0:
         utils.die("running prepare-node-script failed, aborting")
 
@@ -133,6 +140,7 @@ for node in nodes:
     cmd = f"sunbeam cluster add --format yaml --name {s_host_name_int}"
     out, rc = p_sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+    utils.debug(f"execute return code is {rc}")
     token = utils.yaml_safe_load(out)["token"]
     utils.debug(f"Got token: {token}")
     token_decoded = utils.b64decode(token).decode("utf-8")
@@ -144,12 +152,14 @@ for node in nodes:
     cmd += f" --token {token}"
     out, rc = s_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
     if rc > 0:
         utils.die("joining node failed, aborting")
 
     cmd = "sunbeam cluster list"
     out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
 
     s_sshclient.close()
 
@@ -159,12 +169,14 @@ else:
     cmd = "sunbeam cluster resize"
     out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
 cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
 if rc > 0:
     # START OF HACK -- workaround for ceph size/min_size bug (temporary):
     # in case configure fails and the node has storage role, try this workaround
@@ -179,12 +191,14 @@ if rc > 0:
         """
         out, rc = p_sshclient.execute(
             cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+        utils.debug(f"execute return code is {rc}")
         if rc > 0:
             utils.die("error applying hack for ceph size/min_size issue, aborting")
     # and then try the configure one more time and update rc vaule
     cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
     out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
     if rc > 0:
     # END OF HACK
         utils.die("configuring demo project failed, aborting")
@@ -192,6 +206,7 @@ if rc > 0:
 cmd = "sunbeam openrc > ~/admin-openrc"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
 if rc > 0:
     utils.die("exporting admin credentials failed, aborting")
 
