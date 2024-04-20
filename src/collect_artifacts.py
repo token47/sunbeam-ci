@@ -70,7 +70,7 @@ for node in config["nodes"]:
 
     sshclient.file_get("/var/log/syslog", f"artifacts/{host_name_int}/syslog.txt")
 
-    sshclient.file_get("/var/log/kern.log", f"artifacts/{host_name_int}/kern.log.txt")
+    sshclient.file_get("/var/log/kern.log", f"artifacts/{host_name_int}/kern.log")
 
     #############################################
     # Juju
@@ -214,7 +214,7 @@ for node in config["nodes"]:
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
-            os.rename(fn, re.sub("terraform-", "terraform-demo-setup-", fn))
+            os.rename(fn, re.sub("terraform-", "terraform_demo-setup-", fn))
     except FileNotFoundError:
         pass
     try:
@@ -222,7 +222,7 @@ for node in config["nodes"]:
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
-            os.rename(fn, re.sub("terraform-", "terraform-deploy-openstack-hypervisor-", fn))
+            os.rename(fn, re.sub("terraform-", "terraform_deploy-openstack-hypervisor-", fn))
     except FileNotFoundError:
         pass
     try:
@@ -230,7 +230,7 @@ for node in config["nodes"]:
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
-            os.rename(fn, re.sub("terraform-", "terraform-deploy-microceph-", fn))
+            os.rename(fn, re.sub("terraform-", "terraform_deploy-microceph-", fn))
     except FileNotFoundError:
         pass
 
@@ -247,15 +247,15 @@ for node in config["nodes"]:
     cmd = "sudo cat /var/snap/openstack-hypervisor/common/log/openvswitch/ovs-vswitchd.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/ovs-vswitchd.log.txt")
+    utils.write_file(out, f"artifacts/{host_name_int}/ovs-vswitchd.log")
     cmd = "sudo cat /var/snap/openstack-hypervisor/common/log/openvswitch/ovsdb-server.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/ovsdb-server.log.txt")
+    utils.write_file(out, f"artifacts/{host_name_int}/ovsdb-server.log")
     cmd = "sudo cat /var/snap/openstack-hypervisor/common/log/ovn/ovn-controller.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/ovn-controller.log.txt")
+    utils.write_file(out, f"artifacts/{host_name_int}/ovn-controller.log")
     cmd = "sudo grep -H . /var/snap/openstack-hypervisor/common/log/libvirt/qemu/*.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
