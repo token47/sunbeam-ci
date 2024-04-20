@@ -37,7 +37,10 @@ for node in config["nodes"]:
     host_ip_ext = node["host-ip-ext"]
 
     utils.debug(f"collecting artifacts from node {host_name_int}")
-    os.mkdir(f"artifacts/{host_name_int}")
+    try:
+        os.mkdir(f"artifacts/{host_name_int}")
+    except FileExistsError:
+        pass
 
     sshclient = SSHClient(user, host_ip_ext)
 
@@ -207,7 +210,7 @@ for node in config["nodes"]:
     # Terraform deployments
     #############################################
     try:
-        sshclient.file_get_glob("openstack/common/etc/local/demo-setup/",
+        sshclient.file_get_glob("snap/openstack/common/etc/local/demo-setup/",
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
@@ -215,7 +218,7 @@ for node in config["nodes"]:
     except FileNotFoundError:
         pass
     try:
-        sshclient.file_get_glob("openstack/common/etc/local/deploy-openstack-hypervisor/",
+        sshclient.file_get_glob("snap/openstack/common/etc/local/deploy-openstack-hypervisor/",
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
@@ -223,7 +226,7 @@ for node in config["nodes"]:
     except FileNotFoundError:
         pass
     try:
-        sshclient.file_get_glob("openstack/common/etc/local/deploy-microceph/",
+        sshclient.file_get_glob("snap/openstack/common/etc/local/deploy-microceph/",
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
@@ -237,12 +240,6 @@ for node in config["nodes"]:
     try:
         sshclient.file_get("/var/snap/openstack-hypervisor/common/log/neutron.log",
                            f"artifacts/{host_name_int}/neutron.log")
-    except FileNotFoundError:
-        pass
-    try:
-        sshclient.file_get_glob("/var/snap/openstack-hypervisor/common/log/libvirt/qemu/",
-                                "*.log",
-                                f"artifacts/{host_name_int}/")
     except FileNotFoundError:
         pass
     # These next files are only readable by root so I'm using 'sudo cat' instead of
@@ -259,3 +256,7 @@ for node in config["nodes"]:
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/{host_name_int}/ovn-controller.log.txt")
+    cmd = "sudo grep -H . /var/snap/openstack-hypervisor/common/log/libvirt/qemu/*.log"
+    out, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+    utils.write_file(out, f"artifacts/{host_name_int}/libvirt-instances.txt")
