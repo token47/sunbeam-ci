@@ -204,8 +204,6 @@ for node in config["nodes"]:
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/{host_name_int}/openstack.txt")
 
-    sshclient.close()
-
     #############################################
     # Terraform deployments
     #############################################
@@ -260,3 +258,5 @@ for node in config["nodes"]:
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/{host_name_int}/libvirt-instances.txt")
+
+    sshclient.close()
