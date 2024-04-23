@@ -5,29 +5,29 @@ pipeline {
             parallel {
                 stage("Batch AR Queue1") {
                     steps {
-                        build job: 'sunbeam-equinix-1h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                        build job: 'sunbeam-equinix-1h1c-nostorage-2024.1-edge-edge', propagate: false, quietPeriod: 60,
                             parameters: [ credentials(name: 'JSONCreds', value: 'equinix_andre_creds'), ]
-                        build job: 'sunbeam-equinix-3h1c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                        build job: 'sunbeam-equinix-3h1c-nostorage-2024.1-edge-edge', propagate: false, quietPeriod: 60,
                             parameters: [ credentials(name: 'JSONCreds', value: 'equinix_andre_creds'), ]
                     }
                 }
                 stage("Batch AR Queue2") {
                     steps {
-                        build job: 'sunbeam-equinix-3h3c-nostorage-2023.2-edge', propagate: false, quietPeriod: 60,
+                        build job: 'sunbeam-equinix-3h3c-nostorage-2024.1-edge-edge', propagate: false, quietPeriod: 60,
                             parameters: [ credentials(name: 'JSONCreds', value: 'equinix_andre_creds'), ]
                     }
                 }
                 stage("Batch MM Queue1") {
                     steps {
-                        build job: 'sunbeam-equinix-1h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
+                        build job: 'sunbeam-equinix-1h1c-storage-2024.1-edge-edge', propagate: false, quietPeriod: 60,
                             parameters: [ credentials(name: 'JSONCreds', value: 'equinix_marcelo_creds'), ]
-                        build job: 'sunbeam-equinix-3h1c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
+                        build job: 'sunbeam-equinix-3h1c-storage-2024.1-edge-edge', propagate: false, quietPeriod: 60,
                             parameters: [ credentials(name: 'JSONCreds', value: 'equinix_marcelo_creds'), ]
                     }
                 }
                 stage("Batch MM Queue2") {
                     steps {
-                        build job: 'sunbeam-equinix-3h3c-storage-2023.2-edge', propagate: false, quietPeriod: 60,
+                        build job: 'sunbeam-equinix-3h3c-storage-2024.1-edge-edge', propagate: false, quietPeriod: 60,
                             parameters: [ credentials(name: 'JSONCreds', value: 'equinix_marcelo_creds'), ]
                     }
                 }
