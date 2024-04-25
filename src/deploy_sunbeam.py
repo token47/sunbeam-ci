@@ -173,7 +173,7 @@ else:
     if rc > 0:
         utils.die("resizing cluster failed, aborting")
 
-cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
+cmd = "sunbeam configure --openrc ~/demo-openrc"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
