@@ -195,7 +195,7 @@ if rc > 0:
         if rc > 0:
             utils.die("error applying hack for ceph size/min_size issue, aborting")
     # and then try the configure one more time and update rc vaule
-    cmd = "sunbeam configure --openrc ~/demo-openrc && echo > ~/demo-openrc"
+    cmd = "sunbeam configure --openrc ~/demo-openrc && echo >> ~/demo-openrc"
     out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     utils.debug(f"execute return code is {rc}")
