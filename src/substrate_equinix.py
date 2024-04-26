@@ -107,8 +107,10 @@ def configure_hosts(config, vlans):
 
         sshclient = SSHClient("root", host_ip_ext)
 
-        cmd = "set -xe; apt -q update; DEBIAN_FRONTEND=noninteractive apt -q -o " \
-            "Dpkg::Progress-Fancy=0 -o APT::Color=0 -o Dpkg::Use-Pty=0 upgrade -y"
+        cmd = "set -xe; apt -q update; DEBIAN_FRONTEND=noninteractive apt -q " \
+            "-o Dpkg::Progress-Fancy=0 -o APT::Color=0 -o Dpkg::Use-Pty=0 " \
+            "-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold " \
+            "upgrade -y"
         out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=True)
         if rc > 0:
