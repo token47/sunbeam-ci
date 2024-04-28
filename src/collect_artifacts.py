@@ -138,6 +138,18 @@ for node in config["nodes"]:
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
     utils.write_file(out, f"artifacts/{host_name_int}/microk8s.txt")
 
+    # also get logs for all pods (and all containers in them)
+    cmd = "sudo microk8s.kubectl get pods -n openstack --no-headers " \
+        "-o custom-columns=\":metadata.name\""
+    out, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+    pods = out.split()
+    for pod in pods:
+        cmd = f"sudo microk8s.kubectl logs --ignore-errors -n openstack --all-containers {pod}"
+        out, rc = sshclient.execute(
+            cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
+        utils.write_file(out, f"artifacts/{host_name_int}/microk8s-pod-log_{pod}.txt")
+
     #############################################
     # Microceph
     #############################################
