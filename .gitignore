@@ -40,6 +40,7 @@ terraform.rc
 __pycache__
 
 # config files
+.vscode
 config.yaml
 
 # temporary cache
