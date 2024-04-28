@@ -136,7 +136,7 @@ for node in config["nodes"]:
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/microk8s.txt")
+    utils.write_file(out, f"artifacts/{host_name_int}/microk8s-all.txt")
 
     # also get logs for all pods (and all containers in them)
     cmd = "sudo microk8s.kubectl get pods -n openstack --no-headers " \
@@ -224,23 +224,31 @@ for node in config["nodes"]:
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
-            os.rename(fn, re.sub("terraform-", "terraform_demo-setup-", fn))
+            newfn = re.sub("terraform-", "terraform_demo-setup-", fn)
+            utils.debug(f"renaming '{fn}' -> '{newfn}'")
+            os.rename(fn, newfn)
     except FileNotFoundError:
         pass
+    
     try:
         sshclient.file_get_glob("snap/openstack/common/etc/local/deploy-openstack-hypervisor/",
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
-            os.rename(fn, re.sub("terraform-", "terraform_deploy-openstack-hypervisor-", fn))
+            newfn = re.sub("terraform-", "terraform_deploy-openstack-hypervisor-", fn)
+            utils.debug(f"renaming '{fn}' -> '{newfn}'")
+            os.rename(fn, newfn)
     except FileNotFoundError:
         pass
+
     try:
         sshclient.file_get_glob("snap/openstack/common/etc/local/deploy-microceph/",
                                 "terraform-*-202???????????.log",
                                 f"artifacts/{host_name_int}/")
         for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
-            os.rename(fn, re.sub("terraform-", "terraform_deploy-microceph-", fn))
+            newfn = re.sub("terraform-", "terraform_deploy-microceph-", fn)
+            utils.debug(f"renaming '{fn}' -> '{newfn}'")
+            os.rename(fn, newfn)
     except FileNotFoundError:
         pass
 
