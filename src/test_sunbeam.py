@@ -37,7 +37,7 @@ cmd = """set -xe
     sunbeam enable validation
     sunbeam validation profiles
     sunbeam validation run quick
-    ls -l /var/lib/tempest/workspace/
+    sudo ls -lR /var/lib/tempest/ || :
     sunbeam validation get-last-result --output ~/plugin-validation.log
 """
 # TODO: "ls" of workspace above is temporary and can be removed in the future
