@@ -73,6 +73,7 @@ else:
 # Any other override that we may want to do on manifest can go here
 # This will be valid for all profiles. It can go into the config
 # file instead if it's for a specific profile.
+# more doc at https://discourse.ubuntu.com/t/deployment-manifest/42672/5
 #manifest.update({
     #"juju": {
     #    "bootstrap_args": [ "--debug" ],

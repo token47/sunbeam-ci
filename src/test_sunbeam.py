@@ -31,16 +31,24 @@ if rc > 0:
     utils.debug("TEST FAIL: creating test vm failed (launch command)")
     tests_failed = True
 
+# Just enabling observability, not specific tests executed
+cmd = """set -xe
+    sunbeam enable observability
+"""
+out, rc = sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+if rc > 0:
+    utils.debug("TEST FAIL: observability plugin enable failed")
+    tests_failed = True
+
 # this is a tempest test using the embedded validation plugin in sunbeam
 # "quick" ≃ 24 tests, "reftest" ≃ 150 tests, "smoke" ≃ 184 tests, "all" = all tests
 cmd = """set -xe
     sunbeam enable validation
     sunbeam validation profiles
     sunbeam validation run quick
-    sudo ls -lR /var/lib/tempest/ || :
     sunbeam validation get-last-result --output ~/plugin-validation.log
 """
-# TODO: "ls" of workspace above is temporary and can be removed in the future
 out, rc = sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 if rc > 0:
@@ -49,7 +57,7 @@ if rc > 0:
     # TODO: parse failed tests output and use that as another failure condition
     # NOTE: Some backends do not have the gateway in place to actually pass traffic
     # to the VMs so some tests can be false negative
-    utils.debug("TEST FAIL: validation run failed")
+    utils.debug("TEST FAIL: validation plugin enable or run failed")
     tests_failed = True
 
 # End of tests
