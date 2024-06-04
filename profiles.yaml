@@ -7,6 +7,7 @@ equinix:
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
+      region: RegionOne
       proxy:
         proxy_required: False
         http_proxy:
@@ -47,6 +48,7 @@ ob76:
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
+      region: RegionOne
       proxy:
         proxy_required: False
         http_proxy:
@@ -87,6 +89,7 @@ tokenlabs:
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
+      region: RegionOne
       proxy:
         proxy_required: False
         http_proxy:
