@@ -44,7 +44,7 @@ ob76:
   # creds: { "api_key": "xxx" }
   substrate: maas
   api_url: "http://ob76-node0.maas:5240/MAAS"
-  sleep_after: 0
+  sleep_after: 5 # boot slow, wait a little before starting deployment
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
     deployment:
