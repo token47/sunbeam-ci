@@ -123,6 +123,9 @@ class SSHClient:
                 r"> Resizing OpenStack Control Plane to match appropriate topology|"
                 r"> Applying local hypervisor settings \.\.\. setting hypervisor configuration for|"
                 r"> No sunbeam key found in OpenStack\. Creating SSH key at|"
+                r"> Enabling OpenStack telemetry application \.\.\. waiting for services to come|"
+                r"> Enabling OpenStack observability application \.\.\. waiting for services to come|"
+                r"> Enabling OpenStack validation application ... waiting for services to come|"
                 r"> Copying .* from tempest")
 
             if not filtered:
