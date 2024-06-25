@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage("substrate-tokenlabs") {
             steps {
-                build job: 'sunbeam-tokenlabs-1h1c-nostorage-2024.1-edge-edge', propagate: false, quietPeriod: 60
+                build job: 'sunbeam-tokenlabs-1h1c-nostorage-2024.1-edge', propagate: false, quietPeriod: 60
             }
         }
     }
