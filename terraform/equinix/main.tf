@@ -59,7 +59,8 @@ output "equinix_hosts" {
 locals {
   metro  = "da"           # Dallas
   distro = "ubuntu_22_04" # jammy
-  flavor = "c3.small.x86" # smallest = 8C/32GB/2x480G-SSD/2x10Gbps
+  #flavor = "c3.small.x86" # smallest1 = 8C/32GB/2x480G-SSD/2x10Gbps
+  flavor = "m3.small.x86" # smallest2 = 8C/64GB/2x480G-SSD/2x25Gbps
 }
 
 # resources
