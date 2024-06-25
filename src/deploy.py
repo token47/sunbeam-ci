@@ -10,14 +10,15 @@ import utils
 # commands instead.
 
 # No need to pass parameters since it will know where to read the config from.
+# They are executed as subprocesses and will return to this script at the end.
 
 config = utils.read_config()
 
 substrate = config["substrate"]
 utils.debug(f"Starting deploy for substrate {substrate}")
 if substrate in ("equinix", "maas"):
-    os.execl("./src/deploy_standalone.py")
+    os.system("./src/deploy_standalone.py")
 elif substrate == "maasdeployment":
-    os.execl("./src/deploy_deployment.py")
+    os.system("./src/deploy_deployment.py")
 else:
     utils.die(f"Invalid substrate '{substrate}' in config, aborting")
