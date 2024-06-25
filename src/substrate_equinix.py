@@ -66,6 +66,7 @@ def build(jenkins_config, jenkins_creds, profile_data):
             { "osd_devices": profile_data["ceph_disks"] }
 
     output_config = {}
+    output_config["substrate"] = profile_data["substrate"]
     output_config["nodes"] = nodes
     output_config["user"] = "ubuntu" # we use root to configre but deployment uses ubuntu
     output_config["channel"] = jenkins_config["channel"]

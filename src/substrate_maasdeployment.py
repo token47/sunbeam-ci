@@ -43,6 +43,7 @@ def execute(jenkins_config, jenkins_creds, profile_data, action):
 
 def build(jenkins_config, jenkins_creds, profile_data):
     output_config = {}
+    output_config["substrate"] = profile_data["substrate"]
     output_config["user"] = USER
     output_config["api_url"] = profile_data["api_url"]
     output_config["api_key"] = jenkins_creds["api_key"]
@@ -61,9 +62,11 @@ def build(jenkins_config, jenkins_creds, profile_data):
 
 
 def destroy(jenkins_config, jenkins_creds, profile_data):
-    # remove the install at the end
-    #remove_current_installation(jenkins_config, jenkins_creds, profile_data)
+    # NOTE: Currently not removing so that the environment is left running
+    #       for debugging -- remove this eventually
     pass
+    # clean the installation at the end
+    #remove_current_installation(jenkins_config, jenkins_creds, profile_data)
 
 
 def remove_current_installation(jenkins_config, jenkins_creds, profile_data):

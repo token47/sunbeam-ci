@@ -18,9 +18,9 @@ def execute(jenkins_config, jenkins_creds, profile_data, action):
         utils.die("Invalid action parameter")
 
 
-def build(jenkins_config, jenkins_creds, profile):
+def build(jenkins_config, jenkins_creds, profile_data):
 
-    manifest = profile["manifest"]
+    manifest = profile_data["manifest"]
 
     hosts_qty = len(jenkins_config["roles"])
     utils.debug(f"allocating {hosts_qty} hosts in maas")
@@ -56,6 +56,7 @@ def build(jenkins_config, jenkins_creds, profile):
             { "osd_devices": "/dev/sdb" }
 
     output_config = {}
+    output_config["substrate"] = profile_data["substrate"]
     output_config["nodes"] = nodes
     output_config["user"] = "ubuntu"
     output_config["channel"] = jenkins_config["channel"]
