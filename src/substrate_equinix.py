@@ -6,24 +6,24 @@ import textwrap
 from sshclient import SSHClient
 
 
-def execute(config, creds, profile, action):
+def execute(jenkins_config, jenkins_creds, profile_data, action):
     # use env so that sensitive info does not show in debug log
-    os.environ["TF_VAR_equinix_project_id"] = creds["project_id"]
-    os.environ["TF_VAR_equinix_api_key"] = creds["api_key"]
+    os.environ["TF_VAR_equinix_project_id"] = jenkins_creds["project_id"]
+    os.environ["TF_VAR_equinix_api_key"] = jenkins_creds["api_key"]
 
     if action == "build":
-        build(config, profile)
-        utils.sleep(profile["sleep_after"])
+        build(jenkins_config, jenkins_creds, profile_data)
+        utils.sleep(profile_data["sleep_after"])
     elif action == "destroy":
-        destroy(config, profile)
+        destroy(jenkins_config, jenkins_creds, profile_data)
     else:
         utils.die("Invalid action parameter")
 
 
-def build(input_config, profile):
-    manifest = profile["manifest"]
+def build(jenkins_config, jenkins_creds, profile_data):
+    manifest = profile_data["manifest"]
 
-    hosts_qty = len(input_config["roles"])
+    hosts_qty = len(jenkins_config["roles"])
     utils.debug(f"allocating {hosts_qty} hosts in equinix")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix init -no-color")
@@ -50,7 +50,7 @@ def build(input_config, profile):
     utils.debug(f"captured 'equinix_hosts' terraform output: {equinix_hosts}")
 
     nodes = []
-    nodes_roles = dict(zip(equinix_hosts.keys(), input_config["roles"]))
+    nodes_roles = dict(zip(equinix_hosts.keys(), jenkins_config["roles"]))
     sunbeam_hostname_generator = utils.hostname_generator(
         prefix="10.0.1.", start=11, domain="mydomain")
     for nodename, ipaddress in equinix_hosts.items():
@@ -63,13 +63,13 @@ def build(input_config, profile):
             "roles": nodes_roles[nodename].split(","),
         })
         manifest["deployment"]["microceph_config"][s["fqdn"]] = \
-            { "osd_devices": profile["ceph_disks"] }
+            { "osd_devices": profile_data["ceph_disks"] }
 
     output_config = {}
     output_config["nodes"] = nodes
     output_config["user"] = "ubuntu" # we use root to configre but deployment uses ubuntu
-    output_config["channel"] = input_config["channel"]
-    output_config["channelcp"] = input_config["channelcp"]
+    output_config["channel"] = jenkins_config["channel"]
+    output_config["channelcp"] = jenkins_config["channelcp"]
     output_config["manifest"] = manifest
 
     utils.write_config(output_config)
@@ -78,26 +78,26 @@ def build(input_config, profile):
     configure_hosts(output_config, equinix_vlans)
 
 
-def destroy(input_config, profile):
-    hosts_qty = len(input_config["roles"])
+def destroy(jenkins_config, jenkins_creds, profile_data):
+    hosts_qty = len(jenkins_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix destroy -auto-approve -no-color" \
                         f" -var='equinix_hosts_qty={hosts_qty}'")
     if rc > 0:
         utils.die("could not run terraform destroy")
 
 
-def configure_hosts(config, vlans):
+def configure_hosts(output_config, vlans):
     vlan_oam = vlans["oam"]
     vlan_ovn = vlans["ovn"]
 
     # we need to collect all hostnames first (to use in /etc/hosts), then loop again later
     etc_hosts_snippet = ""
-    for node in config["nodes"]:
+    for node in output_config["nodes"]:
         host_name_int = node["host-name-int"]
         host_ip_int = node["host-ip-int"]
         etc_hosts_snippet += f"{host_ip_int}\t{host_name_int} {host_name_int.split('.')[0]}\n"
 
-    for node in config["nodes"]:
+    for node in output_config["nodes"]:
         host_name_ext = node["host-name-ext"]
         host_name_int = node["host-name-int"]
         host_ip_ext = node["host-ip-ext"]

@@ -4,24 +4,25 @@ import os
 import utils
 
 
-def execute(config, creds, profile, action):
+def execute(jenkins_config, jenkins_creds, profile_data, action):
     # use env so that sensitive info does not show in debug log
-    os.environ["TF_VAR_maas_api_url"] = profile["api_url"]
-    os.environ["TF_VAR_maas_api_key"] = creds["api_key"]
+    os.environ["TF_VAR_maas_api_url"] = profile_data["api_url"]
+    os.environ["TF_VAR_maas_api_key"] = jenkins_creds["api_key"]
 
     if action == "build":
-        build(config, profile)
-        utils.sleep(profile["sleep_after"])
+        build(jenkins_config, jenkins_creds, profile_data)
+        utils.sleep(profile_data["sleep_after"])
     elif action == "destroy":
-        destroy(config, profile)
+        destroy(jenkins_config, jenkins_creds, profile_data)
     else:
         utils.die("Invalid action parameter")
 
 
-def build(input_config, profile):
+def build(jenkins_config, jenkins_creds, profile):
+
     manifest = profile["manifest"]
 
-    hosts_qty = len(input_config["roles"])
+    hosts_qty = len(jenkins_config["roles"])
     utils.debug(f"allocating {hosts_qty} hosts in maas")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/maas init -no-color")
@@ -42,7 +43,7 @@ def build(input_config, profile):
     utils.debug(f"captured 'maas_hosts' terraform output: {maas_hosts}")
 
     nodes = []
-    nodes_roles = dict(zip(maas_hosts.keys(), input_config["roles"]))
+    nodes_roles = dict(zip(maas_hosts.keys(), jenkins_config["roles"]))
     for nodename, ipaddress in maas_hosts.items():
         nodes.append({
             "host-name-ext": nodename,
@@ -57,15 +58,15 @@ def build(input_config, profile):
     output_config = {}
     output_config["nodes"] = nodes
     output_config["user"] = "ubuntu"
-    output_config["channel"] = input_config["channel"]
-    output_config["channelcp"] = input_config["channelcp"]
+    output_config["channel"] = jenkins_config["channel"]
+    output_config["channelcp"] = jenkins_config["channelcp"]
     output_config["manifest"] = manifest
 
     utils.write_config(output_config)
 
 
-def destroy(input_config, profile):
-    hosts_qty = len(input_config["roles"])
+def destroy(jenkins_config, jenkins_creds, profile_data):
+    hosts_qty = len(jenkins_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/maas destroy -auto-approve -no-color" \
                         f" -var='maas_hosts_qty={hosts_qty}'")
     if rc > 0:

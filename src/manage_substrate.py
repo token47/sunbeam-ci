@@ -4,6 +4,7 @@ import json
 import os
 import substrate_equinix
 import substrate_maas
+import substrate_maasdeployment
 import sys
 import utils
 
@@ -41,5 +42,7 @@ if substrate == "equinix":
     substrate_equinix.execute(jenkins_config, jenkins_creds, profile_data, action)
 elif substrate == "maas":
     substrate_maas.execute(jenkins_config, jenkins_creds, profile_data, action)
+elif substrate == "maasdeployment":
+    substrate_maasdeployment.execute(jenkins_config, jenkins_creds, profile_data, action)
 else:
     utils.die(f"Invalid substrate '{substrate}' used in profile '{profile_name}', aborting")
