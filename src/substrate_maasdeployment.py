@@ -57,7 +57,7 @@ def build(jenkins_config, jenkins_creds, profile_data):
     utils.write_config(output_config)
 
     # remove a possible left over install before starting
-    remove_current_installation()
+    remove_current_installation(jenkins_config, jenkins_creds, profile_data)
 
 
 def destroy(jenkins_config, jenkins_creds, profile_data):
