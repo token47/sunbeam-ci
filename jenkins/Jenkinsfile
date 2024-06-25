@@ -22,7 +22,7 @@ pipeline {
         }
         stage('Deploy Sunbeam') {
             steps {
-                sh "./src/deploy_sunbeam.py"
+                sh "./src/deploy.py"
             }
             post {
                 failure {
