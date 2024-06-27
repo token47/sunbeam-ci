@@ -67,7 +67,7 @@ for network, space in spaces_mapping.items():
 # at /home/ubuntu/snap/openstack/common/reports/validate-deployment-*.yaml
 cmd = "sunbeam deployment validate"
 out, rc = p_sshclient.execute(
-    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=False)
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
 # this is about failure of running the command, not about the result of the validation
 if rc > 0:
@@ -106,6 +106,7 @@ if rc == 1001:
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
+# "cluster list" is currently broken for maas deployments
 #cmd = "sunbeam cluster list"
 #out, rc = p_sshclient.execute(
 #    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)

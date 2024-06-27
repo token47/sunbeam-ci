@@ -119,6 +119,45 @@ ob76deployment:
         segmentation_id: 0
     software: {}
 
+felabdeployment:
+  # input_config: { "profile": "felabdeployment", "channel": "2024.1/edge", "channelcp": "edge" }
+  # creds: { "api_key": "xxx" }
+  substrate: maasdeployment
+  api_url: "http://ob76-node0.maas:5240/MAAS"
+  sleep_after: 5 # boot slow, wait a little before starting deployment
+  deployment_name: sunbeamci
+  resource_pool: sunbeamci
+  sunbeam_client: 172.16.7.231
+  destroy_after: False
+  spaces_mapping:
+    data: oam
+    internal: oam
+    management: oam
+    public: oam
+    storage: oam
+    storage-cluster: oam
+  manifest:
+    deployment:
+      region: RegionOne
+      proxy:
+        proxy_required: False
+      user:
+        remote_access_location: remote
+        run_demo_setup: True
+        username: demo
+        password: password123
+        cidr: 192.168.122.0/24
+        nameservers: 172.27.79.254
+        security_group_rules: True
+      external_network:
+        cidr: 172.27.78.0/23
+        gateway: 172.27.79.254
+        start: 172.27.78.1
+        end: 172.27.78.50
+        network_type: flat
+        segmentation_id: 0
+    software: {}
+
 tokenlabs:
   # input_config: { "profile": "ob76", "channel": "2024.1/edge", "channelcp": "edge", "roles": [ "...", "...", "..." ] }
   # creds: { "api_key": "xxx" }
