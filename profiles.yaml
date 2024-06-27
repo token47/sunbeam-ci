@@ -123,7 +123,7 @@ felabdeployment:
   # input_config: { "profile": "felabdeployment", "channel": "2024.1/edge", "channelcp": "edge" }
   # creds: { "api_key": "xxx" }
   substrate: maasdeployment
-  api_url: "http://ob76-node0.maas:5240/MAAS"
+  api_url: "http://172.16.7.10:5240/MAAS/"
   sleep_after: 5 # boot slow, wait a little before starting deployment
   deployment_name: sunbeamci
   resource_pool: sunbeamci
