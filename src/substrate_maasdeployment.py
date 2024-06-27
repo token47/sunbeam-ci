@@ -62,11 +62,11 @@ def build(jenkins_config, jenkins_creds, profile_data):
 
 
 def destroy(jenkins_config, jenkins_creds, profile_data):
-    # NOTE: Currently not removing so that the environment is left running
-    #       for debugging -- remove this eventually
-    pass
-    # clean the installation at the end
-    #remove_current_installation(jenkins_config, jenkins_creds, profile_data)
+    if profile_data["destroy_after"]:
+        utils.debug("Removing deployment to free up resources")
+        remove_current_installation(jenkins_config, jenkins_creds, profile_data)
+    else:
+        utils.debug("Keeping deployment up so it can be used later")
 
 
 def remove_current_installation(jenkins_config, jenkins_creds, profile_data):

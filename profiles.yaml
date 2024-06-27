@@ -89,6 +89,7 @@ ob76deployment:
   deployment_name: sunbeamci
   resource_pool: default
   sunbeam_client: sunbeam-client.maas
+  destroy_after: True
   spaces_mapping:
     data: oam-space
     internal: oam-space
