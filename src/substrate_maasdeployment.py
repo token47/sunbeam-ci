@@ -80,11 +80,16 @@ def destroy(jenkins_config, jenkins_creds, profile_data):
 def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
     sshclient = SSHClient(USER, profile_data["sunbeam_client"])
 
+    deployment_name = profile_data["deployment_name"]
+
     # FIXME: improve this cleanup, iterate through all models or maybe destroy controller directly?
-    cmd = """set -xe
-        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack && sleep 5
-        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack-machines && sleep 5
-        juju destroy-controller --no-prompt --destroy-storage --force  sunbeamci-controller && sleep 5
+    cmd = f"""set -xe
+        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack
+        sleep 5
+        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack-machines
+        sleep 5
+        juju destroy-controller --no-prompt --destroy-storage --force {deployment_name}-controller
+        sleep 5
         sudo snap remove --purge juju
         sudo snap remove --purge openstack
         rm -rf ~/.local/share/juju

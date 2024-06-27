@@ -8,16 +8,20 @@ utils.debug("started testing")
 
 config = utils.read_config()
 user = config["user"]
-# we actually only need the first control node
-nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
-primary_node = nodes.pop(0)
 
-p_host_name_int = primary_node["host-name-int"]
-p_host_name_ext = primary_node["host-name-ext"]
-p_host_ip_int = primary_node["host-ip-int"]
-p_host_ip_ext = primary_node["host-ip-ext"]
+# Target different hosts depending on the substrate
+substrate = config["substrate"]
+if substrate in ("equinix", "maas"):
+    # we actually only need the first control node
+    nodes = list(filter(lambda x: 'control' in x["roles"], config["nodes"]))
+    primary_node = nodes.pop(0)
+    target_host = primary_node["host-ip-ext"]
+elif substrate == "maasdeployment":
+    target_host = config["sunbeam_client"]
+else:
+    utils.die(f"Invalid substrate '{substrate}' in config, aborting")
 
-sshclient = SSHClient(user, p_host_ip_ext)
+sshclient = SSHClient(user, target_host)
 
 tests_failed = False
 

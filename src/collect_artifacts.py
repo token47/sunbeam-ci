@@ -23,17 +23,30 @@ try:
 except IOError:
     utils.die("Config file does not exist, aborting artifacts collection")
 
-# local info (from the build itself, not from the nodes)
+# local info (from the build itself, not from the remote nodes)
 cmd = """set -x
     cat config.yaml
 """
 utils.write_file(utils.exec_cmd_capture(cmd), "artifacts/build-info.txt")
 
 user = config["user"]
-for node in config["nodes"]:
+
+# Target different hosts depending on the substrate
+substrate = config["substrate"]
+if substrate in ("equinix", "maas"):
+    target_node_list = config["nodes"]
+elif substrate == "maasdeployment":
+    # FIXME: ADD HOSTS FROM JUJU
+    target_node_list = [{
+        "host_name_int": config["sunbeam_client"],
+        "host_ip_ext": config["sunbeam_client"],
+    #},{
+    }]
+else:
+    utils.die(f"Invalid substrate '{substrate}' in config, aborting")
+
+for node in target_node_list:
     host_name_int = node["host-name-int"]
-    host_name_ext = node["host-name-ext"]
-    host_ip_int = node["host-ip-int"]
     host_ip_ext = node["host-ip-ext"]
 
     utils.debug(f"collecting artifacts from node {host_name_int}")
