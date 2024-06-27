@@ -48,7 +48,7 @@ cmd = f"""
         --resource-pool {resource_pool}
 """
 out, rc = p_sshclient.execute(
-    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=False)
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
 if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
@@ -57,7 +57,7 @@ if rc > 0:
 for network, space in spaces_mapping.items():
     cmd = f"sunbeam deployment space map {space} {network}"
     out, rc = p_sshclient.execute(
-        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=False)
+        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     utils.debug(f"execute return code is {rc}")
     if rc > 0:
         utils.die(f"mapping network '{network}' to space '{space}' failed, aborting")

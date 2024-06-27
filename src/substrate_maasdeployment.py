@@ -7,7 +7,7 @@ from sshclient import SSHClient
 # terraform or any other actual deployment, since sunbeam will talk to maas
 # directly later in the deploy script.
 #
-# Ideally here we should configure maas itself:
+# Ideally here we should automatically configure maas to:
 # - preparing an isolated resource-group with only machines for this deployment
 # - add tags to machines (juju-controller, compute, control, storage, ...)
 # - add tags to disks of the machines (tag:ceph)
@@ -28,6 +28,13 @@ from sshclient import SSHClient
 # Note: This machine MUST BE ON at all times. Scripts will just ssh into it without
 # trying to turn it on first. It does not need anything special and can be recycled
 # at any moment if it's trashed by the scripts, it just need to be on.
+#
+# As a next step the sunbeam-client machine can be automated (maybe a a vm in the
+# target maas environment, maybe a lxd container in the CI host -- second option
+# being eaiser to implement, but being more disconnected from the environment
+# specially if you want to keep it installed after deployment).
+# And lastly, we could automate the whole maas config but this may prove very
+# complex with too much moving parts (project moonshine is proof of that).
 
 USER = "ubuntu" # for ssh'ing into sunbeam-client
 
