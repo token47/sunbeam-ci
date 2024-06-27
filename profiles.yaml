@@ -10,9 +10,6 @@ equinix:
       region: RegionOne
       proxy:
         proxy_required: False
-        http_proxy:
-        https_proxy:
-        no_proxy:
       #certificates:
       #  <CSR x500UniqueIdentifier>:
       #    certificate:
@@ -51,9 +48,6 @@ ob76:
       region: RegionOne
       proxy:
         proxy_required: False
-        http_proxy:
-        https_proxy:
-        no_proxy:
       #certificates:
       #  <CSR x500UniqueIdentifier>:
       #    certificate:
@@ -140,7 +134,10 @@ felabdeployment:
     deployment:
       region: RegionOne
       proxy:
-        proxy_required: False
+        proxy_required: True
+        http_proxy: http://squid.internal:3128/
+        https_proxy: http://squid.internal:3128/
+        no_proxy: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
       user:
         remote_access_location: remote
         run_demo_setup: True
@@ -170,9 +167,6 @@ tokenlabs:
       region: RegionOne
       proxy:
         proxy_required: False
-        http_proxy:
-        https_proxy:
-        no_proxy:
       #certificates:
       #  <CSR x500UniqueIdentifier>:
       #    certificate:
