@@ -1,6 +1,7 @@
 #!/usr/bin/python3 -u
 
 import os
+import sys
 import utils
 
 # Because these deployment scripts are very long it is not easy to enclose them in
@@ -17,9 +18,12 @@ config = utils.read_config()
 substrate = config["substrate"]
 if substrate in ("equinix", "maas"):
     utils.debug(f"Starting deploy for substrate {substrate}, executing 'deploy_standalone.py'")
-    os.system("./src/deploy_standalone.py")
+    rc = os.system("./src/deploy_standalone.py")
 elif substrate == "maasdeployment":
     utils.debug(f"Starting deploy for substrate {substrate}, executing 'deploy_deployment.py'")
-    os.system("./src/deploy_deployment.py")
+    rc = os.system("./src/deploy_deployment.py")
 else:
     utils.die(f"Invalid substrate '{substrate}' in config, aborting")
+
+# pass along the exit code from subprocess
+sys.exit(os.waitstatus_to_exitcode(rc))

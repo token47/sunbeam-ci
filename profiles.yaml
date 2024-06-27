@@ -150,10 +150,10 @@ felabdeployment:
         nameservers: 172.27.79.254
         security_group_rules: True
       external_network:
-        cidr: 172.27.78.0/23
-        gateway: 172.27.79.254
-        start: 172.27.78.1
-        end: 172.27.78.50
+        cidr: 1.0.0.0/24
+        gateway: 1.0.0.254
+        start: 1.0.0.1
+        end: 1.0.0.200
         network_type: flat
         segmentation_id: 0
     software: {}
