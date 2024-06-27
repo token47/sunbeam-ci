@@ -83,15 +83,17 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
     deployment_name = profile_data["deployment_name"]
 
     # FIXME: improve this cleanup, iterate through all models or maybe destroy controller directly?
+    #        also find a better way to not fail the whole script if individual commands fail
+    #        when we are cleaning an already cleaned environment (or detect it early and exit)
     cmd = f"""set -xe
-        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack
+        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack || :
         sleep 5
-        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack-machines
+        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack-machines || :
         sleep 5
-        juju destroy-controller --no-prompt --destroy-storage --force {deployment_name}-controller
+        juju destroy-controller --no-prompt --destroy-storage --force {deployment_name}-controller || :
         sleep 5
-        sudo snap remove --purge juju
-        sudo snap remove --purge openstack
+        sudo snap remove --purge juju || :
+        sudo snap remove --purge openstack || :
         rm -rf ~/.local/share/juju
         rm -rf ~/.local/share/openstack
         """
