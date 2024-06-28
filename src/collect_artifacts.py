@@ -31,31 +31,55 @@ utils.write_file(utils.exec_cmd_capture(cmd), "artifacts/build-info.txt")
 
 user = config["user"]
 
-# Target different hosts depending on the substrate
 substrate = config["substrate"]
 if substrate in ("equinix", "maas"):
-    target_node_list = config["nodes"]
+    target_node_list = []
+    for node in config["nodes"]:
+        target_node_list.append({
+            "host-name": node["host_name"],
+            "host-ip": node["host_ip"]})
 elif substrate == "maasdeployment":
-    # FIXME: ADD HOSTS FROM JUJU
     target_node_list = [{
-        "host-name-int": config["sunbeam_client"],
-        "host-ip-ext": config["sunbeam_client"],
-    #},{
+        "host-name": "client",
+        "host-ip": config["sunbeam_client"],
     }]
+    # just open a separate ssh connection for this temporarily
+    sshclient = SSHClient(user, config["sunbeam_client"])
+    # add keys to machines to let ourselves in directly
+    for key in utils.get_all_pub_keys():
+        cmd = ("juju add-ssh-key "
+            f"-m {config['deployment_name']}-controller:admin/openstack-machines '{key}'")
+        out, rc = sshclient.execute(
+            cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=False)
+    cmd = ("juju machines "
+        f"-m {config['deployment_name']}-controller:admin/openstack-machines --format=yaml")
+    out, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+    juju_machines_dict = utils.yaml_safe_load(out)
+    for machine_id, machine_details in juju_machines_dict["machines"].items():
+        target_node_list.append({
+            "host-name": machine_details["hostname"],
+            "host-ip": machine_details["dns-name"],
+        })
+    sshclient.close()
 else:
     utils.die(f"Invalid substrate '{substrate}' in config, aborting")
 
-for node in target_node_list:
-    host_name_int = node["host-name-int"]
-    host_ip_ext = node["host-ip-ext"]
+# TODO: Add collection for validaiton log in client machine
 
-    utils.debug(f"collecting artifacts from node {host_name_int}")
+utils.debug(f"list of nodes for artifacts collection is {target_node_list}")
+
+for node in target_node_list:
+    host_name = node["host-name"]
+    host_ip = node["host-ip"]
+
+    utils.debug(f"collecting artifacts from node {host_name}")
     try:
-        os.mkdir(f"artifacts/{host_name_int}")
+        os.mkdir(f"artifacts/{host_name}")
     except FileExistsError:
         pass
 
-    sshclient = SSHClient(user, host_ip_ext)
+    sshclient = SSHClient(user, host_ip)
 
     #############################################
     # System
@@ -74,16 +98,16 @@ for node in target_node_list:
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/system-info.txt")
+    utils.write_file(out, f"artifacts/{host_name}/system-info.txt")
 
     cmd = "set -x; SYSTEMD_COLORS=false journalctl -x --no-tail --no-pager"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/journalctl.txt")
+    utils.write_file(out, f"artifacts/{host_name}/journalctl.txt")
 
-    sshclient.file_get("/var/log/syslog", f"artifacts/{host_name_int}/syslog.txt")
+    sshclient.file_get("/var/log/syslog", f"artifacts/{host_name}/syslog.txt")
 
-    sshclient.file_get("/var/log/kern.log", f"artifacts/{host_name_int}/kern.log")
+    sshclient.file_get("/var/log/kern.log", f"artifacts/{host_name}/kern.log")
 
     #############################################
     # Juju
@@ -92,11 +116,11 @@ for node in target_node_list:
     cmd = "set -x; juju models"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/juju-models.txt")
+    utils.write_file(out, f"artifacts/{host_name}/juju-models.txt")
     cmd = "juju models --format=yaml"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/juju-models.yaml.txt")
+    utils.write_file(out, f"artifacts/{host_name}/juju-models.yaml.txt")
     try:
         t = None
         t = utils.yaml_safe_load(out) # Returns None if string is empty, no error
@@ -112,17 +136,17 @@ for node in target_node_list:
         cmd = f"set -x; juju debug-log -m {model} --replay --no-tail"
         out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-        utils.write_file(out, f"artifacts/{host_name_int}/juju-debuglog_{model_r}.txt")
+        utils.write_file(out, f"artifacts/{host_name}/juju-debuglog_{model_r}.txt")
 
         # go for juju status of the model, in text and yaml
         cmd = f"set -x; juju status -m {model}"
         out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-        utils.write_file(out, f"artifacts/{host_name_int}/juju-status_{model_r}.txt")
+        utils.write_file(out, f"artifacts/{host_name}/juju-status_{model_r}.txt")
         cmd = f"juju status -m {model} --format=yaml"
         out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
-        utils.write_file(out, f"artifacts/{host_name_int}/juju-status_{model_r}.yaml.txt")
+        utils.write_file(out, f"artifacts/{host_name}/juju-status_{model_r}.yaml.txt")
         try:
             juju_status_dict = utils.yaml_safe_load(out)
         except Exception:
@@ -136,7 +160,7 @@ for node in target_node_list:
                 out, rc = sshclient.execute(
                     cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
                 utils.write_file(
-                    out, f"artifacts/{host_name_int}/juju-showunit_{unit_key_r}.txt")
+                    out, f"artifacts/{host_name}/juju-showunit_{unit_key_r}.txt")
 
     #############################################
     # Microk8s
@@ -149,7 +173,7 @@ for node in target_node_list:
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/microk8s-all.txt")
+    utils.write_file(out, f"artifacts/{host_name}/microk8s-all.txt")
 
     # also get logs for all pods (and all containers in them)
     cmd = "sudo microk8s.kubectl get pods -n openstack --no-headers " \
@@ -161,7 +185,7 @@ for node in target_node_list:
         cmd = f"sudo microk8s.kubectl logs --ignore-errors -n openstack --all-containers {pod}"
         out, rc = sshclient.execute(
             cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-        utils.write_file(out, f"artifacts/{host_name_int}/microk8s-pod-log_{pod}.txt")
+        utils.write_file(out, f"artifacts/{host_name}/microk8s-pod-log_{pod}.txt")
 
     #############################################
     # Microceph
@@ -185,7 +209,7 @@ for node in target_node_list:
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/microceph.txt")
+    utils.write_file(out, f"artifacts/{host_name}/microceph.txt")
 
     #############################################
     # Sunbeam
@@ -197,17 +221,17 @@ for node in target_node_list:
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=True)
-    utils.write_file(out, f"artifacts/{host_name_int}/sunbeam-cluster.txt")
+    utils.write_file(out, f"artifacts/{host_name}/sunbeam-cluster.txt")
 
     try:
         sshclient.file_get_glob("snap/openstack/common/logs/",
                                 "*.log",
-                                f"artifacts/{host_name_int}/")
+                                f"artifacts/{host_name}/")
     except FileNotFoundError:
         pass
 
     try:
-        sshclient.file_get_glob("./", "plugin-*", f"artifacts/{host_name_int}/")
+        sshclient.file_get_glob("./", "plugin-*", f"artifacts/{host_name}/")
     except FileNotFoundError:
         pass
 
@@ -227,7 +251,7 @@ for node in target_node_list:
     """
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/openstack.txt")
+    utils.write_file(out, f"artifacts/{host_name}/openstack.txt")
 
     #############################################
     # Terraform deployments
@@ -235,8 +259,8 @@ for node in target_node_list:
     try:
         sshclient.file_get_glob("snap/openstack/common/etc/local/demo-setup/",
                                 "terraform-*-202???????????.log",
-                                f"artifacts/{host_name_int}/")
-        for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
+                                f"artifacts/{host_name}/")
+        for fn in glob.glob(f"artifacts/{host_name}/terraform-*-202???????????.log"):
             newfn = re.sub("terraform-", "terraform_demo-setup-", fn)
             utils.debug(f"renaming '{fn}' -> '{newfn}'")
             os.rename(fn, newfn)
@@ -246,8 +270,8 @@ for node in target_node_list:
     try:
         sshclient.file_get_glob("snap/openstack/common/etc/local/deploy-openstack-hypervisor/",
                                 "terraform-*-202???????????.log",
-                                f"artifacts/{host_name_int}/")
-        for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
+                                f"artifacts/{host_name}/")
+        for fn in glob.glob(f"artifacts/{host_name}/terraform-*-202???????????.log"):
             newfn = re.sub("terraform-", "terraform_deploy-openstack-hypervisor-", fn)
             utils.debug(f"renaming '{fn}' -> '{newfn}'")
             os.rename(fn, newfn)
@@ -257,8 +281,8 @@ for node in target_node_list:
     try:
         sshclient.file_get_glob("snap/openstack/common/etc/local/deploy-microceph/",
                                 "terraform-*-202???????????.log",
-                                f"artifacts/{host_name_int}/")
-        for fn in glob.glob(f"artifacts/{host_name_int}/terraform-*-202???????????.log"):
+                                f"artifacts/{host_name}/")
+        for fn in glob.glob(f"artifacts/{host_name}/terraform-*-202???????????.log"):
             newfn = re.sub("terraform-", "terraform_deploy-microceph-", fn)
             utils.debug(f"renaming '{fn}' -> '{newfn}'")
             os.rename(fn, newfn)
@@ -270,7 +294,7 @@ for node in target_node_list:
     #############################################
     try:
         sshclient.file_get("/var/snap/openstack-hypervisor/common/log/neutron.log",
-                           f"artifacts/{host_name_int}/neutron.log")
+                           f"artifacts/{host_name}/neutron.log")
     except FileNotFoundError:
         pass
     # These next files are only readable by root so I'm using 'sudo cat' instead of
@@ -278,18 +302,18 @@ for node in target_node_list:
     cmd = "sudo cat /var/snap/openstack-hypervisor/common/log/openvswitch/ovs-vswitchd.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/ovs-vswitchd.log")
+    utils.write_file(out, f"artifacts/{host_name}/ovs-vswitchd.log")
     cmd = "sudo cat /var/snap/openstack-hypervisor/common/log/openvswitch/ovsdb-server.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/ovsdb-server.log")
+    utils.write_file(out, f"artifacts/{host_name}/ovsdb-server.log")
     cmd = "sudo cat /var/snap/openstack-hypervisor/common/log/ovn/ovn-controller.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/ovn-controller.log")
+    utils.write_file(out, f"artifacts/{host_name}/ovn-controller.log")
     cmd = "sudo grep -H . /var/snap/openstack-hypervisor/common/log/libvirt/qemu/*.log"
     out, rc = sshclient.execute(
         cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=False)
-    utils.write_file(out, f"artifacts/{host_name_int}/libvirt-instances.txt")
+    utils.write_file(out, f"artifacts/{host_name}/libvirt-instances.txt")
 
     sshclient.close()

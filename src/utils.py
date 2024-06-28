@@ -1,8 +1,10 @@
 #!/bin/false
 
 import base64
+import glob
 import json
 import mergedeep
+import pathlib
 import subprocess
 import sys
 import time
@@ -105,3 +107,11 @@ def json_dumps(dictinput):
 
 def merge_dicts(dict1, dict2):
     return mergedeep.merge({}, dict1, dict2, strategy=mergedeep.Strategy.ADDITIVE)
+
+
+def get_all_pub_keys():
+    root_dir = pathlib.Path.home() / ".ssh"
+    return_array = []
+    for file in glob.glob("*.pub", root_dir=root_dir):
+        return_array.append(open(root_dir / file, "r").read().strip())
+    return return_array

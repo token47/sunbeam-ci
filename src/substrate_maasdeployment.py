@@ -96,6 +96,7 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
         sudo snap remove --purge openstack || :
         rm -rf ~/.local/share/juju
         rm -rf ~/.local/share/openstack
+        sudo journalctl --vacuum-size=100M
         """
     out, rc = sshclient.execute(
         cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
