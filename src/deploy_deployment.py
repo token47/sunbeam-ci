@@ -54,13 +54,14 @@ if rc > 0:
     utils.die("running prepare-node-script failed, aborting")
 
 # map spaces
+cmd = "set -xe\n"
 for network, space in spaces_mapping.items():
-    cmd = f"sunbeam deployment space map {space} {network}"
-    out, rc = p_sshclient.execute(
-        cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
-    utils.debug(f"execute return code is {rc}")
-    if rc > 0:
-        utils.die(f"mapping network '{network}' to space '{space}' failed, aborting")
+    cmd += f"sunbeam deployment space map {space} {network}\n"
+out, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
+if rc > 0:
+    utils.die("mapping networks to spaces failed, aborting")
 
 # validate the deployment before starting
 # this will not block or prevent deployment, it will just generate a report
