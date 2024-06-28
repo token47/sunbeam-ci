@@ -38,8 +38,8 @@ if substrate in ("equinix", "maas"):
 elif substrate == "maasdeployment":
     # FIXME: ADD HOSTS FROM JUJU
     target_node_list = [{
-        "host_name_int": config["sunbeam_client"],
-        "host_ip_ext": config["sunbeam_client"],
+        "host-name-int": config["sunbeam_client"],
+        "host-ip-ext": config["sunbeam_client"],
     #},{
     }]
 else:
