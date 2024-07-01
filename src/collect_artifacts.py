@@ -36,8 +36,8 @@ if substrate in ("equinix", "maas"):
     target_node_list = []
     for node in config["nodes"]:
         target_node_list.append({
-            "host-name": node["host_name"],
-            "host-ip": node["host_ip"]})
+            "host-name": node["host-name-int"],
+            "host-ip": node["host-ip-ext"]})
 elif substrate == "maasdeployment":
     target_node_list = [{
         "host-name": "client",
@@ -65,7 +65,10 @@ elif substrate == "maasdeployment":
 else:
     utils.die(f"Invalid substrate '{substrate}' in config, aborting")
 
+
 # TODO: Add collection for validaiton log in client machine
+#       and verify if tempest log gets copied to client on maas deployment
+
 
 utils.debug(f"list of nodes for artifacts collection is {target_node_list}")
 
