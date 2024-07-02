@@ -112,7 +112,8 @@ out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
 if rc > 0:
-    utils.die("listing sunbeam cluster nodes failed, aborting")
+    #utils.die("listing sunbeam cluster nodes failed, aborting")
+    utils.debug("listing sunbeam cluster nodes failed -- ignoring")
 
 cmd = "sunbeam cluster deploy"
 out, rc = p_sshclient.execute(
@@ -120,6 +121,14 @@ out, rc = p_sshclient.execute(
 utils.debug(f"execute return code is {rc}")
 if rc > 0:
     utils.die("running cluster deploy failed, aborting")
+
+cmd = "sunbeam cluster list"
+out, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
+if rc > 0:
+    #utils.die("listing sunbeam cluster nodes failed, aborting")
+    utils.debug("listing sunbeam cluster nodes failed -- ignoring")
 
 cmd = "sunbeam configure --openrc ~/demo-openrc && echo >> ~/demo-openrc"
 out, rc = p_sshclient.execute(
