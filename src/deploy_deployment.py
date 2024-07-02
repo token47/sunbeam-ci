@@ -107,13 +107,12 @@ if rc == 1001:
 if rc > 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
-# "cluster list" is currently broken for maas deployments
-#cmd = "sunbeam cluster list"
-#out, rc = p_sshclient.execute(
-#    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
-#utils.debug(f"execute return code is {rc}")
-#if rc > 0:
-#    utils.die("listing sunbeam cluster nodes failed, aborting")
+cmd = "sunbeam cluster list"
+out, rc = p_sshclient.execute(
+    cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
+utils.debug(f"execute return code is {rc}")
+if rc > 0:
+    utils.die("listing sunbeam cluster nodes failed, aborting")
 
 cmd = "sunbeam cluster deploy"
 out, rc = p_sshclient.execute(
