@@ -126,6 +126,7 @@ class SSHClient:
                 r"> Enabling OpenStack telemetry application \.\.\. waiting for services to come|"
                 r"> Enabling OpenStack observability application \.\.\. waiting for services to come|"
                 r"> Enabling OpenStack validation application ... waiting for services to come|"
+                r"> Applying hypervisor settings ... setting hypervisor configuration for|"
                 r"> Copying .* from tempest")
 
             if not filtered:
