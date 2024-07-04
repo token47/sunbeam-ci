@@ -55,7 +55,6 @@ def build(jenkins_config, jenkins_creds, profile_data):
     output_config["api_url"] = profile_data["api_url"]
     output_config["api_key"] = jenkins_creds["api_key"]
     output_config["deployment_name"] = profile_data["deployment_name"]
-    output_config["resource_pool"] = profile_data["resource_pool"]
     output_config["sunbeam_client"] = profile_data["sunbeam_client"]
     output_config["spaces_mapping"] = profile_data["spaces_mapping"]
     output_config["channel"] = jenkins_config["channel"]
@@ -96,7 +95,7 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
         sudo snap remove --purge openstack || :
         rm -rf ~/.local/share/juju
         rm -rf ~/.local/share/openstack
-        sudo journalctl --vacuum-size=100M
+        sudo journalctl --vacuum-size=10M
         """
     out, rc = sshclient.execute(
         cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)

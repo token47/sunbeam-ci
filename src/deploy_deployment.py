@@ -17,7 +17,6 @@ channelcp = config.get("channelcp", "")
 deployment_name = config["deployment_name"]
 api_url = config["api_url"]
 api_key = config["api_key"]
-resource_pool = config["resource_pool"]
 spaces_mapping = config["spaces_mapping"]
 manifest = config["manifest"]
 
@@ -44,8 +43,7 @@ cmd = f"""
     sunbeam deployment add maas \
         --name {deployment_name} \
         --url {api_url} \
-        --token {api_key} \
-        --resource-pool {resource_pool}
+        --token {api_key}
 """
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
