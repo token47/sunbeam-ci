@@ -28,14 +28,14 @@ cmd = f"sudo snap install openstack --channel {channel}"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("installing openstack snap failed, aborting")
 
 cmd = "sunbeam prepare-node-script --client | bash -x"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("running prepare-node-script failed, aborting")
 
 # register deployment itself
@@ -48,7 +48,7 @@ cmd = f"""
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("running prepare-node-script failed, aborting")
 
 # map spaces
@@ -58,7 +58,7 @@ for network, space in spaces_mapping.items():
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("mapping networks to spaces failed, aborting")
 
 # validate the deployment before starting
@@ -69,7 +69,7 @@ out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
 # this is about failure of running the command, not about the result of the validation
-if rc > 0:
+if rc != 0:
     utils.die("validating the deployment failed, aborting")
 
 # The snap carries a few manifest override files that you can use
@@ -102,14 +102,14 @@ if rc == 1001:
     out, rc = p_sshclient.execute(
         cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
     utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("bootstrapping sunbeam failed, aborting")
 
 cmd = "sunbeam cluster list"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     #utils.die("listing sunbeam cluster nodes failed, aborting")
     utils.debug("listing sunbeam cluster nodes failed -- ignoring")
 
@@ -117,14 +117,14 @@ cmd = "sunbeam cluster deploy"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("running cluster deploy failed, aborting")
 
 cmd = "sunbeam cluster list"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     #utils.die("listing sunbeam cluster nodes failed, aborting")
     utils.debug("listing sunbeam cluster nodes failed -- ignoring")
 
@@ -132,14 +132,14 @@ cmd = "sunbeam configure --openrc ~/demo-openrc && echo >> ~/demo-openrc"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("configuring demo project failed, aborting")
 
 cmd = "sunbeam openrc > ~/admin-openrc"
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
-if rc > 0:
+if rc != 0:
     utils.die("exporting admin credentials failed, aborting")
 
 p_sshclient.close()

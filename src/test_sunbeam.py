@@ -31,7 +31,7 @@ tests_failed = False
 cmd = "sunbeam launch ubuntu --name test"
 out, rc = sshclient.execute(
     cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=True)
-if rc > 0:
+if rc != 0:
     utils.debug("TEST FAIL: creating test vm failed (launch command)")
     tests_failed = True
 
@@ -41,7 +41,7 @@ cmd = """set -xe
 """
 out, rc = sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
-if rc > 0:
+if rc != 0:
     utils.debug("TEST FAIL: observability plugin enable failed")
     tests_failed = True
 
@@ -55,7 +55,7 @@ cmd = """set -xe
 """
 out, rc = sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
-if rc > 0:
+if rc != 0:
     # This is relative to running the command itself, not to the tests results
     # You should have a successful run even with failed tests
     # TODO: parse failed tests output and use that as another failure condition

@@ -26,16 +26,16 @@ def build(jenkins_config, jenkins_creds, profile_data):
     utils.debug(f"allocating {hosts_qty} hosts in maas")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/maas init -no-color")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform init")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/maas apply -auto-approve -no-color" \
                   f" -var='maas_hosts_qty={hosts_qty}'")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform apply")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/maas show -no-color")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform show")
 
     maas_hosts = utils.json_loads(
@@ -70,5 +70,5 @@ def destroy(jenkins_config, jenkins_creds, profile_data):
     hosts_qty = len(jenkins_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/maas destroy -auto-approve -no-color" \
                         f" -var='maas_hosts_qty={hosts_qty}'")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform destroy")

@@ -99,7 +99,7 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
         """
     out, rc = sshclient.execute(
         cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
-    if rc > 0:
+    if rc != 0:
         utils.die("cleaning current maas deployment failed, aborting")
     
     sshclient.close()

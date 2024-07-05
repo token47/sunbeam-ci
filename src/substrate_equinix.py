@@ -27,16 +27,16 @@ def build(jenkins_config, jenkins_creds, profile_data):
     utils.debug(f"allocating {hosts_qty} hosts in equinix")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix init -no-color")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform init")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix apply -auto-approve -no-color" \
                   f" -var='equinix_hosts_qty={hosts_qty}'")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform apply")
 
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix show -no-color")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform show")
 
     equinix_vlans = utils.json_loads(
@@ -83,7 +83,7 @@ def destroy(jenkins_config, jenkins_creds, profile_data):
     hosts_qty = len(jenkins_config["roles"])
     rc = utils.exec_cmd("terraform -chdir=terraform/equinix destroy -auto-approve -no-color" \
                         f" -var='equinix_hosts_qty={hosts_qty}'")
-    if rc > 0:
+    if rc != 0:
         utils.die("could not run terraform destroy")
 
 
@@ -118,7 +118,7 @@ def configure_hosts(output_config, vlans):
             """
         out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=True)
-        if rc > 0:
+        if rc != 0:
             utils.die("running apt update/upgrade failed, aborting")
 
         cmd = textwrap.dedent(f"""\
@@ -150,7 +150,7 @@ def configure_hosts(output_config, vlans):
             """)
         out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
-        if rc > 0:
+        if rc != 0:
             utils.die("error updating network configs, aborting")
 
         cmd = """set -xe
@@ -169,7 +169,7 @@ def configure_hosts(output_config, vlans):
         """
         out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
-        if rc > 0:
+        if rc != 0:
             utils.die("error configuring ubuntu user, aborting")
 
         sshclient.close()

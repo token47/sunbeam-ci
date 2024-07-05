@@ -193,7 +193,7 @@ class SSHClient:
         rc = channel.recv_exit_status()
 
         # hack for websocket error
-        if rc > 0 and websocket_error:
+        if rc != 0 and websocket_error:
             rc = 1001
 
         return stdout_buffer, rc
