@@ -62,9 +62,13 @@ utils.debug(f"Creating description for job_name={args.job_name} build_number={ar
 console_log = utils.read_file(CONSOLE_LOG_FILE) # read whole file as one string
 
 # Get the basic information (snap release, die message, etc.)
+
 groups = re.findall('Download snap "openstack" \((.*)\) from channel "(.*)"', console_log)
-os_snap_release = groups[0][0] if groups else "n/a"
-os_snap_channel = groups[0][1] if groups else "n/a"
+groups = re.findall(
+    "snap_output='openstack +([^ ]+) +([^ ]+) +([^ ]+) +canonical\*\* +-'",
+    console_log)
+os_snap_release = groups[0][1] if groups else "n/a"
+os_snap_channel = groups[0][2] if groups else "n/a"
 groups = re.findall(' DIE: (.*)$', console_log, re.MULTILINE)
 die_message = groups[0] if groups else "n/a"
 
