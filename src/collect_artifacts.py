@@ -51,16 +51,23 @@ elif substrate == "maasdeployment":
             f"-m {config['deployment_name']}-controller:admin/openstack-machines '{key}'")
         out, rc = sshclient.execute(
             cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=False)
-    cmd = ("juju machines "
-        f"-m {config['deployment_name']}-controller:admin/openstack-machines --format=yaml")
-    out, rc = sshclient.execute(
-        cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
-    juju_machines_dict = utils.yaml_safe_load(out)
-    for machine_id, machine_details in juju_machines_dict["machines"].items():
-        target_node_list.append({
-            "host-name": machine_details["hostname"],
-            "host-ip": machine_details["dns-name"],
-        })
+
+    # Adding machines could not be possible if ssh keys were not added correctly
+    # or even if models do not exist at all. In this case, just ignore it so we
+    # can at least collect logs from sunbeam-client machine.
+    try:
+        cmd = ("juju machines "
+            f"-m {config['deployment_name']}-controller:admin/openstack-machines --format=yaml")
+        out, rc = sshclient.execute(
+            cmd, verbose=False, get_pty=False, combine_stderr=False, filtered=False)
+        juju_machines_dict = utils.yaml_safe_load(out)
+        for machine_id, machine_details in juju_machines_dict["machines"].items():
+            target_node_list.append({
+                "host-name": machine_details["hostname"],
+                "host-ip": machine_details["dns-name"],
+            })
+    except TypeError:
+        pass
     sshclient.close()
 else:
     utils.die(f"Invalid substrate '{substrate}' in config, aborting")
