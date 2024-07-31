@@ -67,6 +67,8 @@ elif substrate == "maasdeployment":
                 "host-ip": machine_details["dns-name"],
             })
     except TypeError:
+        utils.debug("listing machines of the model failed, "
+                    "skipping collecting artifacts from them")
         pass
     sshclient.close()
 else:
