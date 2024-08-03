@@ -85,13 +85,11 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
     #        also find a better way to not fail the whole script if individual commands fail
     #        when we are cleaning an already cleaned environment (or detect it early and exit)
     cmd = f"""set -xe
-        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack || :
-        sleep 5
-        juju destroy-model --destroy-storage --no-prompt --force --no-wait openstack-machines || :
-        sleep 5
+        for model in $(juju models --format json | jq -r '.models[].name'); do
+            juju destroy-model --destroy-storage --no-prompt --force --no-wait $model || :
+        done
         juju destroy-controller --destroy-storage  --no-prompt --force --no-wait \
             --destroy-all-models {deployment_name}-controller || :
-        sleep 5
         sudo snap remove --purge juju || :
         sudo snap remove --purge openstack || :
         rm -rf ~/.local/share/juju
