@@ -94,7 +94,7 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
             juju destroy-controller --destroy-storage  --no-prompt --force --no-wait \
                 --destroy-all-models {deployment_name}-controller || :
         fi
-        juju unregister {deployment_name}-controller | :
+        juju unregister {deployment_name}-controller --no-prompt | :
         sudo snap remove --purge juju || :
         sudo snap remove --purge openstack || :
         rm -rf ~/.local/share/juju
