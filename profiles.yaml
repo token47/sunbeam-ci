@@ -44,35 +44,37 @@ ob76:
   sleep_after: 5 # boot slow, wait a little before starting deployment
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
-    deployment:
-      region: RegionOne
-      proxy:
-        proxy_required: False
-      #certificates:
-      #  <CSR x500UniqueIdentifier>:
-      #    certificate:
-      bootstrap:
-        management_cidr: 172.27.76.0/23
-      addons:
-        metallb: 172.27.76.21-172.27.76.30
-      user:
-        remote_access_location: remote
-        run_demo_setup: True
-        username: demo
-        password: password123
-        cidr: 192.168.122.0/24
-        nameservers: 172.27.79.254
-        security_group_rules: True
-      external_network:
-        cidr: 172.27.78.0/23
-        gateway: 172.27.79.254
-        start: 172.27.78.1
-        end: 172.27.78.50
-        network_type: flat
-        segmentation_id: 0
-        nic: usb-nic
-      microceph_config: {} # to be filled by the tool
-    software: {}
+    core:
+      config:
+        region: RegionOne
+        proxy:
+          proxy_required: False
+        #certificates:
+        #  <CSR x500UniqueIdentifier>:
+        #    certificate:
+        bootstrap:
+          management_cidr: 172.27.76.0/23
+        addons:
+          metallb: 172.27.76.21-172.27.76.30
+        user:
+          remote_access_location: remote
+          run_demo_setup: True
+          username: demo
+          password: password123
+          cidr: 192.168.122.0/24
+          nameservers: 172.27.79.254
+          security_group_rules: True
+        external_network:
+          cidr: 172.27.78.0/23
+          gateway: 172.27.79.254
+          start: 172.27.78.1
+          end: 172.27.78.50
+          network_type: flat
+          segmentation_id: 0
+          nic: usb-nic
+        microceph_config: {} # to be filled by the tool
+      software: {}
+    features: {}
 
 ob76deployment:
   # input_config: { "profile": "ob76deployment", "channel": "2024.1/edge", "channelcp": "edge" }
@@ -91,26 +93,28 @@ ob76deployment:
     storage: oam-space
     storage-cluster: oam-space
   manifest:
-    deployment:
-      region: RegionOne
-      proxy:
-        proxy_required: False
-      user:
-        remote_access_location: remote
-        run_demo_setup: True
-        username: demo
-        password: password123
-        cidr: 192.168.122.0/24
-        nameservers: 172.27.79.254
-        security_group_rules: True
-      external_network:
-        cidr: 172.27.78.0/23
-        gateway: 172.27.79.254
-        start: 172.27.78.1
-        end: 172.27.78.50
-        network_type: flat
-        segmentation_id: 0
-    software: {}
+    core:
+      config:
+        region: RegionOne
+        proxy:
+          proxy_required: False
+        user:
+          remote_access_location: remote
+          run_demo_setup: True
+          username: demo
+          password: password123
+          cidr: 192.168.122.0/24
+          nameservers: 172.27.79.254
+          security_group_rules: True
+        external_network:
+          cidr: 172.27.78.0/23
+          gateway: 172.27.79.254
+          start: 172.27.78.1
+          end: 172.27.78.50
+          network_type: flat
+          segmentation_id: 0
+      software: {}
+    features: {}
 
 felabdeployment:
   # input_config: { "profile": "felabdeployment", "channel": "2024.1/edge", "channelcp": "edge" }
@@ -129,29 +133,31 @@ felabdeployment:
     storage: oam
     storage-cluster: oam
   manifest:
-    deployment:
-      region: RegionOne
-      proxy:
-        proxy_required: True
-        http_proxy: http://squid.internal:3128/
-        https_proxy: http://squid.internal:3128/
-        no_proxy: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-      user:
-        remote_access_location: remote
-        run_demo_setup: True
-        username: demo
-        password: password123
-        cidr: 192.168.122.0/24
-        nameservers: 172.27.79.254
-        security_group_rules: True
-      external_network:
-        cidr: 1.0.0.0/24
-        gateway: 1.0.0.254
-        start: 1.0.0.1
-        end: 1.0.0.200
-        network_type: flat
-        segmentation_id: 0
-    software: {}
+    core:
+      config:
+        region: RegionOne
+        proxy:
+          proxy_required: True
+          http_proxy: http://squid.internal:3128/
+          https_proxy: http://squid.internal:3128/
+          no_proxy: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+        user:
+          remote_access_location: remote
+          run_demo_setup: True
+          username: demo
+          password: password123
+          cidr: 192.168.122.0/24
+          nameservers: 172.27.79.254
+          security_group_rules: True
+        external_network:
+          cidr: 1.0.0.0/24
+          gateway: 1.0.0.254
+          start: 1.0.0.1
+          end: 1.0.0.200
+          network_type: flat
+          segmentation_id: 0
+      software: {}
+    features: {}
 
 tokenlabs:
   # input_config: { "profile": "ob76", "channel": "2024.1/edge", "channelcp": "edge", "roles": [ "...", "...", "..." ] }
@@ -161,32 +167,34 @@ tokenlabs:
   sleep_after: 15 # boot slow, wait for services to settle
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
-    deployment:
-      region: RegionOne
-      proxy:
-        proxy_required: False
-      #certificates:
-      #  <CSR x500UniqueIdentifier>:
-      #    certificate:
-      bootstrap:
-        management_cidr: 192.168.47.0/24
-      addons:
-        metallb: 192.168.47.30-192.168.47.39
-      user:
-        remote_access_location: remote
-        run_demo_setup: True
-        username: demo
-        password: password123
-        cidr: 192.168.122.0/24
-        nameservers: 192.168.47.3
-        security_group_rules: True
-      external_network:
-        cidr: 192.168.50.0/24
-        gateway: 192.168.50.1
-        start: 192.168.50.11
-        end: 192.168.50.254
-        network_type: flat
-        segmentation_id: 0
-        nic: enp2s0.1001
-      microceph_config: {} # to be filled by the tool
-    software: {}
+    core:
+      config:
+        region: RegionOne
+        proxy:
+          proxy_required: False
+        #certificates:
+        #  <CSR x500UniqueIdentifier>:
+        #    certificate:
+        bootstrap:
+          management_cidr: 192.168.47.0/24
+        addons:
+          metallb: 192.168.47.30-192.168.47.39
+        user:
+          remote_access_location: remote
+          run_demo_setup: True
+          username: demo
+          password: password123
+          cidr: 192.168.122.0/24
+          nameservers: 192.168.47.3
+          security_group_rules: True
+        external_network:
+          cidr: 192.168.50.0/24
+          gateway: 192.168.50.1
+          start: 192.168.50.11
+          end: 192.168.50.254
+          network_type: flat
+          segmentation_id: 0
+          nic: enp2s0.1001
+        microceph_config: {} # to be filled by the tool
+      software: {}
+    features: {}
