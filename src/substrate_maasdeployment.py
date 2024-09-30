@@ -1,61 +1,93 @@
 #!/bin/false
 
+import json
 import utils
+import os
 from sshclient import SSHClient
 
 # This substrate is simpler to deploy than others because it does not deal with
 # terraform or any other actual deployment, since sunbeam will talk to maas
 # directly later in the deploy script.
 #
-# Ideally here we should automatically configure maas to:
-# - preparing an isolated resource-group with only machines for this deployment
-# - add tags to machines (juju-controller, compute, control, storage, ...)
-# - add tags to disks of the machines (tag:ceph)
-# - add tags to nics of the machines (tag:compute)
-# - add reserved ranges to spaces
-# - any other requisite on maas side
-#
-# But this is a lot of work and currently I adopted a simpler startegy. The maas
-# environment should be manually configured to meet all those criterias. This
-# can be done in a way that those machines can still be used for other deployments
-# since those tags will not affect other uses. The machines, disks and nics should
-# all be already tagged (they can be VMs -- eg. for juju -- sunbeam does not care).
-# Also, you need an extra machine for a sunbeam client, from where all installation
-# commands will be executed. This machine is necessary so that the client is not
-# run inside the jenkins CI itself, and dinamically creating a VM or a LXD container
-# somewhere should be ok but unnecessarily complicated since it's easy enough for
-# you to just pre-create one and give its name in the profile.
-# Note: This machine MUST BE ON at all times. Scripts will just ssh into it without
-# trying to turn it on first. It does not need anything special and can be recycled
-# at any moment if it's trashed by the scripts, it just need to be on.
-#
-# As a next step the sunbeam-client machine can be automated (maybe a a vm in the
-# target maas environment, maybe a lxd container in the CI host -- second option
-# being eaiser to implement, but being more disconnected from the environment
-# specially if you want to keep it installed after deployment).
-# And lastly, we could automate the whole maas config but this may prove very
-# complex with too much moving parts (project moonshine is proof of that).
+# TODO:
+# - Support HA infra
+# - Allow cloud_nodes to have different roles
 
-USER = "ubuntu" # for ssh'ing into sunbeam-client
+
+USER = "ubuntu"  # for ssh'ing into sunbeam-client
+tf_cmd = "terraform -chdir=terraform/maas_deployment"
+destroy_cmd_options = "--destroy-storage --no-prompt --force --no-wait"
+
+
+def generate_terraform_cmd(profile_data, action="apply"):
+    distro_series = profile_data["distro_series"]
+    infra_host = profile_data["infra_host"]
+    deployment_name = profile_data["deployment_name"]
+    cloud_nodes = json.dumps(
+        profile_data["cloud_nodes"], separators=(", ", " = ")
+    )
+    api_ranges = json.dumps(
+        profile_data["api_ranges"], separators=(", ", " = ")
+    )
+    if action == "apply":
+        utils.debug(f"Using {infra_host} as an LXD host in MAAS")
+        utils.debug(f"Using {cloud_nodes} for OpenStack cloud")
+        utils.debug(f"API ranges: {api_ranges}")
+    return (
+        f"{tf_cmd} {action} -auto-approve -no-color"
+        f" -var='cloud_nodes={cloud_nodes}'"
+        f" -var='distro_series={distro_series}'"
+        f" -var='infra_host={infra_host}'"
+        f" -var='deployment_name={deployment_name}'"
+        f" -var='api_ranges={api_ranges}'"
+    )
+
+
+def get_sunbeam_client():
+    return utils.exec_cmd_capture(
+        f"{tf_cmd} output -no-color -raw sunbeam_client"
+    )
+
 
 def execute(jenkins_config, jenkins_creds, profile_data, action):
+    # use env so that sensitive info does not show in debug log
+    os.environ["TF_VAR_maas_api_url"] = profile_data["api_url"]
+    os.environ["TF_VAR_maas_api_key"] = jenkins_creds["api_key"]
     if action == "build":
         build(jenkins_config, jenkins_creds, profile_data)
         utils.sleep(profile_data["sleep_after"])
     elif action == "destroy":
-        destroy(jenkins_config, jenkins_creds, profile_data)
+        destroy(jenkins_config, jenkins_creds, profile_data, action)
     else:
         utils.die("Invalid action parameter")
 
 
 def build(jenkins_config, jenkins_creds, profile_data):
+    rc = utils.exec_cmd(f"{tf_cmd} init -no-color")
+    if rc != 0:
+        utils.die("could not run terraform init")
+
+    # remove a possible left over install before starting
+    utils.debug("Removing any old deployment left over")
+    destroy(jenkins_config, jenkins_creds, profile_data, "destroy")
+
+    rc = utils.exec_cmd(generate_terraform_cmd(profile_data, action="apply"))
+    if rc != 0:
+        utils.die("could not run terraform apply")
+
+    rc = utils.exec_cmd(f"{tf_cmd} show -no-color")
+    if rc != 0:
+        utils.die("could not run terraform show")
+
+    sunbeam_client = get_sunbeam_client()
+
     output_config = {}
     output_config["substrate"] = profile_data["substrate"]
     output_config["user"] = USER
     output_config["api_url"] = profile_data["api_url"]
     output_config["api_key"] = jenkins_creds["api_key"]
     output_config["deployment_name"] = profile_data["deployment_name"]
-    output_config["sunbeam_client"] = profile_data["sunbeam_client"]
+    output_config["sunbeam_client"] = sunbeam_client
     output_config["spaces_mapping"] = profile_data["spaces_mapping"]
     output_config["channel"] = jenkins_config["channel"]
     output_config["channelcp"] = jenkins_config["channelcp"]
@@ -63,35 +95,43 @@ def build(jenkins_config, jenkins_creds, profile_data):
 
     utils.write_config(output_config)
 
-    # remove a possible left over install before starting
-    utils.debug("Removing any old deployment left over")
-    remove_current_installation(jenkins_config, jenkins_creds, profile_data)
 
-
-def destroy(jenkins_config, jenkins_creds, profile_data):
-    if profile_data["destroy_after"]:
+def destroy(jenkins_config, jenkins_creds, profile_data, action):
+    if profile_data["destroy_after"] or action == "destroy":
         utils.debug("Removing deployment to free up resources")
-        remove_current_installation(jenkins_config, jenkins_creds, profile_data)
+        remove_current_installation(
+            jenkins_config, jenkins_creds, profile_data
+        )
+        rc = utils.exec_cmd(
+            generate_terraform_cmd(profile_data, action="destroy")
+        )
+        if rc != 0:
+            utils.die("could not run terraform destroy")
     else:
         utils.debug("Keeping deployment up so it can be used later")
 
 
 def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
-    sshclient = SSHClient(USER, profile_data["sunbeam_client"])
+    sunbeam_client = get_sunbeam_client()
+    if sunbeam_client.startswith("\nWarning"):
+        return
+
+    sshclient = SSHClient(USER, sunbeam_client)
 
     deployment_name = profile_data["deployment_name"]
 
-    # FIXME: improve this cleanup, iterate through all models or maybe destroy controller directly?
-    #        also find a better way to not fail the whole script if individual commands fail
-    #        when we are cleaning an already cleaned environment (or detect it early and exit)
+    # FIXME: improve this cleanup, iterate through all models or maybe destroy
+    #        controller directly? also find a better way to not fail the whole
+    #        script if individual commands fail when we are cleaning an already
+    #        cleaned environment (or detect it early and exit)
     cmd = f"""set -xe
         models=$(timeout 5 juju models --format json | jq -r '.models[].name' \
             | grep -v controller || :)
         if [ -n "$models" ]; then
             for model in $models; do
-                juju destroy-model --destroy-storage --no-prompt --force --no-wait $model || :
+                juju destroy-model {destroy_cmd_options} $model || :
             done
-            juju destroy-controller --destroy-storage  --no-prompt --force --no-wait \
+            juju destroy-controller {destroy_cmd_options} \
                 --destroy-all-models {deployment_name}-controller || :
         fi
         juju unregister {deployment_name}-controller --no-prompt | :
@@ -105,5 +145,5 @@ def remove_current_installation(jenkins_config, jenkins_creds, profile_data):
         cmd, verbose=True, get_pty=False, combine_stderr=True, filtered=False)
     if rc != 0:
         utils.die("cleaning current maas deployment failed, aborting")
-    
+
     sshclient.close()

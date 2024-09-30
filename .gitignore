@@ -45,3 +45,6 @@ config.yaml
 
 # temporary cache
 artifacts/**
+
+# local config file
+profiles.yaml

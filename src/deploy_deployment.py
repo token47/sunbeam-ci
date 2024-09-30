@@ -43,13 +43,13 @@ cmd = f"""
     sunbeam deployment add maas \
         --name {deployment_name} \
         --url {api_url} \
-        --token {api_key}
+        --token {api_key} || :
 """
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
 if rc != 0:
-    utils.die("running prepare-node-script failed, aborting")
+    utils.die("registering MAAS deployment failed, aborting")
 
 # map spaces
 cmd = "set -xe\n"

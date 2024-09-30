@@ -78,14 +78,42 @@ ob76:
       software: {}
     features: {}
 
-ob76deployment:
-  # input_config: { "profile": "ob76deployment", "channel": "2024.1/edge", "channelcp": "edge" }
+maasdeployment:
+  # input_config: { "profile": "maasdeployment", "channel": "2024.1/edge", "channelcp": "edge" }
   # creds: { "api_key": "xxx" }
   substrate: maasdeployment
   api_url: "http://ob76-node0.maas:5240/MAAS"
   sleep_after: 5 # boot slow, wait a little before starting deployment
-  deployment_name: sunbeamci
-  sunbeam_client: sunbeam-client.maas
+  deployment_name: sunbeamdemo
+  distro_series: jammy # currently only jammy is supported
+  # TODO: allow different nodes to have different roles
+  cloud_nodes:
+    node02:
+        nic: enx8cae4cfdd0ee
+        ceph_disk_name: "sdb"
+    node03:
+        nic: enx8cae4cfdd0f5
+        ceph_disk_name: "sdb"
+    node04:
+        nic: enx8cae4cfdd0f1
+        ceph_disk_name: "sdb"
+    node07:
+        nic: enx8cae4cfdd0f0
+        ceph_disk_name: "sdb"
+    node08:
+        nic: enx8cae4cfdd0e6
+        ceph_disk_name: "sdb"
+  # TODO: Support multiple infra nodes for HA
+  infra_host: node05
+  api_ranges:
+    internal:
+      start: 172.27.77.121
+      end: 172.27.77.125
+      cidr: 172.27.76.0/23
+    public:
+      start: 172.27.77.126
+      end: 172.27.77.134
+      cidr: 172.27.76.0/23
   destroy_after: True
   spaces_mapping:
     data: oam-space
