@@ -52,7 +52,7 @@ def build(jenkins_config, jenkins_creds, profile_data):
             "host-ip-int": ipaddress[0], # let's take the first one now, TODO: find the OAM one
             "roles": nodes_roles[nodename].split(","),
         })
-        manifest["deployment"]["microceph_config"][nodename] = \
+        manifest["core"]["config"]["microceph_config"][nodename] = \
             { "osd_devices": "/dev/sdb" }
 
     output_config = {}

@@ -62,7 +62,7 @@ def build(jenkins_config, jenkins_creds, profile_data):
             "host-ip-int": s["ip"],
             "roles": nodes_roles[nodename].split(","),
         })
-        manifest["deployment"]["microceph_config"][s["fqdn"]] = \
+        manifest["core"]["config"]["microceph_config"][s["fqdn"]] = \
             { "osd_devices": profile_data["ceph_disks"] }
 
     output_config = {}
