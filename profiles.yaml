@@ -6,35 +6,37 @@ equinix:
   sleep_after: 0
   ceph_disks: "/dev/sdb" # space separated list
   manifest:
-    deployment:
-      region: RegionOne
-      proxy:
-        proxy_required: False
-      #certificates:
-      #  <CSR x500UniqueIdentifier>:
-      #    certificate:
-      bootstrap:
-        management_cidr: 10.0.1.0/24
-      addons:
-        metallb: 10.0.1.20-10.0.1.29
-      user:
-        remote_access_location: remote
-        run_demo_setup: True
-        username: demo
-        password: password123
-        cidr: 192.168.122.0/24
-        nameservers: 8.8.8.8
-        security_group_rules: True
-      external_network:
-        cidr: 10.0.2.0/24
-        gateway: 10.0.2.1
-        start: 10.0.2.11
-        end: 10.0.2.254
-        network_type: flat
-        segmentation_id: 0
-        nic: br-ovn # use a bridge to overcome changing if+vlan name
-      microceph_config: {} # to be filled by the tool
-    software: {}
+    core:
+      config:
+        region: RegionOne
+        proxy:
+          proxy_required: False
+        #certificates:
+        #  <CSR x500UniqueIdentifier>:
+        #    certificate:
+        bootstrap:
+          management_cidr: 10.0.1.0/24
+        addons:
+          metallb: 10.0.1.20-10.0.1.29
+        user:
+          remote_access_location: remote
+          run_demo_setup: True
+          username: demo
+          password: password123
+          cidr: 192.168.122.0/24
+          nameservers: 8.8.8.8
+          security_group_rules: True
+        external_network:
+          cidr: 10.0.2.0/24
+          gateway: 10.0.2.1
+          start: 10.0.2.11
+          end: 10.0.2.254
+          network_type: flat
+          segmentation_id: 0
+          nic: br-ovn # use a bridge to overcome changing if+vlan name
+        microceph_config: {} # to be filled by the tool
+      software: {}
+    features: {}
 
 ob76:
   # input_config: { "profile": "ob76", "channel": "2024.1/edge", "channelcp": "edge", "roles": [ "...", "...", "..." ] }
