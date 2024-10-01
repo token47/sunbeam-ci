@@ -61,7 +61,7 @@ snap_manifest_file = f"/snap/openstack/current/etc/manifests/{channelcp}.yml"
 if channelcp == "stable":
     # for stable, we just do nothing, it's the default
     utils.debug("deploying control plane with 'stable' channels, no snap manifest needed")
-elif channelcp in ("candidate", "edge"):
+elif channelcp in ("candidate", "beta", "edge"):
     # for others we merge default manifest from snap with ours
     utils.debug(f"deploying control plane with {channelcp} channels, loading snap manifest")
     manifest_temp = utils.yaml_safe_load(p_sshclient.file_read(snap_manifest_file))
