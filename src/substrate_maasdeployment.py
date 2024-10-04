@@ -88,7 +88,10 @@ def build(jenkins_config, jenkins_creds, profile_data):
     output_config["api_key"] = jenkins_creds["api_key"]
     output_config["deployment_name"] = profile_data["deployment_name"]
     output_config["sunbeam_client"] = sunbeam_client
-    output_config["spaces_mapping"] = profile_data["spaces_mapping"]
+    try:
+        output_config["default_space"] = profile_data["default_space"]
+    except KeyError:
+        output_config["spaces_mapping"] = profile_data["spaces_mapping"]
     output_config["channel"] = jenkins_config["channel"]
     output_config["channelcp"] = jenkins_config["channelcp"]
     output_config["manifest"] = profile_data["manifest"]

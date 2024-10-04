@@ -17,7 +17,6 @@ channelcp = config.get("channelcp", "")
 deployment_name = config["deployment_name"]
 api_url = config["api_url"]
 api_key = config["api_key"]
-spaces_mapping = config["spaces_mapping"]
 manifest = config["manifest"]
 
 utils.debug(f"starting MAAS Deployment, using sunbeam-client at {sunbeam_client}")
@@ -53,8 +52,16 @@ if rc != 0:
 
 # map spaces
 cmd = "set -xe\n"
-for network, space in spaces_mapping.items():
-    cmd += f"sunbeam deployment space map {space} {network}\n"
+try:
+    default_space = config["default_space"]
+    cmd += f"sunbeam deployment space map {default_space}"
+except KeyError:
+    spaces_mapping = config["spaces_mapping"]
+    for network, space in spaces_mapping.items():
+        cmd += f"sunbeam deployment space map {space} {network}\n"
+except KeyError:
+    utils.die("Either default_space or spaces_mapping is required")
+
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)
 utils.debug(f"execute return code is {rc}")
