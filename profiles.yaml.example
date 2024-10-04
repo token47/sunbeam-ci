@@ -115,13 +115,17 @@ maasdeployment:
       end: 172.27.77.134
       cidr: 172.27.76.0/23
   destroy_after: True
-  spaces_mapping:
-    data: oam-space
-    internal: oam-space
-    management: oam-space
-    public: oam-space
-    storage: oam-space
-    storage-cluster: oam-space
+  # Provide either a default space to be used for all networks, or a mapping of:
+  # network: space
+  default_space: oam-space
+  # TODO: Fix spaces mapping based on recent changes to mapping UX
+  #spaces_mapping:
+  #  data: oam-space
+  #  internal: oam-space
+  #  management: oam-space
+  #  public: oam-space
+  #  storage: oam-space
+  #  storage-cluster: oam-space
   manifest:
     core:
       config:
