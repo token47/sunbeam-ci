@@ -88,20 +88,16 @@ maasdeployment:
   distro_series: jammy # currently only jammy is supported
   # TODO: allow different nodes to have different roles
   cloud_nodes:
+    # nic: secondary nic for remote access to VM
+    # ceph_disk_name: HDD to use for ceph disks
     node02:
-        nic: enx8cae4cfdd0ee
+        nic: usb-nic
         ceph_disk_name: "sdb"
     node03:
-        nic: enx8cae4cfdd0f5
+        nic: usb-nic
         ceph_disk_name: "sdb"
     node04:
-        nic: enx8cae4cfdd0f1
-        ceph_disk_name: "sdb"
-    node07:
-        nic: enx8cae4cfdd0f0
-        ceph_disk_name: "sdb"
-    node08:
-        nic: enx8cae4cfdd0e6
+        nic: usb-nic
         ceph_disk_name: "sdb"
   # TODO: Support multiple infra nodes for HA
   infra_host: node05
