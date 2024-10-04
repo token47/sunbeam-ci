@@ -21,6 +21,8 @@ All commands are run from the sunbeam-ci directory.
 - Setup your deployment credentials: `export JENKINS_JSON_CREDS='{ "api_key": "<MAAS_API_KEY>" }'`
 
 ## MAAS Deployment
+This deployment type is useful for testing/demos of Sunbeam.
+
 ### Deploy
 `./src/manage_substrate.py build`
 
@@ -30,4 +32,6 @@ All commands are run from the sunbeam-ci directory.
 `./src/manage_substrate.py destroy`
 
 ## MAAS Manual Deployment
+This deployment type is useful for CI.
+
 - for maas nodes, it will look for tag 'jenkins'
