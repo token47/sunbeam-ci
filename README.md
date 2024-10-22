@@ -7,6 +7,7 @@ Dependencies:
 - terraform (from official repos)
 - python3-paramiko (from standard ubuntu repos)
 - mergedeep (from pip3 install)
+- jq
 
 # Usage
 All commands are run from the sunbeam-ci directory.

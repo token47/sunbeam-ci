@@ -98,6 +98,14 @@ def build(jenkins_config, jenkins_creds, profile_data):
 
     utils.write_config(output_config)
 
+    sshclient = SSHClient(USER, sunbeam_client)
+    cmd = "sudo DEBIAN_FRONTEND=noninteractive apt install -y jq"
+    out, rc = sshclient.execute(
+        cmd, verbose=False, get_pty=False, combine_stderr=True, filtered=True)
+    utils.debug(f"execute return code is {rc}")
+    if rc != 0:
+        utils.die("installing jq failed, aborting")
+
 
 def destroy(jenkins_config, jenkins_creds, profile_data, action):
     if profile_data["destroy_after"] or action == "destroy":

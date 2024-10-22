@@ -91,6 +91,9 @@ resource "maas_instance" "sunbeam-client" {
   allocate_params {
     hostname = maas_vm_host_machine.sunbeam-client.hostname
   }
+  deploy_params {
+    distro_series = var.distro_series
+  }
 }
 
 resource "maas_tag" "deployment_name" {
