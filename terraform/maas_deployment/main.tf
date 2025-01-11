@@ -63,7 +63,7 @@ resource "maas_vm_host_machine" "sunbeam-client" {
   vm_host = resource.maas_vm_host.infra_host.id
   hostname = "sunbeam-client"
   cores   = 2
-  memory  = 4096
+  memory  = 2048
 
   storage_disks {
     size_gigabytes = 25
@@ -109,7 +109,7 @@ resource "maas_tag" "juju-controller" {
 }
 
 resource "maas_tag" "sunbeam-infra" {
-  name = "infra"
+  name = "sunbeam"
   machines = [
     maas_vm_host_machine.sunbeam-infra.id,
   ]
