@@ -40,9 +40,9 @@ if rc != 0:
 # register deployment itself
 cmd = f"""
     sunbeam deployment add maas \
-        --name {deployment_name} \
-        --url {api_url} \
-        --token {api_key} || :
+        {deployment_name} \
+        {api_key} \
+        {api_url} || :
 """
 out, rc = p_sshclient.execute(
     cmd, verbose=True, get_pty=True, combine_stderr=True, filtered=True)

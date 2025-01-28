@@ -139,8 +139,7 @@ maasdeployment:
         external_network:
           cidr: 172.27.78.0/23
           gateway: 172.27.79.254
-          start: 172.27.78.1
-          end: 172.27.78.50
+          range: 172.27.78.1-172.27.78.50
           network_type: flat
           segmentation_id: 0
       software: {}
